@@ -18,6 +18,7 @@ import me.blog.korn123.commons.constants.Constants;
 import me.blog.korn123.commons.utils.CommonUtils;
 import me.blog.korn123.commons.utils.FontUtils;
 import me.blog.korn123.easydiary.R;
+import sk.brecka.uxmobile.UxMobile;
 
 /**
  * Created by CHO HANJOONG on 2016-12-31.
@@ -56,6 +57,9 @@ public class IntroActivity extends Activity implements Handler.Callback {
         setFontsTypeface();
         setFontsSize();
         new Handler(this).sendEmptyMessageDelayed(START_MAIN_ACTIVITY, 500);
+
+        //
+        UxMobile.start(this);
     }
 
     @Override
