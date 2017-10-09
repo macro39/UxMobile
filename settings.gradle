@@ -1,1 +1,1 @@
-include ':app', ':uxtunelib'
+include ':app'

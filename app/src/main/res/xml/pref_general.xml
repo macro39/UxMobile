@@ -1,33 +1,54 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="example_switch"
-        android:summary="@string/pref_description_social_recommendations"
-        android:title="@string/pref_title_social_recommendations"/>
+    <PreferenceCategory
+        android:layout="@layout/preference_category"
+        android:title="Application Setting">
+        <ListPreference
+            android:key="font_setting"
+            android:title="@string/font_setting"
+            android:entries="@array/pref_list_fonts_title"
+            android:entryValues="@array/pref_list_fonts_values"
+            android:defaultValue="NanumPen.ttf"
+            />
+        <Preference
+            android:key="add_ttf_fonts"
+            android:title="@string/add_ttf_fonts_title"
+            android:summary="@string/add_ttf_fonts_summary">
+        </Preference>
+        <SwitchPreference
+            android:key="application_lock"
+            android:title="@string/application_lock_title"
+            android:summary="@string/application_lock_summary"
+            android:defaultValue="false" />
+        <Preference
+            android:inputType="number"
+            android:key="application_lock_password"
+            android:title="@string/application_lock_password_title"/>
+        <Preference
+            android:key="import_google_drive"
+            android:title="@string/restore_diary"
+            android:summary="@string/restore_diary_summary">
+        </Preference>
+        <Preference
+            android:key="export_google_drive"
+            android:title="@string/backup_diary"
+            android:summary="@string/backup_diary_summary">
+        </Preference>
+    </PreferenceCategory>
 
-    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
-    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
-    <EditTextPreference
-        android:capitalize="words"
-        android:defaultValue="@string/pref_default_display_name"
-        android:inputType="textCapWords"
-        android:key="example_text"
-        android:maxLines="1"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="@string/pref_title_display_name"/>
-
-    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
-         dismiss it. -->
-    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
-    <ListPreference
-        android:defaultValue="-1"
-        android:entries="@array/pref_example_list_titles"
-        android:entryValues="@array/pref_example_list_values"
-        android:key="example_list"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null"
-        android:title="@string/pref_title_add_friends_to_messages"/>
+    <PreferenceCategory
+        android:layout="@layout/preference_category"
+        android:title="Application Information">
+        <Preference
+            android:key="aaf_app_version"
+            android:title=""
+            android:summary="">
+        </Preference>
+        <Preference
+            android:key="open_source_licenses"
+            android:title="Open Source Licenses"
+            android:summary="open source software notices">
+        </Preference>
+    </PreferenceCategory>
 
 </PreferenceScreen>

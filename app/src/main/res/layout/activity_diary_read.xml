@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+        </android.support.design.widget.AppBarLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:background="@color/colorAccentWithAlpha"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/subToolbar"
+                android:layout_marginTop="@dimen/card_layout_margin"
+                android:layout_marginRight="@dimen/card_layout_margin"
+                android:layout_marginLeft="@dimen/card_layout_margin"
+                android:background="@drawable/bg_card_01"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="50dp">
+
+                <LinearLayout
+                    android:gravity="left|center_vertical"
+                    android:layout_weight="2"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:background="@drawable/click_effect_01"
+                        android:layout_marginLeft="@dimen/toolbar_icon_margin_side"
+                        android:layout_marginRight="@dimen/toolbar_icon_margin_right"
+                        android:id="@+id/zoomIn"
+                        android:src="@drawable/plus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <ImageView
+                        android:background="@drawable/click_effect_01"
+                        android:layout_marginRight="@dimen/toolbar_icon_margin_right"
+                        android:id="@+id/zoomOut"
+                        android:src="@drawable/minus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <ImageView
+                        android:background="@drawable/click_effect_01"
+                        android:layout_marginRight="@dimen/toolbar_icon_margin_right"
+                        android:id="@+id/edit"
+                        android:src="@drawable/save_as"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <ImageView
+                        android:background="@drawable/click_effect_01"
+                        android:layout_marginRight="@dimen/toolbar_icon_margin_right"
+                        android:id="@+id/speechOutButton"
+                        android:src="@drawable/assistant"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <ImageView
+                        android:background="@drawable/click_effect_01"
+                        android:id="@+id/postCard"
+                        android:src="@drawable/picture"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:gravity="right|center_vertical"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:background="@drawable/click_effect_01"
+                        android:layout_marginRight="@dimen/toolbar_icon_margin_side"
+                        android:id="@+id/delete"
+                        android:src="@drawable/delete"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>
