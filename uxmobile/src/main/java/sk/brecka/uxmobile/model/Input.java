@@ -16,14 +16,14 @@ public abstract class Input {
     protected static final int INDEX_Y = 2;
     protected static final int INDEX_TIME = 3;
 
-    private final float mX;
-    private final float mY;
-    private final long mTime;
+    private final int mX;
+    private final int mY;
+    private long mTime;
 
-    protected Input(float x, float y) {
+    protected Input(int x, int y, long startTime) {
         mX = x;
         mY = y;
-        mTime = System.currentTimeMillis();
+        mTime = System.currentTimeMillis() - startTime;
     }
 
     protected abstract String getType();
@@ -34,17 +34,5 @@ public abstract class Input {
                 .put(INDEX_X, mX)
                 .put(INDEX_Y, mY)
                 .put(INDEX_TIME, mTime);
-    }
-
-    public float getX() {
-        return mX;
-    }
-
-    public float getY() {
-        return mY;
-    }
-
-    public long getTime() {
-        return mTime;
     }
 }

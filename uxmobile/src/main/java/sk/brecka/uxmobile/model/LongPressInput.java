@@ -9,8 +9,8 @@ import org.json.JSONException;
 
 public class LongPressInput extends ViewInput {
     private static final String TYPE_LONG_PRESS = "l";
-    public LongPressInput(float x, float y, ViewEnum viewEnum, String viewInfo) {
-        super(x, y, viewEnum, viewInfo);
+    public LongPressInput(int x, int y, long time, ViewEnum viewEnum, String viewInfo) {
+        super(x, y, time, viewEnum, viewInfo);
     }
 
     @Override

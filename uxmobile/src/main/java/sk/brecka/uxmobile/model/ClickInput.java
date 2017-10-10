@@ -10,8 +10,8 @@ import org.json.JSONException;
 public class ClickInput extends ViewInput {
     private static final String TYPE_CLICK = "c";
 
-    public ClickInput(float x, float y, ViewEnum viewEnum, String viewInfo) {
-        super(x, y, viewEnum, viewInfo);
+    public ClickInput(int x, int y, long time, ViewEnum viewEnum, String viewInfo) {
+        super(x, y, time, viewEnum, viewInfo);
     }
 
     @Override
