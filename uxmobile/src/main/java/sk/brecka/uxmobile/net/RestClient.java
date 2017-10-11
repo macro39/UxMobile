@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 import okhttp3.FormBody;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -41,36 +43,47 @@ public class RestClient {
     private String mUser = "";
     private String mSession = "";
 
+    // TODO: nejake normalne url
+    private static final String BASE_URL = "http://10.11.41.56:8765";
+
     public void uploadVideo(final File file) {
-        uploadFile(file, MEDIA_TYPE_MP4);
-    }
 
-    public void uploadData(final File file) {
-        uploadFile(file, MEDIA_TYPE_TEXT);
-    }
-
-    private void uploadFile(File file, MediaType mediaType) {
         MultipartBody.Part userPart = MultipartBody.Part.createFormData(FORM_USER, mUser);
         MultipartBody.Part sessionPart = MultipartBody.Part.createFormData(FORM_SESSION, mSession);
-        RequestBody fileForm = FormBody.create(mediaType, file);
+        RequestBody fileForm = FormBody.create(MEDIA_TYPE_MP4, file);
 
-        RequestBody multipartBody = new MultipartBody.Builder()
+        final RequestBody multipartBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addPart(userPart)
                 .addPart(sessionPart)
                 .addFormDataPart("file", file.getName(), fileForm)
                 .build();
 
-        upload(multipartBody);
+        final HttpUrl url = HttpUrl.parse(BASE_URL + "/upload/video");
+
+        upload(url, multipartBody);
     }
 
-    private void upload(final RequestBody requestBody) {
+    public void uploadInput(final JSONObject jsonObject) {
+        final RequestBody jsonForm = FormBody.create(MEDIA_TYPE_JSON,jsonObject.toString());
+        final HttpUrl url = HttpUrl.parse(BASE_URL + "/upload/input");
+
+        upload(url,jsonForm);
+    }
+
+    public void uploadInput(final JSONArray jsonArray) {
+        final RequestBody jsonForm = FormBody.create(MEDIA_TYPE_JSON,jsonArray.toString());
+        final HttpUrl url = HttpUrl.parse(BASE_URL + "/upload/input");
+
+        upload(url,jsonForm);
+    }
+
+    private void upload(final HttpUrl url, final RequestBody requestBody) {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
                 Request request = new Request.Builder()
-//                        .url("http://192.168.0.31:8765/upload")
-                        .url("localhost:8765/upload")
+                        .url(url)
                         .post(requestBody)
                         .build();
 
