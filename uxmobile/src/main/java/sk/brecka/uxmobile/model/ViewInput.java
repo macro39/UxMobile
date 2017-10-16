@@ -14,8 +14,8 @@ public abstract class ViewInput extends Input {
     protected ViewEnum mViewEnum;
     protected String mViewInfo;
 
-    public ViewInput(float x, float y, ViewEnum viewEnum, String viewInfo) {
-        super(x, y);
+    public ViewInput(int x, int y, long time, ViewEnum viewEnum, String viewInfo) {
+        super(x, y, time);
         mViewEnum = viewEnum;
         mViewInfo = viewInfo;
     }

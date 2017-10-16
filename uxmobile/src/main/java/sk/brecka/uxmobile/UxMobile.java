@@ -1,7 +1,6 @@
 package sk.brecka.uxmobile;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Application;
 import android.content.Context;
 import android.hardware.Sensor;
@@ -9,6 +8,7 @@ import android.hardware.SensorManager;
 import android.util.Log;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,7 +18,6 @@ import sk.brecka.uxmobile.adapter.ActivityLifecycleAdapter;
 import sk.brecka.uxmobile.core.InputRecorder;
 import sk.brecka.uxmobile.core.VideoRecorder;
 import sk.brecka.uxmobile.net.RestClient;
-import sk.brecka.uxmobile.util.ConfigUtils;
 
 /**
  * Created by matej on 4.10.2017.
@@ -68,7 +67,7 @@ public class UxMobile {
             public void onActivityStarted(Activity activity) {
                 mVideoRecorder.onActivityStarted(activity);
                 mInputRecorder.onActivityStarted(activity);
-                mSensorManager.registerListener(mShakeDetector, mAccelerometer,	SensorManager.SENSOR_DELAY_UI);
+                mSensorManager.registerListener(mShakeDetector, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
             }
 
             @Override
@@ -77,7 +76,8 @@ public class UxMobile {
                 mInputRecorder.onActivityStopped(activity);
                 mSensorManager.unregisterListener(mShakeDetector);
 
-//                uploadRecordings();
+                // TODO: nech odosiela az na konci uplne vsetkych aktivit
+                uploadRecordings();
             }
         });
     }
@@ -97,21 +97,10 @@ public class UxMobile {
     }
 
     private void uploadRecordings() {
-        // video
-        mRestClient.uploadVideo(mVideoRecorder.getVideoFile());
-
-        // data
         try {
-            final File data = new File(mContext.getExternalFilesDir(null), "data.txt");
-            PrintWriter printWriter = new PrintWriter(data);
-            printWriter.print(mInputRecorder.getOutput().toString());
-            // TODO: posielanie aj ostatnych veci, nie len inputy
-
-
-            printWriter.close();
-
-            mRestClient.uploadData(data);
-        } catch (FileNotFoundException | JSONException e) {
+            mRestClient.uploadVideo(mVideoRecorder.getVideoFile());
+            mRestClient.uploadInput(mInputRecorder.getOutput());
+        } catch (JSONException e) {
             Log.e(TAG, "uploadRecordings: ", e);
         }
 

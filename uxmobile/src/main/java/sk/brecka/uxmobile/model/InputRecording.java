@@ -32,8 +32,16 @@ public class InputRecording {
         this(activity.getLocalClassName(), System.currentTimeMillis());
     }
 
-    public void addInput(Input input) {
-        mInputs.add(input);
+    public void addClickInput(int x, int y, ViewEnum viewEnum, String viewString) {
+        mInputs.add(new ClickInput(x, y, mStart, viewEnum, viewString));
+    }
+
+    public void addLongPressInput(int x, int y, ViewEnum viewEnum, String viewString) {
+        mInputs.add(new LongPressInput(x, y, mStart, viewEnum, viewString));
+    }
+
+    public void addScrollinput(int x, int y, int distanceX, int distanceY) {
+        mInputs.add(new ScrollInput(x, y, mStart, distanceX, distanceY));
     }
 
     public JSONObject toJson() throws JSONException {

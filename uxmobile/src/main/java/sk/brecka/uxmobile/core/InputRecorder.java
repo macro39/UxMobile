@@ -77,20 +77,20 @@ public class InputRecorder extends BaseRecorder implements GestureDetector.OnGes
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         final View touchedView = getTouchedView(e);
-        recordInput(new ClickInput(e.getX(), e.getY(), ViewEnum.fromView(touchedView), getViewInfo(touchedView)));
-        return false;
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        recordInput(new ScrollInput(e2.getX(), e2.getY(), distanceX, distanceY));
+        mInputRecordings.getLast().addClickInput((int) e.getX(), (int) e.getY(), ViewEnum.fromView(touchedView), getViewInfo(touchedView));
         return false;
     }
 
     @Override
     public void onLongPress(MotionEvent e) {
         final View touchedView = getTouchedView(e);
-        recordInput(new LongPressInput(e.getX(), e.getY(), ViewEnum.fromView(touchedView), getViewInfo(touchedView)));
+        mInputRecordings.getLast().addLongPressInput((int) e.getX(), (int) e.getY(), ViewEnum.fromView(touchedView), getViewInfo(touchedView));
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        mInputRecordings.getLast().addScrollinput((int) e2.getX(), (int) e2.getY(), (int) distanceX, (int) distanceY);
+        return false;
     }
 
     //
@@ -194,10 +194,6 @@ public class InputRecorder extends BaseRecorder implements GestureDetector.OnGes
 //            System.out.println("Interacted with view " + view.getClass().getSimpleName());
 //        }
 //    }
-
-    private void recordInput(Input input) {
-        mInputRecordings.getLast().addInput(input);
-    }
 
     public JSONArray getOutput() throws JSONException {
         JSONArray out = new JSONArray();

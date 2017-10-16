@@ -13,11 +13,11 @@ public class ScrollInput extends Input {
 
     private static final String TYPE_SCROLL = "s";
 
-    private final float mDistanceX;
-    private final float mDistanceY;
+    private final int mDistanceX;
+    private final int mDistanceY;
 
-    public ScrollInput(float x, float y, float distanceX, float distanceY) {
-        super(x, y);
+    public ScrollInput(int x, int y, long time, int distanceX, int distanceY) {
+        super(x, y,time);
         mDistanceX = distanceX;
         mDistanceY = distanceY;
     }
