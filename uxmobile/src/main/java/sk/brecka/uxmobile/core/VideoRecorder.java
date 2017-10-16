@@ -96,6 +96,7 @@ public class VideoRecorder extends BaseRecorder {
         final Bitmap downscaled = downscaleBitmap(captured, VIDEO_RESOLUTION);
         rootView.setDrawingCacheEnabled(false);
 
+        // toto sposobuje slowdown
         try {
             mEncoder.encodeImage(downscaled);
         } catch (IOException | IllegalStateException e) {

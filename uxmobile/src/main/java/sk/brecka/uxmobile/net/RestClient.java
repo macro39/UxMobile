@@ -1,19 +1,14 @@
 package sk.brecka.uxmobile.net;
 
-import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.util.Log;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Locale;
+import java.util.Map;
 
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -23,6 +18,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okio.BufferedSink;
 
 /**
  * Created by matej on 25.8.2017.
@@ -35,6 +31,10 @@ public class RestClient {
     private static final MediaType MEDIA_TYPE_TEXT = MediaType.parse("text/plain");
     private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json");
 
+    private static final String SERVICE_SESSION_START = "config";
+    private static final String SERVICE_VIDEO_UPLOAD = "video";
+    private static final String SERVICE_INPUT_UPLOAD = "input";
+
     private static final String FORM_USER = "user";
     private static final String FORM_SESSION = "session";
 
@@ -44,18 +44,28 @@ public class RestClient {
     private String mSession = "";
 
     // TODO: nejake normalne url
-    private static final String BASE_URL = "http://10.11.41.56:8765";
+//    private static final String BASE_URL = "http://10.11.41.56:8765";
+    private static final String BASE_URL = "http://147.175.145.52:8765";
+
+    public void uploadConfig(final Map<String, String> config) {
+        FormBody.Builder builder = new FormBody.Builder();
+
+        for (Map.Entry<String, String> entry : config.entrySet()) {
+            builder.add(entry.getKey(), entry.getValue());
+        }
+
+        final HttpUrl url = HttpUrl.parse(BASE_URL + "/upload/config");
+
+        upload(url, builder.build());
+    }
 
     public void uploadVideo(final File file) {
 
-        MultipartBody.Part userPart = MultipartBody.Part.createFormData(FORM_USER, mUser);
-        MultipartBody.Part sessionPart = MultipartBody.Part.createFormData(FORM_SESSION, mSession);
         RequestBody fileForm = FormBody.create(MEDIA_TYPE_MP4, file);
 
         final RequestBody multipartBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addPart(userPart)
-                .addPart(sessionPart)
+                .addPart(buildSessionPart())
                 .addFormDataPart("file", file.getName(), fileForm)
                 .build();
 
@@ -64,18 +74,19 @@ public class RestClient {
         upload(url, multipartBody);
     }
 
-    public void uploadInput(final JSONObject jsonObject) {
-        final RequestBody jsonForm = FormBody.create(MEDIA_TYPE_JSON,jsonObject.toString());
-        final HttpUrl url = HttpUrl.parse(BASE_URL + "/upload/input");
-
-        upload(url,jsonForm);
-    }
-
     public void uploadInput(final JSONArray jsonArray) {
-        final RequestBody jsonForm = FormBody.create(MEDIA_TYPE_JSON,jsonArray.toString());
+//        final RequestBody jsonForm = FormBody.create(MEDIA_TYPE_JSON, jsonArray.toString());
+
+
+        final RequestBody multipartBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addPart(buildSessionPart())
+                .addFormDataPart("input",jsonArray.toString())
+                .build();
+
         final HttpUrl url = HttpUrl.parse(BASE_URL + "/upload/input");
 
-        upload(url,jsonForm);
+        upload(url, multipartBody);
     }
 
     private void upload(final HttpUrl url, final RequestBody requestBody) {
@@ -97,6 +108,20 @@ public class RestClient {
             }
         }.execute();
     }
+
+    private HttpUrl buildUrl(){
+        // TODO + pridat argument na service
+        return null;
+    }
+
+    private MultipartBody.Part buildSessionPart() {
+        return MultipartBody.Part.create(
+                new FormBody.Builder()
+                        .add(FORM_USER, mUser)
+                        .add(FORM_SESSION, mSession)
+                        .build());
+    }
+
 
     public void setUser(String user) {
         mUser = user;
