@@ -46,9 +46,7 @@ public class UxMobile {
         mInputRecorder = new InputRecorder();
         mRestClient = new RestClient();
 
-        // TODO: toto nasetovat z responsu od servra
-        mRestClient.setUser("test_user");
-        mRestClient.setSession("se_" + System.currentTimeMillis());
+        mRestClient.startSession(context);
     }
 
     public static void start(Context context) {
@@ -65,14 +63,14 @@ public class UxMobile {
         application.registerActivityLifecycleCallbacks(new ActivityLifecycleAdapter() {
             @Override
             public void onActivityStarted(Activity activity) {
-                mVideoRecorder.onActivityStarted(activity);
+//                mVideoRecorder.onActivityStarted(activity);
                 mInputRecorder.onActivityStarted(activity);
                 mSensorManager.registerListener(mShakeDetector, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
             }
 
             @Override
             public void onActivityStopped(Activity activity) {
-                mVideoRecorder.onActivityStopped(activity);
+//                mVideoRecorder.onActivityStopped(activity);
                 mInputRecorder.onActivityStopped(activity);
                 mSensorManager.unregisterListener(mShakeDetector);
 
@@ -98,7 +96,7 @@ public class UxMobile {
 
     private void uploadRecordings() {
         try {
-            mRestClient.uploadVideo(mVideoRecorder.getVideoFile());
+//            mRestClient.uploadVideo(mVideoRecorder.getVideoFile());
             mRestClient.uploadInput(mInputRecorder.getOutput());
         } catch (JSONException e) {
             Log.e(TAG, "uploadRecordings: ", e);

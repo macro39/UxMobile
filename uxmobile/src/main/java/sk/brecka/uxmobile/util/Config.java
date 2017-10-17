@@ -8,8 +8,10 @@ import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.ViewConfiguration;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -18,6 +20,8 @@ import java.util.Map;
  */
 
 public class Config {
+    private static final String CONFIG_API_KEY = "api_key";
+
     private static final String CONFIG_APP_VERSION = "app_version";
     private static final String CONFIG_APP_VERSION_CODE = "app_version_code";
     private static final String CONFIG_PACKAGE_NAME = "package_name";
@@ -41,8 +45,19 @@ public class Config {
     private static final String CONFIG_DEVICE_UNIQUE_ID = "device_unique_id";
     private static final String CONFIG_INITIAL_ORIENTATION = "initial_orientation";
 
+    // read&write config
+    private static final String CONFIG_SESSION = "session";
+    private static final String CONFIG_RECORD_WIFI_ONLY = "wifi_only";
+    // TODO zvysok configu
+
+    private Config() {
+    }
+
     public static Map<String, String> get(Context context) {
         final Map<String, String> config = new LinkedHashMap<>();
+
+
+        config.put(CONFIG_API_KEY, "test_api_key");
 
         try {
             final String packageName = context.getPackageName();
@@ -54,6 +69,7 @@ public class Config {
             config.put(CONFIG_PACKAGE_NAME, pInfo.packageName);
 
         } catch (PackageManager.NameNotFoundException ignored) {
+            ignored.printStackTrace();
             config.put(CONFIG_APP_VERSION, "");
             config.put(CONFIG_APP_VERSION_CODE, "");
             config.put(CONFIG_PACKAGE_NAME, "");

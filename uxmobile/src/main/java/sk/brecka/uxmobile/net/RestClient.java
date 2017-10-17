@@ -1,9 +1,11 @@
 package sk.brecka.uxmobile.net;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -18,7 +20,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okio.BufferedSink;
+import sk.brecka.uxmobile.util.Config;
 
 /**
  * Created by matej on 25.8.2017.
@@ -35,28 +39,54 @@ public class RestClient {
     private static final String SERVICE_VIDEO_UPLOAD = "video";
     private static final String SERVICE_INPUT_UPLOAD = "input";
 
-    private static final String FORM_USER = "user";
     private static final String FORM_SESSION = "session";
+
+    private static final String RESPONSE_SESSION = "session";
+    private static final String RESPONSE_RECORD = "record";
+
+    //    private static final String HOST_BASE = "147.175.145.52";
+    private static final String HOST_BASE = "10.11.41.56";
+    private static final int HOST_PORT = 8765;
+    private static final String HOST_API = "api";
 
     private OkHttpClient mHttpClient = new OkHttpClient();
 
-    private String mUser = "";
+    // TODO: presunut do Config
     private String mSession = "";
 
-    // TODO: nejake normalne url
-//    private static final String BASE_URL = "http://10.11.41.56:8765";
-    private static final String BASE_URL = "http://147.175.145.52:8765";
+    public void startSession(Context context) {
 
-    public void uploadConfig(final Map<String, String> config) {
-        FormBody.Builder builder = new FormBody.Builder();
-
-        for (Map.Entry<String, String> entry : config.entrySet()) {
+        final FormBody.Builder builder = new FormBody.Builder();
+        for (Map.Entry<String, String> entry : Config.get(context).entrySet()) {
             builder.add(entry.getKey(), entry.getValue());
         }
 
-        final HttpUrl url = HttpUrl.parse(BASE_URL + "/upload/config");
+        Request request = new Request.Builder()
+                .url(buildUrl(SERVICE_SESSION_START))
+                .post(builder.build())
+                .build();
 
-        upload(url, builder.build());
+        // async execute
+        new HttpExecutor() {
+            @Override
+            protected void onPostExecute(String response) {
+                try {
+                    if (response == null) {
+                        // exception?
+                        return;
+                    }
+
+                    final JSONObject jsonResponse = new JSONObject(response);
+
+                    // TODO: passovat response do Config
+                    mSession = jsonResponse.getString(RESPONSE_SESSION);
+                } catch (JSONException e) {
+                    // malformed result
+                    e.printStackTrace();
+                }
+            }
+        }.execute(request);
+
     }
 
     public void uploadVideo(final File file) {
@@ -69,22 +99,19 @@ public class RestClient {
                 .addFormDataPart("file", file.getName(), fileForm)
                 .build();
 
-        final HttpUrl url = HttpUrl.parse(BASE_URL + "/upload/video");
+        final HttpUrl url = buildUrl(SERVICE_VIDEO_UPLOAD);
 
         upload(url, multipartBody);
     }
 
     public void uploadInput(final JSONArray jsonArray) {
-//        final RequestBody jsonForm = FormBody.create(MEDIA_TYPE_JSON, jsonArray.toString());
-
-
         final RequestBody multipartBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addPart(buildSessionPart())
-                .addFormDataPart("input",jsonArray.toString())
+                .addFormDataPart("input", jsonArray.toString())
                 .build();
 
-        final HttpUrl url = HttpUrl.parse(BASE_URL + "/upload/input");
+        final HttpUrl url = buildUrl(SERVICE_INPUT_UPLOAD);
 
         upload(url, multipartBody);
     }
@@ -109,25 +136,45 @@ public class RestClient {
         }.execute();
     }
 
-    private HttpUrl buildUrl(){
-        // TODO + pridat argument na service
-        return null;
+    private HttpUrl buildUrl(String service) {
+        return new HttpUrl.Builder()
+                .scheme("http")
+                .host(HOST_BASE)
+                .port(HOST_PORT)
+                .addPathSegment(HOST_API)
+                .addPathSegment(service)
+                .build();
     }
 
     private MultipartBody.Part buildSessionPart() {
         return MultipartBody.Part.create(
                 new FormBody.Builder()
-                        .add(FORM_USER, mUser)
                         .add(FORM_SESSION, mSession)
                         .build());
     }
 
+    private class HttpExecutor extends AsyncTask<Request, Void, String> {
+        @Override
+        protected String doInBackground(Request... params) {
+            try {
+                if (params.length < 1) {
+                    return null;
+                }
 
-    public void setUser(String user) {
-        mUser = user;
-    }
+                final Response response = mHttpClient.newCall(params[0]).execute();
 
-    public void setSession(String session) {
-        mSession = session;
+                // TODO: nejaka logika na response code atd
+
+                final ResponseBody responseBody = response.body();
+
+                if (responseBody != null) {
+                    return responseBody.string();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
     }
 }
