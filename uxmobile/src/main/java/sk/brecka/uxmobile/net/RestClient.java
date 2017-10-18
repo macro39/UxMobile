@@ -105,9 +105,10 @@ public class RestClient {
     }
 
     public void uploadInput(final JSONArray jsonArray) {
+        // TODO: musi to byt multipart?
         final RequestBody multipartBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addPart(buildSessionPart())
+                .addFormDataPart(FORM_SESSION, mSession)
                 .addFormDataPart("input", jsonArray.toString())
                 .build();
 
@@ -128,6 +129,9 @@ public class RestClient {
                 Response response = null;
                 try {
                     response = mHttpClient.newCall(request).execute();
+//                    System.out.println("response start ----");
+//                    System.out.println(response.body().string());
+//                    System.out.println("response end ----");
                 } catch (IOException e) {
                     Log.e(TAG, "doInBackground: ", e);
                 }
