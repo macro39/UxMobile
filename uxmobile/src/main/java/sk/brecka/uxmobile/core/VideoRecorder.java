@@ -8,18 +8,12 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 
-import org.jcodec.api.android.AndroidSequenceEncoder;
 import org.jcodec.common.model.Picture;
-import org.jcodec.scale.BitmapUtil;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import sk.brecka.uxmobile.MySequenceEncoder;
-import sk.brecka.uxmobile.TestEncoder;
+import sk.brecka.uxmobile.NativeEncoder;
 
 /**
  * Created by matej on 25.8.2017.
@@ -33,7 +27,7 @@ public class VideoRecorder extends BaseRecorder {
 //    private File mVideoFile;
 //    private AndroidSequenceEncoder mEncoder;
 
-    private TestEncoder mTestEncoder;
+    private NativeEncoder mNativeEncoder;
 
     private Timer mVideoTimer;
     private TimerTask mVideoTask;
@@ -56,8 +50,8 @@ public class VideoRecorder extends BaseRecorder {
 //        try {
 //            mEncoder = AndroidSequenceEncoder.createSequenceEncoder(mVideoFile, VIDEO_FRAMERATE);
 
-        mTestEncoder = new TestEncoder(videoPath);
-//        mTestEncoder.mux();
+        mNativeEncoder = new NativeEncoder(videoPath);
+//        mNativeEncoder.mux();
 //            mEncoder = new MySequenceEncoder(mVideoFile, VIDEO_FRAMERATE);
 //        } catch (IOException e) {
 //            Log.e(TAG, "onActivityStarted: ", e);
@@ -87,9 +81,9 @@ public class VideoRecorder extends BaseRecorder {
 //            mEncoder.finish();
 
 //        if (q > 1) {
-        mTestEncoder.stop();
+        mNativeEncoder.stop();
 //        }
-//            mTestEncoder.stop();
+//            mNativeEncoder.stop();
 //        } catch (IOException e) {
 //            Log.e(TAG, "onActivityStopped: ", e);
 //        }
@@ -133,7 +127,7 @@ public class VideoRecorder extends BaseRecorder {
 //        final Bitmap downscaled = downscaleBitmap(captured, VIDEO_RESOLUTION);
 //        final Bitmap downscaled = captured;
 //        copyBitmap(captured);
-        mTestEncoder.recordFrame(captured);
+        mNativeEncoder.recordFrame(captured);
         rootView.setDrawingCacheEnabled(false);
 //            mPicture = BitmapUtil.fromBitmap(downscaled);
 //        }
