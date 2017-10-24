@@ -7,7 +7,7 @@ import org.json.JSONException;
  * Created by matej on 4.10.2017.
  */
 
-public class ScrollEvent extends Event {
+public class ScrollEvent extends TouchEvent {
     protected static final int INDEX_DISTANCE_X = 4;
     protected static final int INDEX_DISTANCE_Y = 5;
 
@@ -16,8 +16,8 @@ public class ScrollEvent extends Event {
     private final int mDistanceX;
     private final int mDistanceY;
 
-    public ScrollEvent(int x, int y, long time, int distanceX, int distanceY) {
-        super(x, y,time);
+    public ScrollEvent(long startTime, int x, int y, int distanceX, int distanceY) {
+        super(startTime, x, y);
         mDistanceX = distanceX;
         mDistanceY = distanceY;
     }

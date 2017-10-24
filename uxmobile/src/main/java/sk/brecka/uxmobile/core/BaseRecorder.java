@@ -29,7 +29,7 @@ public abstract class BaseRecorder implements LifecycleCallback {
     }
 
     @Override
-    public void onApplicationEnded() {
+    public void onLastActivityStopped(Activity activity) {
         // intentionally blank
     }
 

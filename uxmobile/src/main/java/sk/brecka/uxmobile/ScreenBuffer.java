@@ -9,17 +9,21 @@ import android.view.View;
  * Created by matej on 23.10.2017.
  */
 
+// TODO: resolution aware
 public class ScreenBuffer {
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private Matrix mRenderingMatrix;
-    private boolean mIsScaleSet;
+    private boolean mIsInitialized;
+    private boolean mIsEmpty;
 
     public ScreenBuffer(int width, int height) {
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
         mRenderingMatrix = new Matrix();
-        mIsScaleSet = false;
+
+        mIsInitialized = false;
+        mIsEmpty = true;
     }
 
     public synchronized void drawToBuffer(final View view) {
@@ -27,20 +31,28 @@ public class ScreenBuffer {
             return;
         }
 
-        if (!mIsScaleSet) {
+        if (!mIsInitialized) {
+            // TODO: resolution aware rotacie & scale
+
             final float scaleX = mBitmap.getWidth() / (float) view.getWidth();
             final float scaleY = mBitmap.getHeight() / (float) view.getHeight();
 
             mRenderingMatrix.setScale(scaleX, scaleY);
             mCanvas.setMatrix(mRenderingMatrix);
 
-            mIsScaleSet = true;
+            mIsInitialized = true;
         }
 
         view.draw(mCanvas);
+
+        mIsEmpty = false;
     }
 
     public synchronized Bitmap getBitmap() {
         return mBitmap;
+    }
+
+    public synchronized boolean isEmpty() {
+        return mIsEmpty;
     }
 }

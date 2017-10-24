@@ -44,7 +44,7 @@ public class RestClient {
     private static final String RESPONSE_SESSION = "session";
     private static final String RESPONSE_RECORD = "record";
 
-    //    private static final String HOST_BASE = "147.175.145.52";
+//    private static final String HOST_BASE = "team11-17.studenti.fiit.stuba.sk";
     private static final String HOST_BASE = "10.11.41.56";
     private static final int HOST_PORT = 8765;
     private static final String HOST_API = "api";
@@ -80,6 +80,7 @@ public class RestClient {
 
                     // TODO: passovat response do Config
                     mSession = jsonResponse.getString(RESPONSE_SESSION);
+                    System.out.println("### Session " + mSession);
                 } catch (JSONException e) {
                     // malformed result
                     e.printStackTrace();
@@ -109,8 +110,10 @@ public class RestClient {
         final RequestBody multipartBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart(FORM_SESSION, mSession)
-                .addFormDataPart("input", jsonArray.toString())
+                .addFormDataPart("event", jsonArray.toString())
                 .build();
+
+        System.out.println(jsonArray.toString());
 
         final HttpUrl url = buildUrl(SERVICE_INPUT_UPLOAD);
 
@@ -129,9 +132,9 @@ public class RestClient {
                 Response response = null;
                 try {
                     response = mHttpClient.newCall(request).execute();
-//                    System.out.println("response start ----");
-//                    System.out.println(response.body().string());
-//                    System.out.println("response end ----");
+                    System.out.println("response start ----");
+                    System.out.println(response.body().string());
+                    System.out.println("response end ----");
                 } catch (IOException e) {
                     Log.e(TAG, "doInBackground: ", e);
                 }

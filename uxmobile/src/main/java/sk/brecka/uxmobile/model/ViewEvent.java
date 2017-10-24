@@ -7,15 +7,15 @@ import org.json.JSONException;
  * Created by matej on 4.10.2017.
  */
 
-public abstract class ViewEvent extends Event {
+public abstract class ViewEvent extends TouchEvent {
     protected static final int INDEX_VIEW = 4;
     protected static final int INDEX_VIEW_INFO = 5;
 
     protected ViewEnum mViewEnum;
     protected String mViewInfo;
 
-    public ViewEvent(int x, int y, long time, ViewEnum viewEnum, String viewInfo) {
-        super(x, y, time);
+    public ViewEvent(long startTime, int x, int y, ViewEnum viewEnum, String viewInfo) {
+        super(startTime, x, y);
         mViewEnum = viewEnum;
         mViewInfo = viewInfo;
     }

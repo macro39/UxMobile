@@ -16,7 +16,7 @@ import java.util.List;
 public class EventRecording {
 
     private static final String TAG_ACTIVITY_NAME = "activity_name";
-    private static final String TAG_INPUTS = "inputs";
+    private static final String TAG_EVENTS = "events";
     private static final String TAG_START_TIME = "start_time";
 
     private final String mActivityName;
@@ -33,15 +33,15 @@ public class EventRecording {
     }
 
     public void addClickInput(int x, int y, ViewEnum viewEnum, String viewString) {
-        mEvents.add(new ClickEvent(x, y, mStart, viewEnum, viewString));
+        mEvents.add(new ClickEvent(mStart, x, y, viewEnum, viewString));
     }
 
     public void addLongPressInput(int x, int y, ViewEnum viewEnum, String viewString) {
-        mEvents.add(new LongPressEvent(x, y, mStart, viewEnum, viewString));
+        mEvents.add(new LongPressEvent(mStart, x, y, viewEnum, viewString));
     }
 
     public void addScrollinput(int x, int y, int distanceX, int distanceY) {
-        mEvents.add(new ScrollEvent(x, y, mStart, distanceX, distanceY));
+        mEvents.add(new ScrollEvent(mStart, x, y, distanceX, distanceY));
     }
 
     public void addOrientationinput(int orientation) {
@@ -52,7 +52,7 @@ public class EventRecording {
         return new JSONObject()
                 .put(TAG_ACTIVITY_NAME, mActivityName)
                 .put(TAG_START_TIME, mStart)
-                .put(TAG_INPUTS, inputsToJson());
+                .put(TAG_EVENTS, inputsToJson());
     }
 
     private JSONArray inputsToJson() throws JSONException {

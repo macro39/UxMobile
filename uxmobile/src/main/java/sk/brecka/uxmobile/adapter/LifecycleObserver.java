@@ -3,13 +3,8 @@ package sk.brecka.uxmobile.adapter;
 import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentCallbacks;
-import android.content.ComponentCallbacks2;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Handler;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 import sk.brecka.uxmobile.core.LifecycleCallback;
 
@@ -18,17 +13,19 @@ import sk.brecka.uxmobile.core.LifecycleCallback;
  */
 
 public class LifecycleObserver implements Application.ActivityLifecycleCallbacks, ComponentCallbacks {
-    private static final int ACTIVITY_END_TIMEOUT_MILLIS = 1_000;
 
-    // TODO: su tieto fieldy vobec potrebne?
-    private long mRecordingStart;
-    private long mRecordingEnd;
+    private boolean mIsResumed = false;
+    private boolean mIsCreated = false;
+    private boolean mIsStarted = false;
 
+    //
     private int mActivityCounter;
-
-    private LifecycleCallback mCallback;
+    private boolean mAnyActivityStarted = false;
+    private boolean mPausedWithConfig = false;
 
     private Configuration mLatestConfiguration;
+
+    private LifecycleCallback mCallback;
 
     public LifecycleObserver(LifecycleCallback callback) {
         mActivityCounter = 0;
@@ -58,7 +55,7 @@ public class LifecycleObserver implements Application.ActivityLifecycleCallbacks
                 }
 
                 @Override
-                public void onApplicationEnded() {
+                public void onLastActivityStopped(Activity activity) {
 
                 }
             };
@@ -67,13 +64,15 @@ public class LifecycleObserver implements Application.ActivityLifecycleCallbacks
 
     @Override
     public void onActivityStarted(Activity activity) {
-        System.out.println("onActivityStarted " + activity.getLocalClassName());
+        mIsStarted = true;
+        mLatestConfiguration = null;
 
         mActivityCounter++;
 
-        if (isFirstActivity()) {
-            mRecordingStart = System.currentTimeMillis();
+        if (isFirstActivity() && !mAnyActivityStarted) {
             mCallback.onFirstActivityStarted(activity);
+
+            mAnyActivityStarted = true;
         }
 
         mCallback.onEveryActivityStarted(activity);
@@ -81,50 +80,44 @@ public class LifecycleObserver implements Application.ActivityLifecycleCallbacks
 
     @Override
     public void onActivityStopped(Activity activity) {
-        System.out.println("onActivityStopped " + activity.getLocalClassName());
+        mIsStarted = false;
 
         mActivityCounter--;
 
         mCallback.onEveryActivityStopped(activity);
 
+        if (isLastActivity() && !mPausedWithConfig) {
+            mCallback.onLastActivityStopped(activity);
 
-        if (isLastActivity()) {
-            System.out.println("isLast: " + isLastActivity() + " latestConf null: " + (mLatestConfiguration == null));
-            mRecordingEnd = System.currentTimeMillis();
-            mCallback.onApplicationEnded();
             mLatestConfiguration = null;
+            mAnyActivityStarted = false;
         }
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        System.out.println("onConfigurationChanged");
-
         mLatestConfiguration = newConfig;
+        if (mIsResumed) {
+            mCallback.onConfigurationChanged(newConfig);
+        }
     }
 
     @Override
     public void onActivityPaused(Activity activity) {
-        System.out.println("onActivityPaused " + activity.getLocalClassName());
+        mIsResumed = false;
 
-        if (mLatestConfiguration != null) {
-            mCallback.onConfigurationChanged(mLatestConfiguration);
-//            mLatestConfiguration = null;
-        }
+        mPausedWithConfig = (mLatestConfiguration != null);
     }
 
     //
     @Override
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-        System.out.println("onActivityCreated " + activity.getLocalClassName());
-        //
+        mIsCreated = true;
     }
 
     @Override
     public void onActivityResumed(Activity activity) {
-        System.out.println("onActivityResumed " + activity.getLocalClassName());
-
-        //
+        mIsResumed = true;
     }
 
     @Override
@@ -134,14 +127,12 @@ public class LifecycleObserver implements Application.ActivityLifecycleCallbacks
 
     @Override
     public void onActivityDestroyed(Activity activity) {
-        System.out.println("onActivityDestroyed " + activity.getLocalClassName());
-        //
+        mIsCreated = false;
     }
 
     @Override
     public void onLowMemory() {
         //
-        System.out.println("Low memory");
     }
 
     //

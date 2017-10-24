@@ -7,8 +7,8 @@ package sk.brecka.uxmobile.model;
 public class ClickEvent extends ViewEvent {
     private static final String TYPE_CLICK = "c";
 
-    public ClickEvent(int x, int y, long time, ViewEnum viewEnum, String viewInfo) {
-        super(x, y, time, viewEnum, viewInfo);
+    public ClickEvent(long startTime, int x, int y, ViewEnum viewEnum, String viewInfo) {
+        super(startTime, x, y, viewEnum, viewInfo);
     }
 
     @Override

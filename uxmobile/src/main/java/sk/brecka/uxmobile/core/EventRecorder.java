@@ -27,9 +27,12 @@ import sk.brecka.uxmobile.model.ViewEnum;
  * Created by matej on 25.8.2017.
  */
 
-public class InputRecorder extends BaseRecorder implements GestureDetector.OnGestureListener {
+public class EventRecorder extends BaseRecorder implements GestureDetector.OnGestureListener {
 
     // TODO: flushovat recordingy po odoslani
+    // TODO: nech otocenie nerozdeli nahravania
+    // TODO: mozno na eventy spravit factory a rovno JSON namiesto tejto hierarchie
+
     private LinkedList<EventRecording> mEventRecordings = new LinkedList<>();
     private GestureDetector mGestureDetector;
 
@@ -61,8 +64,8 @@ public class InputRecorder extends BaseRecorder implements GestureDetector.OnGes
     }
 
     @Override
-    public void onApplicationEnded() {
-        super.onApplicationEnded();
+    public void onLastActivityStopped(Activity activity) {
+        super.onLastActivityStopped(activity);
     }
 
     // gesture listener metody
@@ -122,8 +125,6 @@ public class InputRecorder extends BaseRecorder implements GestureDetector.OnGes
             return null;
         }
 
-        // TODO: otestovat
-
         view.getGlobalVisibleRect(rect);
 
         final int x = (int) motionEvent.getX(motionEvent.getActionIndex());
@@ -142,25 +143,7 @@ public class InputRecorder extends BaseRecorder implements GestureDetector.OnGes
                 return view;
             }
         }
-//        if (view instanceof ViewGroup) {
-//            // TODO: ak to neintersectuje s viewgroupou, tak nemoze ani s detmi
-//            // najdi medzi detmi
-//
-//            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
-//                final View out = rGetTouchedView(((ViewGroup) view).getChildAt(i), motionEvent);
-//                if (out != null) {
-//                    return out;
-//                }
-//            }
-//
-//        } else {
-//
-//
-//            if (rect.contains(x, y)) {
-////                System.out.println("Returning " + view);
-//                return view;
-//            }
-//        }
+
         return null;
     }
 
@@ -179,21 +162,6 @@ public class InputRecorder extends BaseRecorder implements GestureDetector.OnGes
             return "";
         }
     }
-
-//    private void printInteraction(MotionEvent event) {
-//        final View view = getTouchedView(event);
-//
-//        if (view == null) {
-//        } else if (view instanceof Button) {
-//            System.out.println("Clicked button \"" + ((Button) view).getText() + "\"");
-//        } else if (view instanceof EditText) {
-//            System.out.println("Clicked edittext");
-//        } else if (view instanceof SeekBar) {
-//            System.out.println("Set SeekBar to " + ((SeekBar) view).getProgress());
-//        } else {
-//            System.out.println("Interacted with view " + view.getClass().getSimpleName());
-//        }
-//    }
 
     public JSONArray getOutput() throws JSONException{
         JSONArray out = new JSONArray();

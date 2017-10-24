@@ -7,8 +7,8 @@ package sk.brecka.uxmobile.model;
 public class LongPressEvent extends ViewEvent {
     private static final String TYPE_LONG_PRESS = "l";
 
-    public LongPressEvent(int x, int y, long time, ViewEnum viewEnum, String viewInfo) {
-        super(x, y, time, viewEnum, viewInfo);
+    public LongPressEvent(long startTime, int x, int y , ViewEnum viewEnum, String viewInfo) {
+        super(startTime, x, y, viewEnum, viewInfo);
     }
 
     @Override

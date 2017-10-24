@@ -8,14 +8,14 @@ import org.json.JSONException;
  */
 
 public class OrientationEvent extends Event {
-    protected static final int INDEX_ORIENTATION = 4;
+    protected static final int INDEX_ORIENTATION = 2;
 
     private static final String TYPE_ORIENTATION = "o";
 
     final private int mOrientation;
 
     public OrientationEvent(long startTime, int orientation) {
-        super(0, 0, startTime);
+        super(startTime);
         mOrientation = orientation;
     }
 

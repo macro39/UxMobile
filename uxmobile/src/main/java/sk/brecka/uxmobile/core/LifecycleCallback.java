@@ -16,5 +16,5 @@ public interface LifecycleCallback {
 
     void onConfigurationChanged(Configuration configuration);
 
-    void onApplicationEnded();
+    void onLastActivityStopped(Activity activity);
 }

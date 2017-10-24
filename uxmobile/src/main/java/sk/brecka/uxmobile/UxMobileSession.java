@@ -11,7 +11,7 @@ import android.util.Log;
 import org.json.JSONException;
 
 import sk.brecka.uxmobile.adapter.LifecycleObserver;
-import sk.brecka.uxmobile.core.InputRecorder;
+import sk.brecka.uxmobile.core.EventRecorder;
 import sk.brecka.uxmobile.core.LifecycleCallback;
 import sk.brecka.uxmobile.core.VideoRecorder;
 import sk.brecka.uxmobile.net.RestClient;
@@ -33,7 +33,7 @@ public class UxMobileSession implements LifecycleCallback {
     private LifecycleObserver mLifecycleObserver;
 
     private VideoRecorder mVideoRecorder;
-    private InputRecorder mInputRecorder;
+    private EventRecorder mInputRecorder;
     private RestClient mRestClient;
 
 
@@ -44,50 +44,45 @@ public class UxMobileSession implements LifecycleCallback {
         mLifecycleObserver = new LifecycleObserver(this);
 
         mVideoRecorder = new VideoRecorder();
-        mInputRecorder = new InputRecorder();
+        mInputRecorder = new EventRecorder();
         mRestClient = new RestClient();
 
-//        mRestClient.startSession(application);
+        // TODO: startovat session pri onCreate (aby to slo aj po minimalizovani)
+        mRestClient.startSession(application);
 
         registerCallbacks(application);
-        registerShakeSensor();
+//        registerShakeSensor();
     }
 
     @Override
     public void onEveryActivityStarted(Activity activity) {
-        System.out.println("########### onEveryActivityStarted " + activity.getLocalClassName());
-//        mVideoRecorder.onEveryActivityStarted(activity);
-//        mInputRecorder.onEveryActivityStarted(activity);
+        mVideoRecorder.onEveryActivityStarted(activity);
+        mInputRecorder.onEveryActivityStarted(activity);
     }
 
     @Override
     public void onEveryActivityStopped(Activity activity) {
-        System.out.println("########### onEveryActivityStopped " + activity.getLocalClassName());
-//        mVideoRecorder.onEveryActivityStopped(activity);
-//        mInputRecorder.onEveryActivityStopped(activity);
+        mVideoRecorder.onEveryActivityStopped(activity);
+        mInputRecorder.onEveryActivityStopped(activity);
     }
 
     @Override
     public void onFirstActivityStarted(Activity activity) {
-        System.out.println("########### onFirstActivityStarted " + activity.getLocalClassName());
-//        mVideoRecorder.onFirstActivityStarted(activity);
-//        mInputRecorder.onFirstActivityStarted(activity);
+        mVideoRecorder.onFirstActivityStarted(activity);
+        mInputRecorder.onFirstActivityStarted(activity);
     }
 
     @Override
-    public void onApplicationEnded() {
-        System.out.println("########### onApplicationEnded");
-//        mVideoRecorder.onApplicationEnded();
-//        mInputRecorder.onApplicationEnded();
-//
-//        uploadRecordings();
+    public void onLastActivityStopped(Activity activity) {
+        mVideoRecorder.onLastActivityStopped(activity);
+        mInputRecorder.onLastActivityStopped(activity);
+
+        uploadRecordings();
     }
 
     @Override
     public void onConfigurationChanged(Configuration configuration) {
-        System.out.println("########### onConfigurationChanged");
-
-//        mInputRecorder.onConfigurationChanged(configuration);
+        mInputRecorder.onConfigurationChanged(configuration);
     }
 
     private void registerCallbacks(Application application) {

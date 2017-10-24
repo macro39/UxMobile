@@ -3,6 +3,7 @@ package sk.brecka.uxmobile.core;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -44,14 +45,16 @@ public class VideoRecorder extends BaseRecorder {
         final String filename = String.valueOf(System.currentTimeMillis()) + ".mp4";
 
         // TODO: nezapisovat to na external storage
-//        final String videoPath = Environment.getExternalStorageDirectory().toString() + "/" + filename;
-        mVideoPath = mCurrentActivity.getFilesDir().toString() + "/" + filename;
+        mVideoPath = Environment.getExternalStorageDirectory().toString() + "/" + filename;
+//        mVideoPath = mCurrentActivity.getFilesDir().toString() + "/" + filename;
 
-        int screenWidth = 384;
-        int screenHeight = 240;
+        // TODO: toto z configu
+        final int screenWidth = 384;
+        final int screenHeight = 240;
+        final int bitrate = 64_000;
 
         try {
-            mEncoder = new NativeEncoder(screenWidth, screenHeight, 1, 64_000, mVideoPath);
+            mEncoder = new NativeEncoder(screenWidth, screenHeight, 1, bitrate, mVideoPath);
             mScreenBuffer = new ScreenBuffer(screenWidth, screenHeight);
         } catch (IOException e) {
             e.printStackTrace();
@@ -73,22 +76,20 @@ public class VideoRecorder extends BaseRecorder {
 
         mVideoTimer = new Timer();
         mVideoTimer.schedule(mVideoTask, 0, 1000 / VIDEO_FRAMERATE);
-
-
     }
 
     @Override
-    public void onApplicationEnded() {
-        super.onApplicationEnded();
+    public void onLastActivityStopped(Activity activity) {
+        super.onLastActivityStopped(activity);
 
-        Log.i(TAG, "onApplicationEnded: stopping video recording");
+        Log.i(TAG, "onLastActivityStopped: stopping video recording");
 
-//        try {
-//        // TODO: handlovanie ak nenatocil nic
-//            mEncoder.finish();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            // TODO: handlovanie ak nenatocil nic
+            mEncoder.finish();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         mVideoTask.cancel();
         mVideoTimer.cancel();
@@ -98,10 +99,6 @@ public class VideoRecorder extends BaseRecorder {
     }
 
     private void captureFrame() {
-        final Configuration configuration = mCurrentActivity.getResources().getConfiguration();
-//        System.out.println("orientation " + configuration.orientation);
-//        System.out.println("keyboardHidden " + configuration.keyboardHidden);
-
         final View rootView = mCurrentActivity.getWindow().getDecorView().getRootView();
 
         if (rootView.getWidth() == 0 && rootView.getHeight() == 0) {
@@ -109,14 +106,7 @@ public class VideoRecorder extends BaseRecorder {
             return;
         }
 
-//        System.out.println("im main thread: " + (Looper.myLooper() == Looper.getMainLooper()));
-
-//        try {
         mScreenBuffer.drawToBuffer(rootView);
-//            mEncoder.encodeFrame(mScreenBuffer.getBitmap());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
 
     public File getOutput() {
@@ -128,7 +118,9 @@ public class VideoRecorder extends BaseRecorder {
         protected Void doInBackground(Void... voids) {
 
             try {
-                mEncoder.encodeFrame(mScreenBuffer.getBitmap());
+                if (!mScreenBuffer.isEmpty()) {
+                    mEncoder.encodeFrame(mScreenBuffer.getBitmap());
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
