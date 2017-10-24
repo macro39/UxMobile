@@ -1,9 +1,11 @@
 package sk.brecka.uxmobile.core;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 
@@ -33,7 +35,9 @@ public class VideoRecorder extends BaseRecorder {
     }
 
     @Override
-    protected void onFirstActivityStarted(Activity activity) {
+    public void onFirstActivityStarted(Activity activity) {
+        super.onFirstActivityStarted(activity);
+
         Log.i(TAG, "onActivityStarted: starting video recording");
 
         final String filename = String.valueOf(System.currentTimeMillis()) + ".mp4";
@@ -59,18 +63,24 @@ public class VideoRecorder extends BaseRecorder {
                 handler.post(new Runnable() {
                     public void run() {
                         captureFrame();
+                        new FrameEncodingAsyncTask().execute();
                     }
                 });
+
             }
         };
 
         mVideoTimer = new Timer();
         mVideoTimer.schedule(mVideoTask, 0, 1000 / VIDEO_FRAMERATE);
+
+
     }
 
     @Override
-    protected void onLastActivityStopped(Activity activity) {
-        Log.i(TAG, "onActivityStopped: stopping video recording");
+    public void onApplicationEnded() {
+        super.onApplicationEnded();
+
+        Log.i(TAG, "onApplicationEnded: stopping video recording");
 
         try {
             // TODO: handlovanie ak nenatocil nic
@@ -87,6 +97,10 @@ public class VideoRecorder extends BaseRecorder {
     }
 
     private void captureFrame() {
+        final Configuration configuration = mCurrentActivity.getResources().getConfiguration();
+//        System.out.println("orientation " + configuration.orientation);
+//        System.out.println("keyboardHidden " + configuration.keyboardHidden);
+
         final View rootView = mCurrentActivity.getWindow().getDecorView().getRootView();
 
         if (rootView.getWidth() == 0 && rootView.getHeight() == 0) {
@@ -94,18 +108,27 @@ public class VideoRecorder extends BaseRecorder {
             return;
         }
 
-        try {
-            mScreenBuffer.drawToBuffer(rootView);
-            mEncoder.encodeFrame(mScreenBuffer.getBitmap());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        System.out.println("im main thread: " + (Looper.myLooper() == Looper.getMainLooper()));
+
+//        try {
+        mScreenBuffer.drawToBuffer(rootView);
+//            mEncoder.encodeFrame(mScreenBuffer.getBitmap());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
-    private class CaptureFrameAsyncTask extends AsyncTask<Void, Void, Void> {
+    private class FrameEncodingAsyncTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
-            captureFrame();
+
+            try {
+                System.out.println("im main thread: " + (Looper.myLooper() == Looper.getMainLooper()));
+
+                mEncoder.encodeFrame(mScreenBuffer.getBitmap());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return null;
         }
     }

@@ -37,7 +37,9 @@ public class InputRecorder extends BaseRecorder implements GestureDetector.OnGes
     private GestureDetector mGestureDetector;
 
     @Override
-    protected void onEveryActivityStarted(Activity activity) {
+    public void onEveryActivityStarted(Activity activity) {
+        super.onEveryActivityStarted(activity);
+
         // recordni
         mInputRecordings.addLast(new InputRecording(activity));
 
@@ -62,15 +64,8 @@ public class InputRecorder extends BaseRecorder implements GestureDetector.OnGes
     }
 
     @Override
-    protected void onLastActivityStopped(Activity activity) {
-        System.out.println("Recordings:");
-        for (InputRecording inputRecording : mInputRecordings) {
-            try {
-                System.out.println(inputRecording.toJson());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
+    public void onApplicationEnded() {
+        super.onApplicationEnded();
     }
 
     // gesture listener metody

@@ -36,6 +36,7 @@ public class NativeEncoder {
 
     private int mTrackIndex;
     private boolean mMuxerStarted;
+    private boolean mIsRunning;
 
     // TODO: kompatibilita so starsimi verziami (<21, resp. <5.0)
     public NativeEncoder(int screenWidth, int screenHeight, int framerate, int bitrate, String filePath) throws IOException {
@@ -63,11 +64,12 @@ public class NativeEncoder {
         mMuxerStarted = false;
 
         //
+        mIsRunning = true;
         mEncoder.start();
     }
 
     public void encodeFrame(Bitmap bitmap) throws IOException {
-        drainEncoder(false);
+//        drainEncoder(false);
 
         if (mRenderingSurface.isValid()) {
             Canvas canvas = null;
@@ -154,6 +156,7 @@ public class NativeEncoder {
 
     public void finish() throws IOException {
         //
+        mIsRunning = false;
         drainEncoder(true);
 
         // stop & cleanup
@@ -177,4 +180,7 @@ public class NativeEncoder {
         mMediaFormat = null;
     }
 
+    public boolean isRunning() {
+        return mIsRunning;
+    }
 }
