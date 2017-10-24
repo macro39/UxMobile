@@ -3,12 +3,11 @@ package sk.brecka.uxmobile.core;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,6 +30,8 @@ public class VideoRecorder extends BaseRecorder {
     private Timer mVideoTimer;
     private TimerTask mVideoTask;
 
+    private String mVideoPath;
+
     public VideoRecorder() {
     }
 
@@ -44,13 +45,13 @@ public class VideoRecorder extends BaseRecorder {
 
         // TODO: nezapisovat to na external storage
 //        final String videoPath = Environment.getExternalStorageDirectory().toString() + "/" + filename;
-        final String videoPath = mCurrentActivity.getFilesDir().toString() + "/" + filename;
+        mVideoPath = mCurrentActivity.getFilesDir().toString() + "/" + filename;
 
         int screenWidth = 384;
         int screenHeight = 240;
 
         try {
-            mEncoder = new NativeEncoder(screenWidth, screenHeight, 1, 64_000, videoPath);
+            mEncoder = new NativeEncoder(screenWidth, screenHeight, 1, 64_000, mVideoPath);
             mScreenBuffer = new ScreenBuffer(screenWidth, screenHeight);
         } catch (IOException e) {
             e.printStackTrace();
@@ -82,12 +83,12 @@ public class VideoRecorder extends BaseRecorder {
 
         Log.i(TAG, "onApplicationEnded: stopping video recording");
 
-        try {
-            // TODO: handlovanie ak nenatocil nic
-            mEncoder.finish();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//        // TODO: handlovanie ak nenatocil nic
+//            mEncoder.finish();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         mVideoTask.cancel();
         mVideoTimer.cancel();
@@ -118,13 +119,15 @@ public class VideoRecorder extends BaseRecorder {
 //        }
     }
 
+    public File getOutput() {
+        return new File(mVideoPath);
+    }
+
     private class FrameEncodingAsyncTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
 
             try {
-                System.out.println("im main thread: " + (Looper.myLooper() == Looper.getMainLooper()));
-
                 mEncoder.encodeFrame(mScreenBuffer.getBitmap());
             } catch (IOException e) {
                 e.printStackTrace();

@@ -1,6 +1,7 @@
 package sk.brecka.uxmobile.core;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -18,11 +19,7 @@ import org.json.JSONException;
 import java.util.LinkedList;
 
 import sk.brecka.uxmobile.adapter.WindowCallbackAdapter;
-import sk.brecka.uxmobile.model.ClickInput;
-import sk.brecka.uxmobile.model.Input;
-import sk.brecka.uxmobile.model.InputRecording;
-import sk.brecka.uxmobile.model.LongPressInput;
-import sk.brecka.uxmobile.model.ScrollInput;
+import sk.brecka.uxmobile.model.EventRecording;
 import sk.brecka.uxmobile.model.ViewEnum;
 
 
@@ -33,7 +30,7 @@ import sk.brecka.uxmobile.model.ViewEnum;
 public class InputRecorder extends BaseRecorder implements GestureDetector.OnGestureListener {
 
     // TODO: flushovat recordingy po odoslani
-    private LinkedList<InputRecording> mInputRecordings = new LinkedList<>();
+    private LinkedList<EventRecording> mEventRecordings = new LinkedList<>();
     private GestureDetector mGestureDetector;
 
     @Override
@@ -41,7 +38,7 @@ public class InputRecorder extends BaseRecorder implements GestureDetector.OnGes
         super.onEveryActivityStarted(activity);
 
         // recordni
-        mInputRecordings.addLast(new InputRecording(activity));
+        mEventRecordings.addLast(new EventRecording(activity));
 
         //
         Window.Callback previousCallback = activity.getWindow().getCallback();
@@ -72,20 +69,28 @@ public class InputRecorder extends BaseRecorder implements GestureDetector.OnGes
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         final View touchedView = getTouchedView(e);
-        mInputRecordings.getLast().addClickInput((int) e.getX(), (int) e.getY(), ViewEnum.fromView(touchedView), getViewInfo(touchedView));
+        mEventRecordings.getLast().addClickInput((int) e.getX(), (int) e.getY(), ViewEnum.fromView(touchedView), getViewInfo(touchedView));
         return false;
     }
 
     @Override
     public void onLongPress(MotionEvent e) {
         final View touchedView = getTouchedView(e);
-        mInputRecordings.getLast().addLongPressInput((int) e.getX(), (int) e.getY(), ViewEnum.fromView(touchedView), getViewInfo(touchedView));
+        mEventRecordings.getLast().addLongPressInput((int) e.getX(), (int) e.getY(), ViewEnum.fromView(touchedView), getViewInfo(touchedView));
     }
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        mInputRecordings.getLast().addScrollinput((int) e2.getX(), (int) e2.getY(), (int) distanceX, (int) distanceY);
+        mEventRecordings.getLast().addScrollinput((int) e2.getX(), (int) e2.getY(), (int) distanceX, (int) distanceY);
         return false;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration configuration) {
+        super.onConfigurationChanged(configuration);
+
+        // TODO: kontrolovat ci dojde k zmene orientacie
+        mEventRecordings.getLast().addOrientationinput(configuration.orientation);
     }
 
     //
@@ -190,14 +195,13 @@ public class InputRecorder extends BaseRecorder implements GestureDetector.OnGes
 //        }
 //    }
 
-    public JSONArray getOutput() throws JSONException {
+    public JSONArray getOutput() throws JSONException{
         JSONArray out = new JSONArray();
 
-        for (InputRecording recording : mInputRecordings) {
-            out.put(recording.toJson());
+        for (EventRecording recording : mEventRecordings) {
+                out.put(recording.toJson());
         }
 
         return out;
     }
-
 }

@@ -20,8 +20,7 @@ import sk.brecka.uxmobile.core.LifecycleCallback;
 public class LifecycleObserver implements Application.ActivityLifecycleCallbacks, ComponentCallbacks {
     private static final int ACTIVITY_END_TIMEOUT_MILLIS = 1_000;
 
-//    protected Activity mCurrentActivity;
-
+    // TODO: su tieto fieldy vobec potrebne?
     private long mRecordingStart;
     private long mRecordingEnd;
 
@@ -29,16 +28,7 @@ public class LifecycleObserver implements Application.ActivityLifecycleCallbacks
 
     private LifecycleCallback mCallback;
 
-    private Handler mHandler = new Handler();
-    private Timer mActivityTransitionTimer;
-    private final Runnable mCheckBackgroundRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (mActivityCounter <= 0 && mCallback != null) {
-                mCallback.onApplicationEnded();
-            }
-        }
-    };
+    private Configuration mLatestConfiguration;
 
     public LifecycleObserver(LifecycleCallback callback) {
         mActivityCounter = 0;
@@ -63,6 +53,11 @@ public class LifecycleObserver implements Application.ActivityLifecycleCallbacks
                 }
 
                 @Override
+                public void onConfigurationChanged(Configuration configuration) {
+
+                }
+
+                @Override
                 public void onApplicationEnded() {
 
                 }
@@ -72,73 +67,80 @@ public class LifecycleObserver implements Application.ActivityLifecycleCallbacks
 
     @Override
     public void onActivityStarted(Activity activity) {
-        System.out.println(activity.getClass().getSimpleName() + " onActivityStarted");
+        System.out.println("onActivityStarted " + activity.getLocalClassName());
 
-//        mActivityCounter++;
-////        mCurrentActivity = activity;
-//
-//        if (isFirstActivity()) {
-//            mRecordingStart = System.currentTimeMillis();
-//            mCallback.onFirstActivityStarted(activity);
-//        }
-//
-//        mCallback.onEveryActivityStarted(activity);
+        mActivityCounter++;
+
+        if (isFirstActivity()) {
+            mRecordingStart = System.currentTimeMillis();
+            mCallback.onFirstActivityStarted(activity);
+        }
+
+        mCallback.onEveryActivityStarted(activity);
     }
 
     @Override
     public void onActivityStopped(Activity activity) {
-        System.out.println(activity.getClass().getSimpleName() + " onActivityStopped");
+        System.out.println("onActivityStopped " + activity.getLocalClassName());
 
-//        mActivityCounter--;
-//
-//        if (isLastActivity()) {
-//            mRecordingEnd = System.currentTimeMillis();
-//        }
-//
-//        mCallback.onEveryActivityStopped(activity);
-//
-//        // timer
-//        mHandler.postDelayed(mCheckBackgroundRunnable, ACTIVITY_END_TIMEOUT_MILLIS);
+        mActivityCounter--;
+
+        mCallback.onEveryActivityStopped(activity);
+
+
+        if (isLastActivity()) {
+            System.out.println("isLast: " + isLastActivity() + " latestConf null: " + (mLatestConfiguration == null));
+            mRecordingEnd = System.currentTimeMillis();
+            mCallback.onApplicationEnded();
+            mLatestConfiguration = null;
+        }
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        System.out.println("Configuration changed");
+        System.out.println("onConfigurationChanged");
+
+        mLatestConfiguration = newConfig;
+    }
+
+    @Override
+    public void onActivityPaused(Activity activity) {
+        System.out.println("onActivityPaused " + activity.getLocalClassName());
+
+        if (mLatestConfiguration != null) {
+            mCallback.onConfigurationChanged(mLatestConfiguration);
+//            mLatestConfiguration = null;
+        }
     }
 
     //
     @Override
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-        System.out.println(activity.getClass().getSimpleName() + " onActivityCreated");
+        System.out.println("onActivityCreated " + activity.getLocalClassName());
         //
     }
 
     @Override
     public void onActivityResumed(Activity activity) {
-        System.out.println(activity.getClass().getSimpleName() + " onActivityResumed");
-        //
-    }
+        System.out.println("onActivityResumed " + activity.getLocalClassName());
 
-    @Override
-    public void onActivityPaused(Activity activity) {
-        System.out.println(activity.getClass().getSimpleName() + " onActivityPaused");
         //
     }
 
     @Override
     public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-        System.out.println(activity.getClass().getSimpleName() + " onActivitySaveInstanceState");
         //
     }
 
     @Override
     public void onActivityDestroyed(Activity activity) {
-        System.out.println(activity.getClass().getSimpleName() + " onActivityDestroyed");
+        System.out.println("onActivityDestroyed " + activity.getLocalClassName());
         //
     }
 
     @Override
     public void onLowMemory() {
+        //
         System.out.println("Low memory");
     }
 

@@ -32,4 +32,9 @@ public abstract class BaseRecorder implements LifecycleCallback {
     public void onApplicationEnded() {
         // intentionally blank
     }
+
+    @Override
+    public void onConfigurationChanged(Configuration configuration) {
+        // intentionally blank
+    }
 }

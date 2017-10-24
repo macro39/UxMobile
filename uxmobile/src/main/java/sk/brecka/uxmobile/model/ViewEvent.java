@@ -7,14 +7,14 @@ import org.json.JSONException;
  * Created by matej on 4.10.2017.
  */
 
-public abstract class ViewInput extends Input {
+public abstract class ViewEvent extends Event {
     protected static final int INDEX_VIEW = 4;
     protected static final int INDEX_VIEW_INFO = 5;
 
     protected ViewEnum mViewEnum;
     protected String mViewInfo;
 
-    public ViewInput(int x, int y, long time, ViewEnum viewEnum, String viewInfo) {
+    public ViewEvent(int x, int y, long time, ViewEnum viewEnum, String viewInfo) {
         super(x, y, time);
         mViewEnum = viewEnum;
         mViewInfo = viewInfo;

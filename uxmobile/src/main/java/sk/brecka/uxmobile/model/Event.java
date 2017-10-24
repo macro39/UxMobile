@@ -10,7 +10,7 @@ import org.json.JSONObject;
  * Created by matej on 4.10.2017.
  */
 
-public abstract class Input {
+public abstract class Event {
     protected static final int INDEX_TYPE = 0;
     protected static final int INDEX_X = 1;
     protected static final int INDEX_Y = 2;
@@ -20,7 +20,7 @@ public abstract class Input {
     private final int mY;
     private long mTime;
 
-    protected Input(int x, int y, long startTime) {
+    protected Event(int x, int y, long startTime) {
         mX = x;
         mY = y;
         mTime = System.currentTimeMillis() - startTime;

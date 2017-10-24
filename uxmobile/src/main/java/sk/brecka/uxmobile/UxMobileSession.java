@@ -3,6 +3,7 @@ package sk.brecka.uxmobile;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.util.Log;
@@ -37,6 +38,7 @@ public class UxMobileSession implements LifecycleCallback {
 
 
     public UxMobileSession(Application application) {
+        System.out.println("New UxMobileSession");
         mContext = application;
 
         mLifecycleObserver = new LifecycleObserver(this);
@@ -53,30 +55,39 @@ public class UxMobileSession implements LifecycleCallback {
 
     @Override
     public void onEveryActivityStarted(Activity activity) {
-        mVideoRecorder.onEveryActivityStarted(activity);
-        mInputRecorder.onEveryActivityStarted(activity);
+        System.out.println("########### onEveryActivityStarted " + activity.getLocalClassName());
+//        mVideoRecorder.onEveryActivityStarted(activity);
+//        mInputRecorder.onEveryActivityStarted(activity);
     }
 
     @Override
     public void onEveryActivityStopped(Activity activity) {
-        mVideoRecorder.onEveryActivityStopped(activity);
-        mInputRecorder.onEveryActivityStopped(activity);
+        System.out.println("########### onEveryActivityStopped " + activity.getLocalClassName());
+//        mVideoRecorder.onEveryActivityStopped(activity);
+//        mInputRecorder.onEveryActivityStopped(activity);
     }
 
     @Override
     public void onFirstActivityStarted(Activity activity) {
-        mVideoRecorder.onFirstActivityStarted(activity);
-        mInputRecorder.onFirstActivityStarted(activity);
-//        mSensorManager.registerListener(mShakeDetector, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
+        System.out.println("########### onFirstActivityStarted " + activity.getLocalClassName());
+//        mVideoRecorder.onFirstActivityStarted(activity);
+//        mInputRecorder.onFirstActivityStarted(activity);
     }
 
     @Override
     public void onApplicationEnded() {
-        mVideoRecorder.onApplicationEnded();
-        mInputRecorder.onApplicationEnded();
-//        mSensorManager.unregisterListener(mShakeDetector);
+        System.out.println("########### onApplicationEnded");
+//        mVideoRecorder.onApplicationEnded();
+//        mInputRecorder.onApplicationEnded();
+//
+//        uploadRecordings();
+    }
 
-        uploadRecordings();
+    @Override
+    public void onConfigurationChanged(Configuration configuration) {
+        System.out.println("########### onConfigurationChanged");
+
+//        mInputRecorder.onConfigurationChanged(configuration);
     }
 
     private void registerCallbacks(Application application) {
@@ -99,8 +110,9 @@ public class UxMobileSession implements LifecycleCallback {
     }
 
     private void uploadRecordings() {
+        System.out.println("Uploading recordings");
         try {
-//            mRestClient.uploadVideo(mVideoRecorder.getVideoFile());
+            mRestClient.uploadVideo(mVideoRecorder.getOutput());
             mRestClient.uploadInput(mInputRecorder.getOutput());
         } catch (JSONException e) {
             Log.e(TAG, "uploadRecordings: ", e);

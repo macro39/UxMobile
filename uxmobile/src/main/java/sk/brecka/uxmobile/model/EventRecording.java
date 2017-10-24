@@ -13,7 +13,7 @@ import java.util.List;
  * Created by matej on 30.8.2017.
  */
 
-public class InputRecording {
+public class EventRecording {
 
     private static final String TAG_ACTIVITY_NAME = "activity_name";
     private static final String TAG_INPUTS = "inputs";
@@ -21,27 +21,31 @@ public class InputRecording {
 
     private final String mActivityName;
     private final long mStart;
-    private final List<Input> mInputs = new ArrayList<>();
+    private final List<Event> mEvents = new ArrayList<>();
 
-    public InputRecording(String activityName, long start) {
+    public EventRecording(String activityName, long start) {
         mActivityName = activityName;
         mStart = start;
     }
 
-    public InputRecording(Activity activity) {
+    public EventRecording(Activity activity) {
         this(activity.getLocalClassName(), System.currentTimeMillis());
     }
 
     public void addClickInput(int x, int y, ViewEnum viewEnum, String viewString) {
-        mInputs.add(new ClickInput(x, y, mStart, viewEnum, viewString));
+        mEvents.add(new ClickEvent(x, y, mStart, viewEnum, viewString));
     }
 
     public void addLongPressInput(int x, int y, ViewEnum viewEnum, String viewString) {
-        mInputs.add(new LongPressInput(x, y, mStart, viewEnum, viewString));
+        mEvents.add(new LongPressEvent(x, y, mStart, viewEnum, viewString));
     }
 
     public void addScrollinput(int x, int y, int distanceX, int distanceY) {
-        mInputs.add(new ScrollInput(x, y, mStart, distanceX, distanceY));
+        mEvents.add(new ScrollEvent(x, y, mStart, distanceX, distanceY));
+    }
+
+    public void addOrientationinput(int orientation) {
+        mEvents.add(new OrientationEvent(mStart, orientation));
     }
 
     public JSONObject toJson() throws JSONException {
@@ -54,8 +58,8 @@ public class InputRecording {
     private JSONArray inputsToJson() throws JSONException {
         JSONArray out = new JSONArray();
 
-        for (int i = 0; i < mInputs.size(); i++) {
-            out.put(i, mInputs.get(i).toJson());
+        for (int i = 0; i < mEvents.size(); i++) {
+            out.put(i, mEvents.get(i).toJson());
         }
 
         return out;
@@ -67,7 +71,7 @@ public class InputRecording {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        InputRecording that = (InputRecording) o;
+        EventRecording that = (EventRecording) o;
 
         if (mStart != that.mStart) return false;
         return mActivityName != null ? mActivityName.equals(that.mActivityName) : that.mActivityName == null;
