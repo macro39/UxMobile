@@ -11,19 +11,30 @@ import android.view.View;
 
 // TODO: resolution aware
 public class ScreenBuffer {
+    private static final float ROTATION_ORIENTATION = -90.0f;
+
+    private final int mWidth;
+    private final int mHeight;
+    private final boolean mIsLandscape;
+
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private Matrix mRenderingMatrix;
+
     private boolean mIsInitialized;
     private boolean mIsEmpty;
 
     public ScreenBuffer(int width, int height) {
-        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        mWidth = width;
+        mHeight = height;
+
+        mBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
         mRenderingMatrix = new Matrix();
 
-        mIsInitialized = false;
+        mIsLandscape = isLandscape(mWidth, mHeight);
         mIsEmpty = true;
+        mIsInitialized = false;
     }
 
     public synchronized void drawToBuffer(final View view) {
@@ -31,19 +42,34 @@ public class ScreenBuffer {
             return;
         }
 
-        if (!mIsInitialized) {
-            // TODO: resolution aware rotacie & scale
+        final int viewWidth = view.getWidth();
+        final int viewHeight = view.getHeight();
 
-            final float scaleX = mBitmap.getWidth() / (float) view.getWidth();
-            final float scaleY = mBitmap.getHeight() / (float) view.getHeight();
+        if (!mIsInitialized) {
+            final float scaleX = mWidth / (float) viewWidth;
+            final float scaleY = mHeight / (float) viewHeight;
 
             mRenderingMatrix.setScale(scaleX, scaleY);
+
             mCanvas.setMatrix(mRenderingMatrix);
 
             mIsInitialized = true;
         }
 
-        view.draw(mCanvas);
+        // TODO: mozno otacat inym smerom podla mIsLandscape
+        if (mIsLandscape != isLandscape(viewWidth, viewHeight)) {
+            // orientacia bufferu a obrazu sa nezhoduje, rotuj obraz
+            mCanvas.save();
+
+            mCanvas.translate(0, viewWidth);
+            mCanvas.rotate(ROTATION_ORIENTATION);
+            view.draw(mCanvas);
+
+            mCanvas.restore();
+        } else {
+            // orientacia bufferu a obrazu sa zhoduje
+            view.draw(mCanvas);
+        }
 
         mIsEmpty = false;
     }
@@ -54,5 +80,9 @@ public class ScreenBuffer {
 
     public synchronized boolean isEmpty() {
         return mIsEmpty;
+    }
+
+    private boolean isLandscape(int width, int height) {
+        return width > height;
     }
 }

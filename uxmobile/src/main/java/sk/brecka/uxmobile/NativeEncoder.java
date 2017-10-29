@@ -71,6 +71,10 @@ public class NativeEncoder {
     public void encodeFrame(Bitmap bitmap) throws IOException {
 //        drainEncoder(false);
 
+        if (mRenderingSurface == null) {
+            return;
+        }
+
         if (mRenderingSurface.isValid()) {
             Canvas canvas = null;
             try {
