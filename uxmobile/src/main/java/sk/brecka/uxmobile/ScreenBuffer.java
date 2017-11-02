@@ -11,6 +11,8 @@ import android.view.View;
 
 // TODO: resolution aware
 public class ScreenBuffer {
+    private static final String TAG = "ScreenBuffer";
+
     private static final float ROTATION_ORIENTATION = -90.0f;
 
     private final int mWidth;

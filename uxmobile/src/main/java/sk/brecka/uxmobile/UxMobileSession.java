@@ -21,8 +21,7 @@ import sk.brecka.uxmobile.net.RestClient;
  */
 
 public class UxMobileSession implements LifecycleCallback {
-
-    private final String TAG = getClass().getName();
+    private static final String TAG = "UxMobileSession";
 
     private Context mContext;
 
@@ -38,7 +37,7 @@ public class UxMobileSession implements LifecycleCallback {
 
 
     public UxMobileSession(Application application) {
-        System.out.println("New UxMobileSession");
+        Log.d(TAG, "UxMobileSession: New UxMobile Session");
         mContext = application;
 
         mLifecycleObserver = new LifecycleObserver(this);
@@ -48,7 +47,7 @@ public class UxMobileSession implements LifecycleCallback {
         mRestClient = new RestClient();
 
         // TODO: startovat session pri onCreate (aby to slo aj po minimalizovani)
-        mRestClient.startSession(application);
+//        mRestClient.startSession(application);
 
         registerCallbacks(application);
 //        registerShakeSensor();
@@ -77,7 +76,7 @@ public class UxMobileSession implements LifecycleCallback {
         mVideoRecorder.onLastActivityStopped(activity);
         mInputRecorder.onLastActivityStopped(activity);
 
-        uploadRecordings();
+//        uploadRecordings();
     }
 
     @Override
@@ -105,7 +104,7 @@ public class UxMobileSession implements LifecycleCallback {
     }
 
     private void uploadRecordings() {
-        System.out.println("Uploading recordings");
+        Log.d(TAG, "uploadRecordings: ");
         try {
             mRestClient.uploadVideo(mVideoRecorder.getOutput());
             mRestClient.uploadInput(mInputRecorder.getOutput());

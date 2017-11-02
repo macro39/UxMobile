@@ -21,6 +21,7 @@ import sk.brecka.uxmobile.ScreenBuffer;
  */
 
 public class VideoRecorder extends BaseRecorder {
+    private static final String TAG = "VideoRecorder";
 
     private static final int VIDEO_FRAMERATE = 1;
     private static final int VIDEO_RESOLUTION = 240;

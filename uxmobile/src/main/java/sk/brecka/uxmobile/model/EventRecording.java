@@ -14,6 +14,7 @@ import java.util.List;
  */
 
 public class EventRecording {
+    private static final String TAG = "EventRecording";
 
     private static final String TAG_ACTIVITY_NAME = "activity_name";
     private static final String TAG_EVENTS = "events";

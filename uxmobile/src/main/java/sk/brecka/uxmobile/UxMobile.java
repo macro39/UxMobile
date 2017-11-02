@@ -8,6 +8,8 @@ import android.content.Context;
  */
 
 public class UxMobile {
+    private static final String TAG = "UxMobile";
+
     private static UxMobileSession sSession = null;
 
     public static void start(Context context) {

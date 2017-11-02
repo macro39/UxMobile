@@ -28,6 +28,7 @@ import sk.brecka.uxmobile.model.ViewEnum;
  */
 
 public class EventRecorder extends BaseRecorder implements GestureDetector.OnGestureListener {
+    private static final String TAG = "EventRecorder";
 
     // TODO: flushovat recordingy po odoslani
     // TODO: nech otocenie nerozdeli nahravania

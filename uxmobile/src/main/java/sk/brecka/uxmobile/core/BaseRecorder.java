@@ -8,7 +8,7 @@ import android.content.res.Configuration;
  */
 
 public abstract class BaseRecorder implements LifecycleCallback {
-    protected final String TAG = getClass().getName();
+    private static final String TAG = "BaseRecorder";
 
     protected Activity mCurrentActivity;
 

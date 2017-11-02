@@ -11,6 +11,8 @@ import org.json.JSONObject;
  */
 
 public abstract class Event {
+    private static final String TAG = "Event";
+
     protected static final int INDEX_TYPE = 0;
     protected static final int INDEX_TIME = 1;
 
