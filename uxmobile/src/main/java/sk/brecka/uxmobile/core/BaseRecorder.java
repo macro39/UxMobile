@@ -8,8 +8,6 @@ import android.content.res.Configuration;
  */
 
 public abstract class BaseRecorder implements LifecycleCallback {
-    private static final String TAG = "BaseRecorder";
-
     protected Activity mCurrentActivity;
 
     //

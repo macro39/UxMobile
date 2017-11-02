@@ -8,8 +8,6 @@ import org.json.JSONException;
  */
 
 public class OrientationEvent extends Event {
-    private static final String TAG = "OrientationEvent";
-
     protected static final int INDEX_ORIENTATION = 2;
 
     private static final String TYPE_ORIENTATION = "o";

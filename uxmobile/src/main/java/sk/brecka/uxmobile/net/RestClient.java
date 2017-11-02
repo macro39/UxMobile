@@ -29,8 +29,6 @@ import sk.brecka.uxmobile.util.Config;
  */
 
 public class RestClient {
-    private static final String TAG = "RestClient";
-
     private static final MediaType MEDIA_TYPE_MP4 = MediaType.parse("video/mp4");
     private static final MediaType MEDIA_TYPE_TEXT = MediaType.parse("text/plain");
     private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json");
@@ -80,7 +78,7 @@ public class RestClient {
 
                     // TODO: passovat response do Config
                     mSession = jsonResponse.getString(RESPONSE_SESSION);
-                    Log.d(TAG, "onPostExecute: session " + mSession);
+                    Log.d("default", "onPostExecute: session " + mSession);
                 } catch (JSONException e) {
                     // malformed result
                     e.printStackTrace();
@@ -113,7 +111,7 @@ public class RestClient {
                 .addFormDataPart("event", jsonArray.toString())
                 .build();
 
-        Log.d(TAG, "uploadInput: " + jsonArray.toString());
+        Log.d("default", "uploadInput: " + jsonArray.toString());
 
         final HttpUrl url = buildUrl(SERVICE_INPUT_UPLOAD);
 
@@ -136,7 +134,7 @@ public class RestClient {
 //                    System.out.println(response.body().string());
 //                    System.out.println("response end ----");
                 } catch (IOException e) {
-                    Log.e(TAG, "doInBackground: ", e);
+                    Log.e("default", "doInBackground: ", e);
                 }
                 return null;
             }

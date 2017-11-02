@@ -21,8 +21,6 @@ import sk.brecka.uxmobile.ScreenBuffer;
  */
 
 public class VideoRecorder extends BaseRecorder {
-    private static final String TAG = "VideoRecorder";
-
     private static final int VIDEO_FRAMERATE = 1;
     private static final int VIDEO_RESOLUTION = 240;
 
@@ -41,7 +39,7 @@ public class VideoRecorder extends BaseRecorder {
     public void onFirstActivityStarted(Activity activity) {
         super.onFirstActivityStarted(activity);
 
-        Log.i(TAG, "onActivityStarted: starting video recording");
+        Log.i("default", "onActivityStarted: starting video recording");
 
         final String filename = String.valueOf(System.currentTimeMillis()) + ".mp4";
 
@@ -83,7 +81,7 @@ public class VideoRecorder extends BaseRecorder {
     public void onLastActivityStopped(Activity activity) {
         super.onLastActivityStopped(activity);
 
-        Log.i(TAG, "onLastActivityStopped: stopping video recording");
+        Log.i("default", "onLastActivityStopped: stopping video recording");
 
         try {
             // TODO: handlovanie ak nenatocil nic

@@ -8,8 +8,6 @@ import org.json.JSONException;
  */
 
 public abstract class TouchEvent extends Event {
-    private static final String TAG = "TouchEvent";
-
     protected static final int INDEX_X = 2;
     protected static final int INDEX_Y = 3;
 

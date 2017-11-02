@@ -21,8 +21,6 @@ import sk.brecka.uxmobile.net.RestClient;
  */
 
 public class UxMobileSession implements LifecycleCallback {
-    private static final String TAG = "UxMobileSession";
-
     private Context mContext;
 
     private SensorManager mSensorManager;
@@ -37,7 +35,7 @@ public class UxMobileSession implements LifecycleCallback {
 
 
     public UxMobileSession(Application application) {
-        Log.d(TAG, "UxMobileSession: New UxMobile Session");
+        Log.d("default", "UxMobileSession: New UxMobile Session");
         mContext = application;
 
         mLifecycleObserver = new LifecycleObserver(this);
@@ -46,41 +44,46 @@ public class UxMobileSession implements LifecycleCallback {
         mInputRecorder = new EventRecorder();
         mRestClient = new RestClient();
 
-        // TODO: startovat session pri onCreate (aby to slo aj po minimalizovani)
-//        mRestClient.startSession(application);
-
         registerCallbacks(application);
 //        registerShakeSensor();
     }
 
     @Override
     public void onEveryActivityStarted(Activity activity) {
-        mVideoRecorder.onEveryActivityStarted(activity);
+        Log.d("default", "onEveryActivityStarted: ");
+//        mVideoRecorder.onEveryActivityStarted(activity);
         mInputRecorder.onEveryActivityStarted(activity);
     }
 
     @Override
     public void onEveryActivityStopped(Activity activity) {
-        mVideoRecorder.onEveryActivityStopped(activity);
+        Log.d("default", "onEveryActivityStopped: ");
+//        mVideoRecorder.onEveryActivityStopped(activity);
         mInputRecorder.onEveryActivityStopped(activity);
     }
 
     @Override
     public void onFirstActivityStarted(Activity activity) {
-        mVideoRecorder.onFirstActivityStarted(activity);
+        mRestClient.startSession(activity);
+
+        Log.d("default", "onFirstActivityStarted: ");
+//        mVideoRecorder.onFirstActivityStarted(activity);
         mInputRecorder.onFirstActivityStarted(activity);
     }
 
     @Override
     public void onLastActivityStopped(Activity activity) {
-        mVideoRecorder.onLastActivityStopped(activity);
+        Log.d("default", "onLastActivityStopped: ");
+//        mVideoRecorder.onLastActivityStopped(activity);
         mInputRecorder.onLastActivityStopped(activity);
 
-//        uploadRecordings();
+        uploadRecordings();
     }
 
     @Override
     public void onConfigurationChanged(Configuration configuration) {
+        Log.d("default", "onConfigurationChanged: ");
+        mVideoRecorder.onConfigurationChanged(configuration);
         mInputRecorder.onConfigurationChanged(configuration);
     }
 
@@ -104,12 +107,12 @@ public class UxMobileSession implements LifecycleCallback {
     }
 
     private void uploadRecordings() {
-        Log.d(TAG, "uploadRecordings: ");
+        Log.d("default", "uploadRecordings: ");
         try {
-            mRestClient.uploadVideo(mVideoRecorder.getOutput());
+//            mRestClient.uploadVideo(mVideoRecorder.getOutput());
             mRestClient.uploadInput(mInputRecorder.getOutput());
         } catch (JSONException e) {
-            Log.e(TAG, "uploadRecordings: ", e);
+            Log.e("default", "uploadRecordings: ", e);
         }
 
     }

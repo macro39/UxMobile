@@ -5,8 +5,6 @@ package sk.brecka.uxmobile.model;
  */
 
 public class LongPressEvent extends ViewEvent {
-    private static final String TAG = "LongPressEvent";
-
     private static final String TYPE_LONG_PRESS = "l";
 
     public LongPressEvent(long startTime, int x, int y , ViewEnum viewEnum, String viewInfo) {

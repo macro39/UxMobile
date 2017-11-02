@@ -21,8 +21,6 @@ import java.nio.ByteBuffer;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class NativeEncoder {
-    private static final String TAG = "NativeEncoder";
-
     private static final String MIME_TYPE = "video/avc";
     private static final int IFRAME_INTERVAL = 10;
     private static final int UNDEFINED = -1;

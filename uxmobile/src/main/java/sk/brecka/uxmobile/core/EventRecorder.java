@@ -3,6 +3,7 @@ package sk.brecka.uxmobile.core;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,30 +29,48 @@ import sk.brecka.uxmobile.model.ViewEnum;
  */
 
 public class EventRecorder extends BaseRecorder implements GestureDetector.OnGestureListener {
-    private static final String TAG = "EventRecorder";
-
-    // TODO: flushovat recordingy po odoslani
-    // TODO: nech otocenie nerozdeli nahravania
     // TODO: mozno na eventy spravit factory a rovno JSON namiesto tejto hierarchie
 
+    // linked list len na lahsie getovanie posledneho
     private LinkedList<EventRecording> mEventRecordings = new LinkedList<>();
     private GestureDetector mGestureDetector;
+
+    private int mOrientation;
+    private boolean mConfigurationRecentlyChanged;
+
+    @Override
+    public void onFirstActivityStarted(Activity activity) {
+        super.onFirstActivityStarted(activity);
+
+        // init
+        mConfigurationRecentlyChanged = false;
+        mOrientation = activity.getResources().getConfiguration().orientation;
+        mEventRecordings.clear();
+    }
 
     @Override
     public void onEveryActivityStarted(Activity activity) {
         super.onEveryActivityStarted(activity);
 
         // recordni
-        mEventRecordings.addLast(new EventRecording(activity));
+        if (!mConfigurationRecentlyChanged) {
+            mEventRecordings.addLast(new EventRecording(activity));
+        }
+
+        //
+        mConfigurationRecentlyChanged = false;
 
         //
         Window.Callback previousCallback = activity.getWindow().getCallback();
 
         // zabrani kopeniu
         if (previousCallback instanceof WindowCallbackAdapter) {
+            Log.d("default", "onEveryActivityStarted: instanceof");
             return;
         }
 
+
+        //
         mGestureDetector = new GestureDetector(activity, this);
 
         activity.getWindow().setCallback(new WindowCallbackAdapter(previousCallback) {
@@ -61,12 +80,23 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
                 return super.dispatchTouchEvent(event);
             }
         });
-
     }
 
     @Override
     public void onLastActivityStopped(Activity activity) {
         super.onLastActivityStopped(activity);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration configuration) {
+        super.onConfigurationChanged(configuration);
+
+        mConfigurationRecentlyChanged = true;
+
+        if (mOrientation != configuration.orientation) {
+            mOrientation = configuration.orientation;
+            mEventRecordings.getLast().addOrientationinput(configuration.orientation);
+        }
     }
 
     // gesture listener metody
@@ -87,14 +117,6 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         mEventRecordings.getLast().addScrollinput((int) e2.getX(), (int) e2.getY(), (int) distanceX, (int) distanceY);
         return false;
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration configuration) {
-        super.onConfigurationChanged(configuration);
-
-        // TODO: kontrolovat ci dojde k zmene orientacie
-        mEventRecordings.getLast().addOrientationinput(configuration.orientation);
     }
 
     //
@@ -164,11 +186,11 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
         }
     }
 
-    public JSONArray getOutput() throws JSONException{
+    public JSONArray getOutput() throws JSONException {
         JSONArray out = new JSONArray();
 
         for (EventRecording recording : mEventRecordings) {
-                out.put(recording.toJson());
+            out.put(recording.toJson());
         }
 
         return out;
