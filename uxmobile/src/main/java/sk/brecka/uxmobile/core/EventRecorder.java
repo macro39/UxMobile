@@ -20,7 +20,7 @@ import org.json.JSONException;
 import java.util.LinkedList;
 
 import sk.brecka.uxmobile.adapter.WindowCallbackAdapter;
-import sk.brecka.uxmobile.model.EventRecording;
+import sk.brecka.uxmobile.model.event.EventRecording;
 import sk.brecka.uxmobile.model.ViewEnum;
 
 
@@ -65,10 +65,8 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
 
         // zabrani kopeniu
         if (previousCallback instanceof WindowCallbackAdapter) {
-            Log.d("default", "onEveryActivityStarted: instanceof");
             return;
         }
-
 
         //
         mGestureDetector = new GestureDetector(activity, this);
@@ -95,7 +93,7 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
 
         if (mOrientation != configuration.orientation) {
             mOrientation = configuration.orientation;
-            mEventRecordings.getLast().addOrientationinput(configuration.orientation);
+            getLastRecording().addOrientationinput(configuration.orientation);
         }
     }
 
@@ -103,19 +101,25 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         final View touchedView = getTouchedView(e);
-        mEventRecordings.getLast().addClickInput((int) e.getX(), (int) e.getY(), ViewEnum.fromView(touchedView), getViewInfo(touchedView));
+        getLastRecording().addClickInput(e, ViewEnum.fromView(touchedView), getViewInfo(touchedView));
         return false;
     }
 
     @Override
     public void onLongPress(MotionEvent e) {
         final View touchedView = getTouchedView(e);
-        mEventRecordings.getLast().addLongPressInput((int) e.getX(), (int) e.getY(), ViewEnum.fromView(touchedView), getViewInfo(touchedView));
+        getLastRecording().addLongPressInput(e, ViewEnum.fromView(touchedView), getViewInfo(touchedView));
     }
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        mEventRecordings.getLast().addScrollinput((int) e2.getX(), (int) e2.getY(), (int) distanceX, (int) distanceY);
+        getLastRecording().addScrollinput(e2, distanceX, distanceY);
+        return false;
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        getLastRecording().addFlinginput(e2, velocityX, velocityY);
         return false;
     }
 
@@ -131,10 +135,9 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
         // intentionally blank
     }
 
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        // intentionally blank
-        return false;
+    //
+    private EventRecording getLastRecording() {
+        return mEventRecordings.getLast();
     }
 
     // TODO: presunut do samostatnej classy

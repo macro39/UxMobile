@@ -1,4 +1,4 @@
-package sk.brecka.uxmobile.model;
+package sk.brecka.uxmobile.model.event;
 
 import android.view.MotionEvent;
 
@@ -14,7 +14,7 @@ public abstract class Event {
     protected static final int INDEX_TYPE = 0;
     protected static final int INDEX_TIME = 1;
 
-    private long mTime;
+    private final long mTime;
 
     protected Event(long startTime) {
         mTime = System.currentTimeMillis() - startTime;

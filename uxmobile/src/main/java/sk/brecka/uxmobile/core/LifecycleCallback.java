@@ -14,7 +14,7 @@ public interface LifecycleCallback {
 
     void onEveryActivityStopped(Activity activity);
 
-    void onConfigurationChanged(Configuration configuration);
-
     void onLastActivityStopped(Activity activity);
+
+    void onConfigurationChanged(Configuration configuration);
 }

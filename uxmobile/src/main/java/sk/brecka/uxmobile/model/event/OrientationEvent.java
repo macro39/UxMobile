@@ -1,20 +1,22 @@
-package sk.brecka.uxmobile.model;
+package sk.brecka.uxmobile.model.event;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import sk.brecka.uxmobile.model.event.Event;
 
 /**
  * Created by matej on 24.10.2017.
  */
 
 public class OrientationEvent extends Event {
-    protected static final int INDEX_ORIENTATION = 2;
-
     private static final String TYPE_ORIENTATION = "o";
 
-    final private int mOrientation;
+    protected static final int INDEX_ORIENTATION = 2;
 
-    public OrientationEvent(long startTime, int orientation) {
+    private final int mOrientation;
+
+    OrientationEvent(long startTime, int orientation) {
         super(startTime);
         mOrientation = orientation;
     }

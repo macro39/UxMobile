@@ -49,32 +49,28 @@ public class UxMobileSession implements LifecycleCallback {
     }
 
     @Override
+    public void onFirstActivityStarted(Activity activity) {
+        mRestClient.startSession(activity);
+
+        mVideoRecorder.onFirstActivityStarted(activity);
+        mInputRecorder.onFirstActivityStarted(activity);
+    }
+
+    @Override
     public void onEveryActivityStarted(Activity activity) {
-        Log.d("default", "onEveryActivityStarted: ");
-//        mVideoRecorder.onEveryActivityStarted(activity);
+        mVideoRecorder.onEveryActivityStarted(activity);
         mInputRecorder.onEveryActivityStarted(activity);
     }
 
     @Override
     public void onEveryActivityStopped(Activity activity) {
-        Log.d("default", "onEveryActivityStopped: ");
-//        mVideoRecorder.onEveryActivityStopped(activity);
+        mVideoRecorder.onEveryActivityStopped(activity);
         mInputRecorder.onEveryActivityStopped(activity);
     }
 
     @Override
-    public void onFirstActivityStarted(Activity activity) {
-        mRestClient.startSession(activity);
-
-        Log.d("default", "onFirstActivityStarted: ");
-//        mVideoRecorder.onFirstActivityStarted(activity);
-        mInputRecorder.onFirstActivityStarted(activity);
-    }
-
-    @Override
     public void onLastActivityStopped(Activity activity) {
-        Log.d("default", "onLastActivityStopped: ");
-//        mVideoRecorder.onLastActivityStopped(activity);
+        mVideoRecorder.onLastActivityStopped(activity);
         mInputRecorder.onLastActivityStopped(activity);
 
         uploadRecordings();
@@ -82,7 +78,6 @@ public class UxMobileSession implements LifecycleCallback {
 
     @Override
     public void onConfigurationChanged(Configuration configuration) {
-        Log.d("default", "onConfigurationChanged: ");
         mVideoRecorder.onConfigurationChanged(configuration);
         mInputRecorder.onConfigurationChanged(configuration);
     }

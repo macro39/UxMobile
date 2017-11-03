@@ -1,6 +1,7 @@
-package sk.brecka.uxmobile.model;
+package sk.brecka.uxmobile.model.event;
 
 import android.app.Activity;
+import android.view.MotionEvent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -8,6 +9,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import sk.brecka.uxmobile.model.ViewEnum;
 
 /**
  * Created by matej on 30.8.2017.
@@ -31,16 +34,20 @@ public class EventRecording {
         this(activity.getLocalClassName(), System.currentTimeMillis());
     }
 
-    public void addClickInput(int x, int y, ViewEnum viewEnum, String viewString) {
-        mEvents.add(new ClickEvent(mStart, x, y, viewEnum, viewString));
+    public void addClickInput(MotionEvent motionEvent, ViewEnum viewEnum, String viewString) {
+        mEvents.add(new ClickEvent(mStart, (int) motionEvent.getX(), (int) motionEvent.getY(), viewEnum, viewString));
     }
 
-    public void addLongPressInput(int x, int y, ViewEnum viewEnum, String viewString) {
-        mEvents.add(new LongPressEvent(mStart, x, y, viewEnum, viewString));
+    public void addLongPressInput(MotionEvent motionEvent, ViewEnum viewEnum, String viewString) {
+        mEvents.add(new LongPressEvent(mStart, (int) motionEvent.getX(), (int) motionEvent.getY(), viewEnum, viewString));
     }
 
-    public void addScrollinput(int x, int y, int distanceX, int distanceY) {
-        mEvents.add(new ScrollEvent(mStart, x, y, distanceX, distanceY));
+    public void addScrollinput(MotionEvent motionEvent, float distanceX, float distanceY) {
+        mEvents.add(new ScrollEvent(mStart, (int) motionEvent.getX(), (int) motionEvent.getY(), (int) distanceX, (int) distanceY));
+    }
+
+    public void addFlinginput(MotionEvent motionEvent, float velocityX, float velocityY) {
+        mEvents.add(new FlingEvent(mStart, (int) motionEvent.getX(), (int) motionEvent.getY(), (int) velocityX, (int) velocityY));
     }
 
     public void addOrientationinput(int orientation) {

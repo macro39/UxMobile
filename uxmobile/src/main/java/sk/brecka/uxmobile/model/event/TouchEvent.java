@@ -1,7 +1,9 @@
-package sk.brecka.uxmobile.model;
+package sk.brecka.uxmobile.model.event;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import sk.brecka.uxmobile.model.event.Event;
 
 /**
  * Created by matej on 24.10.2017.

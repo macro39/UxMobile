@@ -1,4 +1,4 @@
-package sk.brecka.uxmobile.model;
+package sk.brecka.uxmobile.model.event;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -8,15 +8,15 @@ import org.json.JSONException;
  */
 
 public class ScrollEvent extends TouchEvent {
+    private static final String TYPE_SCROLL = "s";
+
     protected static final int INDEX_DISTANCE_X = 4;
     protected static final int INDEX_DISTANCE_Y = 5;
-
-    private static final String TYPE_SCROLL = "s";
 
     private final int mDistanceX;
     private final int mDistanceY;
 
-    public ScrollEvent(long startTime, int x, int y, int distanceX, int distanceY) {
+    ScrollEvent(long startTime, int x, int y, int distanceX, int distanceY) {
         super(startTime, x, y);
         mDistanceX = distanceX;
         mDistanceY = distanceY;
