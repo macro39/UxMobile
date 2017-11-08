@@ -42,9 +42,13 @@ public class RestClient {
     private static final String RESPONSE_SESSION = "session";
     private static final String RESPONSE_RECORD = "record";
 
-//    private static final String HOST_BASE = "team11-17.studenti.fiit.stuba.sk";
-    private static final String HOST_BASE = "10.11.41.56";
-    private static final int HOST_PORT = 8765;
+//    private static final String HOST_BASE = "10.11.41.56";
+    private static final String HOST_BASE = "team11-17.studenti.fiit.stuba.sk";
+
+    // TODO: toto odstranit ked sa mergne
+    private static final String HOST_TEMP = "sfs";
+
+    private static final int HOST_PORT = 80;
     private static final String HOST_API = "api";
 
     private OkHttpClient mHttpClient = new OkHttpClient();
@@ -146,6 +150,7 @@ public class RestClient {
                 .scheme("http")
                 .host(HOST_BASE)
                 .port(HOST_PORT)
+                .addPathSegment(HOST_TEMP)
                 .addPathSegment(HOST_API)
                 .addPathSegment(service)
                 .build();
