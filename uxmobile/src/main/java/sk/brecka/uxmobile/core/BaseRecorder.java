@@ -36,8 +36,7 @@ public abstract class BaseRecorder implements LifecycleCallback {
         // intentionally blank
     }
 
-    // TODO: implement
-//    public void onSessionStarted(){
-//        // intentionally bland
-//    }
+    public void onSessionStarted(){
+        // intentionally blank
+    }
 }

@@ -16,7 +16,7 @@ import android.widget.TextView;
  * Created by matej on 13.11.2017.
  */
 
-public class ViewUtil {
+public class ViewUtils {
 
     public static View getTouchedView(MotionEvent motionEvent, View view) {
         return rGetTouchedView(view, motionEvent, new Rect());
@@ -84,6 +84,6 @@ public class ViewUtil {
         }
     }
 
-    private ViewUtil() {
+    private ViewUtils() {
     }
 }

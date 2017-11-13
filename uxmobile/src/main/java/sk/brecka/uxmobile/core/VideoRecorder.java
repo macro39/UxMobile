@@ -30,14 +30,21 @@ public class VideoRecorder extends BaseRecorder {
 
     private String mVideoPath;
 
+    private boolean mIsRecording = false;
+
     public VideoRecorder() {
     }
 
     @Override
-    public void onFirstActivityStarted(Activity activity) {
-        super.onFirstActivityStarted(activity);
+    public void onSessionStarted() {
 
-        Log.i("default", "onActivityStarted: starting video recording");
+        mIsRecording = Config.get().isRecordingVideo();
+
+        if (!mIsRecording) {
+            return;
+        }
+
+        Log.i("UxMobile", "onSessionStarted: starting video recording");
 
         final String filename = String.valueOf(System.currentTimeMillis()) + ".mp4";
 
@@ -79,7 +86,13 @@ public class VideoRecorder extends BaseRecorder {
     public void onLastActivityStopped(Activity activity) {
         super.onLastActivityStopped(activity);
 
-        Log.i("default", "onLastActivityStopped: stopping video recording");
+        if (!mIsRecording) {
+            return;
+        }
+
+        mIsRecording = false;
+
+        Log.i("UxMobile", "onLastActivityStopped: stopping video recording");
 
         try {
             // TODO: handlovanie ak nenatocil nic

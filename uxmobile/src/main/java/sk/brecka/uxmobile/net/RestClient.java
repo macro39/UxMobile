@@ -77,14 +77,14 @@ public class RestClient {
                 .post(builder.build())
                 .build();
 
-        Log.d("default", "startSession: ");
+        Log.d("UxMobile", "startSession: ");
 
         // async execute
         new HttpExecutor() {
             @Override
             protected void onPostExecute(String response) {
                 try {
-                    Log.d("default", "onPostExecute: " + response);
+                    Log.d("UxMobile", "onPostExecute: " + response);
                     if (response == null) {
                         // exception?
                         return;
@@ -146,7 +146,7 @@ public class RestClient {
                 .addFormDataPart("event", jsonArray.toString())
                 .build();
 
-        Log.d("default", "uploadInput: " + jsonArray.toString());
+        Log.d("UxMobile", "uploadInput: " + jsonArray.toString());
 
         final HttpUrl url = buildUrl(SERVICE_INPUT_UPLOAD);
 
@@ -169,7 +169,7 @@ public class RestClient {
 //                    System.out.println(response.body().string());
 //                    System.out.println("response end ----");
                 } catch (IOException e) {
-                    Log.e("default", "doInBackground: ", e);
+                    Log.e("UxMobile", "doInBackground: ", e);
                 }
                 return null;
             }

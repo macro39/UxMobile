@@ -2,21 +2,10 @@ package sk.brecka.uxmobile.core;
 
 import android.app.Activity;
 import android.content.res.Configuration;
-import android.graphics.Rect;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.RadioButton;
-import android.widget.SeekBar;
-import android.widget.Switch;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,7 +15,7 @@ import java.util.LinkedList;
 import sk.brecka.uxmobile.adapter.WindowCallbackAdapter;
 import sk.brecka.uxmobile.model.event.EventRecording;
 import sk.brecka.uxmobile.model.ViewEnum;
-import sk.brecka.uxmobile.util.ViewUtil;
+import sk.brecka.uxmobile.util.ViewUtils;
 
 
 /**
@@ -104,14 +93,14 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         final View touchedView = getTouchedView(e);
-        getLastRecording().addClickInput(e, ViewEnum.fromView(touchedView), ViewUtil.getViewText(touchedView), ViewUtil.getViewValue(touchedView));
+        getLastRecording().addClickInput(e, ViewEnum.fromView(touchedView), ViewUtils.getViewText(touchedView), ViewUtils.getViewValue(touchedView));
         return false;
     }
 
     @Override
     public void onLongPress(MotionEvent e) {
         final View touchedView = getTouchedView(e);
-        getLastRecording().addLongPressInput(e, ViewEnum.fromView(touchedView), ViewUtil.getViewText(touchedView), ViewUtil.getViewValue(touchedView));
+        getLastRecording().addLongPressInput(e, ViewEnum.fromView(touchedView), ViewUtils.getViewText(touchedView), ViewUtils.getViewValue(touchedView));
     }
 
     @Override
@@ -144,7 +133,7 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
     }
 
     private View getTouchedView(MotionEvent e) {
-        return ViewUtil.getTouchedView(e, mCurrentActivity.getWindow().getDecorView().getRootView());
+        return ViewUtils.getTouchedView(e, mCurrentActivity.getWindow().getDecorView().getRootView());
     }
 
     public JSONArray getOutput() throws JSONException {
