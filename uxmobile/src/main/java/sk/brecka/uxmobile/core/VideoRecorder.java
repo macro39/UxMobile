@@ -15,15 +15,13 @@ import java.util.TimerTask;
 
 import sk.brecka.uxmobile.NativeEncoder;
 import sk.brecka.uxmobile.ScreenBuffer;
+import sk.brecka.uxmobile.util.Config;
 
 /**
  * Created by matej on 25.8.2017.
  */
 
 public class VideoRecorder extends BaseRecorder {
-    private static final int VIDEO_FRAMERATE = 1;
-    private static final int VIDEO_RESOLUTION = 240;
-
     private NativeEncoder mEncoder;
     private ScreenBuffer mScreenBuffer;
 
@@ -47,13 +45,13 @@ public class VideoRecorder extends BaseRecorder {
         mVideoPath = Environment.getExternalStorageDirectory().toString() + "/" + filename;
 //        mVideoPath = mCurrentActivity.getFilesDir().toString() + "/" + filename;
 
-        // TODO: toto z configu
-        final int screenWidth = 384;
-        final int screenHeight = 240;
-        final int bitrate = 64_000;
+        final int screenWidth = Config.get().getVideoWidth();
+        final int screenHeight = Config.get().getVideoHeight();
+        final int bitrate = Config.get().getVideoBitrate();
+        final int framerate = Config.get().getVideoFps();
 
         try {
-            mEncoder = new NativeEncoder(screenWidth, screenHeight, 1, bitrate, mVideoPath);
+            mEncoder = new NativeEncoder(screenWidth, screenHeight, framerate, bitrate, mVideoPath);
             mScreenBuffer = new ScreenBuffer(screenWidth, screenHeight);
         } catch (IOException e) {
             e.printStackTrace();
@@ -74,7 +72,7 @@ public class VideoRecorder extends BaseRecorder {
         };
 
         mVideoTimer = new Timer();
-        mVideoTimer.schedule(mVideoTask, 0, 1000 / VIDEO_FRAMERATE);
+        mVideoTimer.schedule(mVideoTask, 0, 1000 / framerate);
     }
 
     @Override
@@ -100,8 +98,8 @@ public class VideoRecorder extends BaseRecorder {
     private void captureFrame() {
         final View rootView = mCurrentActivity.getWindow().getDecorView().getRootView();
 
-        if (rootView.getWidth() == 0 && rootView.getHeight() == 0) {
-            // nie je co natacat
+        if (rootView == null || (rootView.getWidth() == 0 && rootView.getHeight() == 0)) {
+            // nothing to record
             return;
         }
 

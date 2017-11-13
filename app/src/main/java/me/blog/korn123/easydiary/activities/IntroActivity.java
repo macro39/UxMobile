@@ -64,7 +64,7 @@ public class IntroActivity extends Activity implements Handler.Callback {
         new Handler(this).sendEmptyMessageDelayed(START_MAIN_ACTIVITY, 500);
 
         //
-        UxMobile.start(this);
+        UxMobile.start(this,"apikey123");
     }
 
     @Override

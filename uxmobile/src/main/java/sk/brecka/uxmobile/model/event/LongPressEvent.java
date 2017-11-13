@@ -9,8 +9,8 @@ import sk.brecka.uxmobile.model.ViewEnum;
 public class LongPressEvent extends ViewEvent {
     private static final String TYPE_LONG_PRESS = "l";
 
-    LongPressEvent(long startTime, int x, int y , ViewEnum viewEnum, String viewInfo) {
-        super(startTime, x, y, viewEnum, viewInfo);
+    LongPressEvent(long startTime, int x, int y , ViewEnum viewEnum, String viewText, String viewInfo) {
+        super(startTime, x, y, viewEnum, viewText, viewInfo);
     }
 
     @Override

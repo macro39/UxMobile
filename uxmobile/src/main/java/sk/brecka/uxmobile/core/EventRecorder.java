@@ -10,9 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
 import android.widget.SeekBar;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,6 +26,7 @@ import java.util.LinkedList;
 import sk.brecka.uxmobile.adapter.WindowCallbackAdapter;
 import sk.brecka.uxmobile.model.event.EventRecording;
 import sk.brecka.uxmobile.model.ViewEnum;
+import sk.brecka.uxmobile.util.ViewUtil;
 
 
 /**
@@ -29,9 +34,7 @@ import sk.brecka.uxmobile.model.ViewEnum;
  */
 
 public class EventRecorder extends BaseRecorder implements GestureDetector.OnGestureListener {
-    // TODO: mozno na eventy spravit factory a rovno JSON namiesto tejto hierarchie
-
-    // linked list len na lahsie getovanie posledneho
+    // LinkedList for simpler retrieval of the latest recording
     private LinkedList<EventRecording> mEventRecordings = new LinkedList<>();
     private GestureDetector mGestureDetector;
 
@@ -52,7 +55,7 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
     public void onEveryActivityStarted(Activity activity) {
         super.onEveryActivityStarted(activity);
 
-        // recordni
+        // record
         if (!mConfigurationRecentlyChanged) {
             mEventRecordings.addLast(new EventRecording(activity));
         }
@@ -63,7 +66,7 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
         //
         Window.Callback previousCallback = activity.getWindow().getCallback();
 
-        // zabrani kopeniu
+        // prevents cumulation
         if (previousCallback instanceof WindowCallbackAdapter) {
             return;
         }
@@ -101,14 +104,14 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         final View touchedView = getTouchedView(e);
-        getLastRecording().addClickInput(e, ViewEnum.fromView(touchedView), getViewInfo(touchedView));
+        getLastRecording().addClickInput(e, ViewEnum.fromView(touchedView), ViewUtil.getViewText(touchedView), ViewUtil.getViewValue(touchedView));
         return false;
     }
 
     @Override
     public void onLongPress(MotionEvent e) {
         final View touchedView = getTouchedView(e);
-        getLastRecording().addLongPressInput(e, ViewEnum.fromView(touchedView), getViewInfo(touchedView));
+        getLastRecording().addLongPressInput(e, ViewEnum.fromView(touchedView), ViewUtil.getViewText(touchedView), ViewUtil.getViewValue(touchedView));
     }
 
     @Override
@@ -140,53 +143,8 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
         return mEventRecordings.getLast();
     }
 
-    // TODO: presunut do samostatnej classy
-    private View getTouchedView(MotionEvent motionEvent) {
-        return rGetTouchedView(mCurrentActivity.getWindow().getDecorView().getRootView(), motionEvent, new Rect());
-    }
-
-    private View rGetTouchedView(View view, MotionEvent motionEvent, Rect rect) {
-        // TODO: co ak sa viewy overlapuju?
-        if (!view.isShown() || view.getWidth() == 0 || view.getHeight() == 0) {
-            return null;
-        }
-
-        view.getGlobalVisibleRect(rect);
-
-        final int x = (int) motionEvent.getX(motionEvent.getActionIndex());
-        final int y = (int) motionEvent.getY(motionEvent.getActionIndex());
-
-        if (rect.contains(x, y)) {
-            if (view instanceof ViewGroup) {
-                //
-                for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
-                    final View out = rGetTouchedView(((ViewGroup) view).getChildAt(i), motionEvent, rect);
-                    if (out != null) {
-                        return out;
-                    }
-                }
-            } else {
-                return view;
-            }
-        }
-
-        return null;
-    }
-
-    private String getViewInfo(final View view) {
-        if (view == null) {
-            return "";
-        } else if (view instanceof EditText) {
-            return "";
-        } else if (view instanceof Button) {
-            return ((Button) view).getText().toString();
-        } else if (view instanceof SeekBar) {
-            return String.valueOf(((SeekBar) view).getProgress());
-        } else if (view instanceof ImageButton) {
-            return "";
-        } else {
-            return "";
-        }
+    private View getTouchedView(MotionEvent e) {
+        return ViewUtil.getTouchedView(e, mCurrentActivity.getWindow().getDecorView().getRootView());
     }
 
     public JSONArray getOutput() throws JSONException {

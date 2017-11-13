@@ -10,13 +10,13 @@ import android.content.Context;
 public class UxMobile {
     private static UxMobileSession sSession = null;
 
-    public static void start(Context context) {
-        start((Application) context.getApplicationContext());
+    public static void start(Context context, String apiKey) {
+        start((Application) context.getApplicationContext(), apiKey);
     }
 
-    public static void start(Application application) {
+    public static void start(Application application, String apiKey) {
         if (sSession == null) {
-            sSession = new UxMobileSession(application);
+            sSession = new UxMobileSession(application, apiKey);
         }
     }
 

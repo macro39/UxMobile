@@ -34,12 +34,12 @@ public class EventRecording {
         this(activity.getLocalClassName(), System.currentTimeMillis());
     }
 
-    public void addClickInput(MotionEvent motionEvent, ViewEnum viewEnum, String viewString) {
-        mEvents.add(new ClickEvent(mStart, (int) motionEvent.getX(), (int) motionEvent.getY(), viewEnum, viewString));
+    public void addClickInput(MotionEvent motionEvent, ViewEnum viewEnum, String viewText, String viewString) {
+        mEvents.add(new ClickEvent(mStart, (int) motionEvent.getX(), (int) motionEvent.getY(), viewEnum, viewText, viewString));
     }
 
-    public void addLongPressInput(MotionEvent motionEvent, ViewEnum viewEnum, String viewString) {
-        mEvents.add(new LongPressEvent(mStart, (int) motionEvent.getX(), (int) motionEvent.getY(), viewEnum, viewString));
+    public void addLongPressInput(MotionEvent motionEvent, ViewEnum viewEnum, String viewText, String viewString) {
+        mEvents.add(new LongPressEvent(mStart, (int) motionEvent.getX(), (int) motionEvent.getY(), viewEnum, viewText, viewString));
     }
 
     public void addScrollinput(MotionEvent motionEvent, float distanceX, float distanceY) {

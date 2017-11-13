@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 
 import okhttp3.FormBody;
@@ -21,7 +22,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okio.BufferedSink;
 import sk.brecka.uxmobile.util.Config;
 
 /**
@@ -38,28 +38,37 @@ public class RestClient {
     private static final String SERVICE_INPUT_UPLOAD = "input";
 
     private static final String FORM_SESSION = "session";
+    private static final String FORM_API_KEY = "api_key";
 
     private static final String RESPONSE_SESSION = "session";
-    private static final String RESPONSE_RECORD = "record";
+    private static final String RESPONSE_RECORD_VIDEO = "video_record";
+    private static final String RESPONSE_RECORD_EVENT = "event_record";
+    private static final String RESPONSE_RECORD_WIFI_ONLY = "wifi_only";
+    private static final String RESPONSE_VIDEO_FPS = "video_fps";
+    private static final String RESPONSE_VIDEO_BITRATE = "video_bitrate";
+    private static final String RESPONSE_VIDEO_HEIGHT = "video_height";
+    private static final String RESPONSE_VIDEO_WIDTH = "video_width";
 
-//    private static final String HOST_BASE = "10.11.41.56";
-    private static final String HOST_BASE = "team11-17.studenti.fiit.stuba.sk";
+    private static final String HOST_BASE = "10.11.41.56";
+//    private static final String HOST_BASE = "team11-17.studenti.fiit.stuba.sk";
 
     // TODO: toto odstranit ked sa mergne
-    private static final String HOST_TEMP = "sfs";
+//    private static final String HOST_TEMP = "sfs";
 
-    private static final int HOST_PORT = 80;
+    private static final int HOST_PORT = 8765;
     private static final String HOST_API = "api";
 
     private OkHttpClient mHttpClient = new OkHttpClient();
 
-    // TODO: presunut do Config
-    private String mSession = "";
-
-    public void startSession(Context context) {
+    public void startSession(Context context, final Runnable callback) {
 
         final FormBody.Builder builder = new FormBody.Builder();
-        for (Map.Entry<String, String> entry : Config.get(context).entrySet()) {
+
+        // api key
+        builder.add(FORM_API_KEY, Config.get().getApiKey());
+
+        // device information
+        for (Map.Entry<String, String> entry : Config.getDeviceConfig(context).entrySet()) {
             builder.add(entry.getKey(), entry.getValue());
         }
 
@@ -68,21 +77,43 @@ public class RestClient {
                 .post(builder.build())
                 .build();
 
+        Log.d("default", "startSession: ");
+
         // async execute
         new HttpExecutor() {
             @Override
             protected void onPostExecute(String response) {
                 try {
+                    Log.d("default", "onPostExecute: " + response);
                     if (response == null) {
                         // exception?
                         return;
                     }
 
+                    //
                     final JSONObject jsonResponse = new JSONObject(response);
 
-                    // TODO: passovat response do Config
-                    mSession = jsonResponse.getString(RESPONSE_SESSION);
-                    Log.d("default", "onPostExecute: session " + mSession);
+                    //
+                    final String session = jsonResponse.getString(RESPONSE_SESSION);
+                    final boolean recordVideo = jsonResponse.getBoolean(RESPONSE_RECORD_VIDEO);
+                    final boolean recordEvent = jsonResponse.getBoolean(RESPONSE_RECORD_EVENT);
+                    final boolean recordWifiOnly = jsonResponse.getBoolean(RESPONSE_RECORD_WIFI_ONLY);
+                    final int videoFps = jsonResponse.getInt(RESPONSE_VIDEO_FPS);
+                    final int videoBitrate = jsonResponse.getInt(RESPONSE_VIDEO_BITRATE);
+                    final int videoHeight = jsonResponse.getInt(RESPONSE_VIDEO_HEIGHT);
+                    final int videoWidth = jsonResponse.getInt(RESPONSE_VIDEO_WIDTH);
+
+                    //
+                    Config.get().setSession(session);
+                    Config.get().setRecordingVideo(recordVideo);
+                    Config.get().setRecordingEvents(recordEvent);
+                    Config.get().setRecordingWifiOnly(recordWifiOnly);
+                    Config.get().setVideoFps(videoFps);
+                    Config.get().setVideoBitrate(videoBitrate);
+                    Config.get().setVideoHeight(videoHeight);
+                    Config.get().setVideoWidth(videoWidth);
+
+                    callback.run();
                 } catch (JSONException e) {
                     // malformed result
                     e.printStackTrace();
@@ -111,7 +142,7 @@ public class RestClient {
         // TODO: musi to byt multipart?
         final RequestBody multipartBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart(FORM_SESSION, mSession)
+                .addFormDataPart(FORM_SESSION, Config.get().getSession())
                 .addFormDataPart("event", jsonArray.toString())
                 .build();
 
@@ -150,7 +181,7 @@ public class RestClient {
                 .scheme("http")
                 .host(HOST_BASE)
                 .port(HOST_PORT)
-                .addPathSegment(HOST_TEMP)
+//                .addPathSegment(HOST_TEMP)
                 .addPathSegment(HOST_API)
                 .addPathSegment(service)
                 .build();
@@ -159,7 +190,7 @@ public class RestClient {
     private MultipartBody.Part buildSessionPart() {
         return MultipartBody.Part.create(
                 new FormBody.Builder()
-                        .add(FORM_SESSION, mSession)
+                        .add(FORM_SESSION, Config.get().getSession())
                         .build());
     }
 

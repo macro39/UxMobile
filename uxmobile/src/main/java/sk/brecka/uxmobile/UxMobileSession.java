@@ -15,6 +15,7 @@ import sk.brecka.uxmobile.core.EventRecorder;
 import sk.brecka.uxmobile.core.LifecycleCallback;
 import sk.brecka.uxmobile.core.VideoRecorder;
 import sk.brecka.uxmobile.net.RestClient;
+import sk.brecka.uxmobile.util.Config;
 
 /**
  * Created by matej on 23.10.2017.
@@ -34,9 +35,10 @@ public class UxMobileSession implements LifecycleCallback {
     private RestClient mRestClient;
 
 
-    public UxMobileSession(Application application) {
+    public UxMobileSession(Application application, String apiKey) {
         Log.d("default", "UxMobileSession: New UxMobile Session");
         mContext = application;
+        Config.get().setApiKey(apiKey);
 
         mLifecycleObserver = new LifecycleObserver(this);
 
@@ -49,11 +51,14 @@ public class UxMobileSession implements LifecycleCallback {
     }
 
     @Override
-    public void onFirstActivityStarted(Activity activity) {
-        mRestClient.startSession(activity);
-
-        mVideoRecorder.onFirstActivityStarted(activity);
-        mInputRecorder.onFirstActivityStarted(activity);
+    public void onFirstActivityStarted(final Activity activity) {
+        mRestClient.startSession(activity, new Runnable() {
+            @Override
+            public void run() {
+                mVideoRecorder.onFirstActivityStarted(activity);
+                mInputRecorder.onFirstActivityStarted(activity);
+            }
+        });
     }
 
     @Override
@@ -89,8 +94,7 @@ public class UxMobileSession implements LifecycleCallback {
 
     private void registerShakeSensor() {
         mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
-        mAccelerometer = mSensorManager
-                .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mShakeDetector = new ShakeSensor();
         mShakeDetector.setOnShakeListener(new ShakeSensor.OnShakeListener() {
 
@@ -104,7 +108,7 @@ public class UxMobileSession implements LifecycleCallback {
     private void uploadRecordings() {
         Log.d("default", "uploadRecordings: ");
         try {
-//            mRestClient.uploadVideo(mVideoRecorder.getOutput());
+            mRestClient.uploadVideo(mVideoRecorder.getOutput());
             mRestClient.uploadInput(mInputRecorder.getOutput());
         } catch (JSONException e) {
             Log.e("default", "uploadRecordings: ", e);
