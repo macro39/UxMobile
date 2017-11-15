@@ -9,6 +9,7 @@ import android.widget.RadioButton;
 import android.widget.RatingBar;
 import android.widget.SeekBar;
 import android.widget.Switch;
+import android.widget.ToggleButton;
 
 /**
  * Created by matej on 4.10.2017.
@@ -24,6 +25,7 @@ public enum ViewEnum {
     SWITCH,
     CHECK_BOX,
     RADIO_BUTTON,
+    TOGGLE_BUTTON,
     RATING_BAR;
 
     public static ViewEnum fromView(final View view) {
@@ -39,6 +41,8 @@ public enum ViewEnum {
             return CHECK_BOX;
         } else if (view instanceof RadioButton) {
             return RADIO_BUTTON;
+        } else if (view instanceof ToggleButton) {
+            return TOGGLE_BUTTON;
         } else if (view instanceof Button) {
             return BUTTON;
         } else if (view instanceof SeekBar) {
@@ -68,8 +72,10 @@ public enum ViewEnum {
                 return 6;
             case RADIO_BUTTON:
                 return 7;
-            case RATING_BAR:
+            case TOGGLE_BUTTON:
                 return 8;
+            case RATING_BAR:
+                return 9;
             default:
                 return -1;
         }
