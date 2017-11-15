@@ -5,11 +5,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
+import android.widget.TabWidget;
 import android.widget.TextView;
 
 /**
@@ -67,18 +69,10 @@ public class ViewUtils {
     public static String getViewValue(final View view) {
         if (view == null) {
             return "";
-        } else if (view instanceof EditText) {
-            return "";
         } else if (view instanceof SeekBar) {
             return String.valueOf(((SeekBar) view).getProgress());
-        } else if (view instanceof ImageButton) {
-            return "";
-        } else if (view instanceof RadioButton) {
-            return String.valueOf(((RadioButton) view).isChecked());
-        } else if (view instanceof CheckBox) {
-            return String.valueOf(((CheckBox) view).isChecked());
-        } else if (view instanceof Switch) {
-            return String.valueOf(((Switch) view).isChecked());
+        } else if (view instanceof CompoundButton) {
+            return String.valueOf(((CompoundButton) view).isChecked());
         } else {
             return "";
         }
