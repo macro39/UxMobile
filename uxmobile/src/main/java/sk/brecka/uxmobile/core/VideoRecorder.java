@@ -61,7 +61,7 @@ public class VideoRecorder extends BaseRecorder {
             mEncoder = new NativeEncoder(screenWidth, screenHeight, framerate, bitrate, mVideoPath);
             mScreenBuffer = new ScreenBuffer(screenWidth, screenHeight);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("UxMobile", "doInBackground: ", e);
         }
 
         final Handler handler = new Handler();
@@ -98,7 +98,7 @@ public class VideoRecorder extends BaseRecorder {
             // TODO: handlovanie ak nenatocil nic
             mEncoder.finish();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("UxMobile", "doInBackground: ", e);
         }
 
         mVideoTask.cancel();
@@ -132,7 +132,7 @@ public class VideoRecorder extends BaseRecorder {
                     mEncoder.encodeFrame(mScreenBuffer.getBitmap());
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e("UxMobile", "doInBackground: ", e);
             }
             return null;
         }

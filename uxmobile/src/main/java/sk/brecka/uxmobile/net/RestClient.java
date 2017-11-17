@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -49,13 +50,13 @@ public class RestClient {
     private static final String RESPONSE_VIDEO_HEIGHT = "video_height";
     private static final String RESPONSE_VIDEO_WIDTH = "video_width";
 
-    private static final String HOST_BASE = "10.11.41.56";
-//    private static final String HOST_BASE = "team11-17.studenti.fiit.stuba.sk";
+    //    private static final String HOST_BASE = "10.11.41.56";
+    private static final String HOST_BASE = "team11-17.studenti.fiit.stuba.sk";
 
     // TODO: toto odstranit ked sa mergne
-//    private static final String HOST_TEMP = "sfs";
+    private static final String HOST_TEMP = "sfs";
 
-    private static final int HOST_PORT = 8765;
+    private static final int HOST_PORT = 443;
     private static final String HOST_API = "api";
 
     private OkHttpClient mHttpClient = new OkHttpClient();
@@ -116,7 +117,7 @@ public class RestClient {
                     callback.run();
                 } catch (JSONException e) {
                     // malformed result
-                    e.printStackTrace();
+                    Log.e("UxMobile", "doInBackground: ", e);
                 }
             }
         }.execute(request);
@@ -129,7 +130,7 @@ public class RestClient {
 
         final RequestBody multipartBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addPart(buildSessionPart())
+                .addFormDataPart(FORM_SESSION, Config.get().getSession())
                 .addFormDataPart("file", file.getName(), fileForm)
                 .build();
 
@@ -165,6 +166,9 @@ public class RestClient {
                 Response response = null;
                 try {
                     response = mHttpClient.newCall(request).execute();
+
+                    Log.d("UxMobile", "doInBackground: "+response.body().string());
+
 //                    System.out.println("response start ----");
 //                    System.out.println(response.body().string());
 //                    System.out.println("response end ----");
@@ -178,10 +182,10 @@ public class RestClient {
 
     private HttpUrl buildUrl(String service) {
         return new HttpUrl.Builder()
-                .scheme("http")
+                .scheme("https")
                 .host(HOST_BASE)
                 .port(HOST_PORT)
-//                .addPathSegment(HOST_TEMP)
+                .addPathSegment(HOST_TEMP)
                 .addPathSegment(HOST_API)
                 .addPathSegment(service)
                 .build();
@@ -204,7 +208,10 @@ public class RestClient {
 
                 final Response response = mHttpClient.newCall(params[0]).execute();
 
-                // TODO: nejaka logika na response code atd
+                if (response.code() != HttpURLConnection.HTTP_OK) {
+                    Log.d("UxMobile", "doInBackground: " + response.code());
+                    return null;
+                }
 
                 final ResponseBody responseBody = response.body();
 
@@ -212,8 +219,10 @@ public class RestClient {
                     return responseBody.string();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e("UxMobile", "doInBackground: ", e);
             }
+
+            Log.d("UxMobile", "doInBackground: here" );
 
             return null;
         }
