@@ -49,8 +49,7 @@ public class VideoRecorder extends BaseRecorder {
         final String filename = String.valueOf(System.currentTimeMillis()) + ".mp4";
 
         // TODO: nezapisovat to na external storage
-        mVideoPath = Environment.getExternalStorageDirectory().toString() + "/" + filename;
-//        mVideoPath = mCurrentActivity.getFilesDir().toString() + "/" + filename;
+        mVideoPath = mCurrentActivity.getFilesDir().toString() + "/" + filename;
 
         final int screenWidth = Config.get().getVideoWidth();
         final int screenHeight = Config.get().getVideoHeight();

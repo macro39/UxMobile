@@ -13,8 +13,14 @@ import org.json.JSONException;
 import java.util.LinkedList;
 
 import sk.brecka.uxmobile.adapter.WindowCallbackAdapter;
-import sk.brecka.uxmobile.model.event.EventRecording;
+import sk.brecka.uxmobile.model.event.ClickEvent;
+import sk.brecka.uxmobile.model.EventRecording;
 import sk.brecka.uxmobile.model.ViewEnum;
+import sk.brecka.uxmobile.model.event.Event;
+import sk.brecka.uxmobile.model.event.FlingEvent;
+import sk.brecka.uxmobile.model.event.LongPressEvent;
+import sk.brecka.uxmobile.model.event.OrientationEvent;
+import sk.brecka.uxmobile.model.event.ScrollEvent;
 import sk.brecka.uxmobile.util.ViewUtils;
 
 
@@ -30,9 +36,13 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
     private int mOrientation;
     private boolean mConfigurationRecentlyChanged;
 
+    private long mStartTime;
+
     @Override
     public void onFirstActivityStarted(Activity activity) {
         super.onFirstActivityStarted(activity);
+
+        mStartTime = System.currentTimeMillis();
 
         // init
         mConfigurationRecentlyChanged = false;
@@ -46,7 +56,7 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
 
         // record
         if (!mConfigurationRecentlyChanged) {
-            mEventRecordings.addLast(new EventRecording(activity));
+            mEventRecordings.addLast(new EventRecording(activity, currentRelativeMillis()));
         }
 
         //
@@ -85,33 +95,67 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
 
         if (mOrientation != configuration.orientation) {
             mOrientation = configuration.orientation;
-            getLastRecording().addOrientationinput(configuration.orientation);
+
+            recordEvent(new OrientationEvent(currentRelativeMillis(), mOrientation));
         }
     }
 
     // gesture listener metody
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
-        final View touchedView = getTouchedView(e);
-        getLastRecording().addClickInput(e, ViewEnum.fromView(touchedView), ViewUtils.getViewText(touchedView), ViewUtils.getViewValue(touchedView));
+        final View rootView = getRootView();
+        final View touchedView = ViewUtils.getTouchedView(e, rootView);
+
+        recordEvent(new ClickEvent(currentRelativeMillis(),
+                e.getX() / rootView.getWidth(),
+                e.getY() / rootView.getHeight(),
+                ViewEnum.fromView(touchedView),
+                ViewUtils.getViewText(touchedView),
+                ViewUtils.getViewValue(touchedView)
+        ));
+
         return false;
     }
 
     @Override
     public void onLongPress(MotionEvent e) {
-        final View touchedView = getTouchedView(e);
-        getLastRecording().addLongPressInput(e, ViewEnum.fromView(touchedView), ViewUtils.getViewText(touchedView), ViewUtils.getViewValue(touchedView));
+        final View rootView = getRootView();
+        final View touchedView = ViewUtils.getTouchedView(e, rootView);
+
+        recordEvent(new LongPressEvent(currentRelativeMillis(),
+                e.getX() / rootView.getWidth(),
+                e.getY() / rootView.getHeight(),
+                ViewEnum.fromView(touchedView),
+                ViewUtils.getViewText(touchedView),
+                ViewUtils.getViewValue(touchedView)
+        ));
     }
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        getLastRecording().addScrollinput(e2, distanceX, distanceY);
+        final View rootView = getRootView();
+
+        recordEvent(new ScrollEvent(currentRelativeMillis(),
+                e2.getX() / rootView.getWidth(),
+                e2.getY() / rootView.getHeight(),
+                distanceX / rootView.getWidth(),
+                distanceY / rootView.getHeight()
+        ));
+
         return false;
     }
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        getLastRecording().addFlinginput(e2, velocityX, velocityY);
+        final View rootView = getRootView();
+
+        recordEvent(new FlingEvent(currentRelativeMillis(),
+                e2.getX() / rootView.getWidth(),
+                e2.getY() / rootView.getHeight(),
+                velocityX / rootView.getWidth(),
+                velocityY / rootView.getHeight()
+        ));
+
         return false;
     }
 
@@ -128,12 +172,16 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
     }
 
     //
-    private EventRecording getLastRecording() {
-        return mEventRecordings.getLast();
+    private void recordEvent(Event event) {
+        mEventRecordings.getLast().addEvent(event);
     }
 
-    private View getTouchedView(MotionEvent e) {
-        return ViewUtils.getTouchedView(e, mCurrentActivity.getWindow().getDecorView().getRootView());
+    private long currentRelativeMillis() {
+        return System.currentTimeMillis() - mStartTime;
+    }
+
+    private View getRootView() {
+        return mCurrentActivity.getWindow().getDecorView().getRootView();
     }
 
     public JSONArray getOutput() throws JSONException {

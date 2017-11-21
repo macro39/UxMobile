@@ -13,10 +13,10 @@ public class FlingEvent extends TouchEvent {
     protected static final int INDEX_VELOCITY_X = 4;
     protected static final int INDEX_VELOCITY_Y = 5;
 
-    private final int mVelocityX;
-    private final int mVelocityY;
+    private final double mVelocityX;
+    private final double mVelocityY;
 
-    FlingEvent(long startTime, int x, int y, int velocityX, int velocityY) {
+    public FlingEvent(long startTime, double x, double y, double velocityX, double velocityY) {
         super(startTime, x, y);
         mVelocityX = velocityX;
         mVelocityY = velocityY;

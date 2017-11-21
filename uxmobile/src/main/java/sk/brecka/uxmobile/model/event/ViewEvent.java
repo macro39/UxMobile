@@ -18,7 +18,7 @@ public abstract class ViewEvent extends TouchEvent {
     private final String mViewText;
     private final String mViewValue;
 
-    protected ViewEvent(long startTime, int x, int y, ViewEnum viewEnum, String viewText, String viewValue) {
+    protected ViewEvent(long startTime, double x, double y, ViewEnum viewEnum, String viewText, String viewValue) {
         super(startTime, x, y);
         mViewEnum = viewEnum;
         mViewText = viewText;

@@ -13,10 +13,10 @@ public class ScrollEvent extends TouchEvent {
     protected static final int INDEX_DISTANCE_X = 4;
     protected static final int INDEX_DISTANCE_Y = 5;
 
-    private final int mDistanceX;
-    private final int mDistanceY;
+    private final double mDistanceX;
+    private final double mDistanceY;
 
-    ScrollEvent(long startTime, int x, int y, int distanceX, int distanceY) {
+    public ScrollEvent(long startTime, double x, double y, double distanceX, double distanceY) {
         super(startTime, x, y);
         mDistanceX = distanceX;
         mDistanceY = distanceY;

@@ -51,7 +51,7 @@ public class RestClient {
     private static final String RESPONSE_VIDEO_WIDTH = "video_width";
 
     //    private static final String HOST_BASE = "10.11.41.56";
-    private static final String HOST_BASE = "team11-17.studenti.fiit.stuba.sk";
+    private static final String HOST_BASE = "mobux.team";
 
     // TODO: toto odstranit ked sa mergne
     private static final String HOST_TEMP = "sfs";

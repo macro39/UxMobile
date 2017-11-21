@@ -17,7 +17,7 @@ public abstract class Event {
     private final long mTime;
 
     protected Event(long startTime) {
-        mTime = System.currentTimeMillis() - startTime;
+        mTime = startTime;
     }
 
     protected abstract String getType();

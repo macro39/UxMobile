@@ -16,7 +16,7 @@ public class OrientationEvent extends Event {
 
     private final int mOrientation;
 
-    OrientationEvent(long startTime, int orientation) {
+    public OrientationEvent(long startTime, int orientation) {
         super(startTime);
         mOrientation = orientation;
     }

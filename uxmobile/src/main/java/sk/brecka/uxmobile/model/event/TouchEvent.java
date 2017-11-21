@@ -13,10 +13,10 @@ public abstract class TouchEvent extends Event {
     protected static final int INDEX_X = 2;
     protected static final int INDEX_Y = 3;
 
-    private final int mX;
-    private final int mY;
+    private final double mX;
+    private final double mY;
 
-    protected TouchEvent(long startTime, int x, int y) {
+    protected TouchEvent(long startTime, double x, double y) {
         super(startTime);
         mX = x;
         mY = y;
