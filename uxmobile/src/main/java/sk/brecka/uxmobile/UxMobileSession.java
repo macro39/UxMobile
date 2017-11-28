@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-import android.net.NetworkInfo;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -33,7 +32,7 @@ public class UxMobileSession implements LifecycleCallback {
     private LifecycleObserver mLifecycleObserver;
 
     private VideoRecorder mVideoRecorder;
-    private EventRecorder mInputRecorder;
+    private EventRecorder mEventRecorder;
     private RestClient mRestClient;
 
 
@@ -47,7 +46,7 @@ public class UxMobileSession implements LifecycleCallback {
         mLifecycleObserver = new LifecycleObserver(this);
 
         mVideoRecorder = new VideoRecorder();
-        mInputRecorder = new EventRecorder();
+        mEventRecorder = new EventRecorder();
         mRestClient = new RestClient();
 
         registerCallbacks(application);
@@ -63,25 +62,25 @@ public class UxMobileSession implements LifecycleCallback {
             }
         });
         mVideoRecorder.onFirstActivityStarted(activity);
-        mInputRecorder.onFirstActivityStarted(activity);
+        mEventRecorder.onFirstActivityStarted(activity);
     }
 
     @Override
     public void onEveryActivityStarted(Activity activity) {
         mVideoRecorder.onEveryActivityStarted(activity);
-        mInputRecorder.onEveryActivityStarted(activity);
+        mEventRecorder.onEveryActivityStarted(activity);
     }
 
     @Override
     public void onEveryActivityStopped(Activity activity) {
         mVideoRecorder.onEveryActivityStopped(activity);
-        mInputRecorder.onEveryActivityStopped(activity);
+        mEventRecorder.onEveryActivityStopped(activity);
     }
 
     @Override
     public void onLastActivityStopped(Activity activity) {
         mVideoRecorder.onLastActivityStopped(activity);
-        mInputRecorder.onLastActivityStopped(activity);
+        mEventRecorder.onLastActivityStopped(activity);
 
         uploadRecordings();
     }
@@ -89,12 +88,12 @@ public class UxMobileSession implements LifecycleCallback {
     @Override
     public void onConfigurationChanged(Configuration configuration) {
         mVideoRecorder.onConfigurationChanged(configuration);
-        mInputRecorder.onConfigurationChanged(configuration);
+        mEventRecorder.onConfigurationChanged(configuration);
     }
 
     public void onSessionStarted() {
         mVideoRecorder.onSessionStarted();
-        mInputRecorder.onSessionStarted();
+        mEventRecorder.onSessionStarted();
     }
 
     private void registerCallbacks(Application application) {
@@ -128,12 +127,16 @@ public class UxMobileSession implements LifecycleCallback {
             }
 
             if (Config.get().isRecordingEvents()) {
-                mRestClient.uploadInput(mInputRecorder.getOutput());
+                mRestClient.uploadInput(mEventRecorder.getOutput());
             }
 
         } catch (JSONException e) {
             Log.e("UxMobile", "uploadRecordings: ", e);
         }
 
+    }
+
+    public void addEvent(String eventName) {
+        mEventRecorder.addEvent(eventName);
     }
 }

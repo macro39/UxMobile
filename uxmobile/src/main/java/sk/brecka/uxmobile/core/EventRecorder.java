@@ -16,6 +16,7 @@ import sk.brecka.uxmobile.adapter.WindowCallbackAdapter;
 import sk.brecka.uxmobile.model.event.ClickEvent;
 import sk.brecka.uxmobile.model.EventRecording;
 import sk.brecka.uxmobile.model.ViewEnum;
+import sk.brecka.uxmobile.model.event.CustomEvent;
 import sk.brecka.uxmobile.model.event.Event;
 import sk.brecka.uxmobile.model.event.FlingEvent;
 import sk.brecka.uxmobile.model.event.LongPressEvent;
@@ -157,6 +158,10 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
         ));
 
         return false;
+    }
+
+    public void addEvent(String eventName) {
+        recordEvent(new CustomEvent(currentRelativeMillis(), eventName));
     }
 
     //
