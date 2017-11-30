@@ -65,6 +65,7 @@ public class IntroActivity extends Activity implements Handler.Callback {
 
         //
         UxMobile.start(this,"apikey123");
+//        Appsee.start("f21c0ac7a5624f39835472a48e3610ec");
     }
 
     @Override

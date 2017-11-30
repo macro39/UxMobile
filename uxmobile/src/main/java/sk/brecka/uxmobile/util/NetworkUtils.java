@@ -9,6 +9,14 @@ import android.net.NetworkInfo;
  */
 
 public class NetworkUtils {
+    public static final String TYPE_MOBILE = "mobile";
+    public static final String TYPE_WIFI = "wifi";
+    public static final String TYPE_MOBILE_DUN = "mobile_dun";
+    public static final String TYPE_WIMAX = "wimax";
+    public static final String TYPE_BLUETOOTH = "bluetooth";
+    public static final String TYPE_DUMMY = "dummy";
+    public static final String TYPE_ETHERNET = "ethernet";
+    public static final String TYPE_VPN = "vpn";
 
     public static boolean hasUnlimitedConnection(NetworkInfo networkInfo) {
         return (hasWifiConnection(networkInfo) || hasEthernetConnection(networkInfo));
@@ -55,7 +63,7 @@ public class NetworkUtils {
         return (networkInfo != null && networkInfo.isConnectedOrConnecting());
     }
 
-    private static NetworkInfo getNetworkInfo(Context context) {
+    public static NetworkInfo getNetworkInfo(Context context) {
         final ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         if (cm == null) {
@@ -63,6 +71,32 @@ public class NetworkUtils {
         }
 
         return cm.getActiveNetworkInfo();
+    }
+
+    public static String getConnectivityString(Context context) {
+        final NetworkInfo networkInfo = getNetworkInfo(context);
+        if (networkInfo != null) {
+            switch (networkInfo.getType()) {
+                case ConnectivityManager.TYPE_MOBILE:
+                    return TYPE_MOBILE;
+                case ConnectivityManager.TYPE_WIFI:
+                    return TYPE_WIFI;
+                case ConnectivityManager.TYPE_MOBILE_DUN:
+                    return TYPE_MOBILE_DUN;
+                case ConnectivityManager.TYPE_WIMAX:
+                    return TYPE_WIMAX;
+                case ConnectivityManager.TYPE_BLUETOOTH:
+                    return TYPE_BLUETOOTH;
+                case ConnectivityManager.TYPE_DUMMY:
+                    return TYPE_DUMMY;
+                case ConnectivityManager.TYPE_ETHERNET:
+                    return TYPE_ETHERNET;
+                case ConnectivityManager.TYPE_VPN:
+                    return TYPE_VPN;
+            }
+        }
+
+        return "";
     }
 
     private NetworkUtils() {

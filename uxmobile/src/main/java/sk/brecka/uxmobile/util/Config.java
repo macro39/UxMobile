@@ -1,16 +1,15 @@
 package sk.brecka.uxmobile.util;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.ViewConfiguration;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -34,14 +33,14 @@ public class Config {
     private static final String TAG_DEV_SCREEN_HEIGHT = "screen_height";
     private static final String TAG_DEV_SCREEN_DPI = "screen_dpi";
     private static final String TAG_DEV_CLIENT_TIME = "client_time";
-    private static final String TAG_DEV_REQUEST_ID = "request_id";
-    private static final String TAG_DEV_DEVICE_CODE_INTERNAL = "device_code_internal";
-    private static final String TAG_DEV_MANUFACTURER = "manufacturer";
+    private static final String TAG_DEV_BRAND = "brand";
+    private static final String TAG_DEV_DEVICE = "device";
     private static final String TAG_DEV_MODEL = "model";
     private static final String TAG_DEV_PHYSICAL_MENU_BUTTON = "physical_menu_button";
     private static final String TAG_DEV_FONT_SCALE = "font_scale";
     private static final String TAG_DEV_DEVICE_UNIQUE_ID = "device_id";
-    private static final String TAG_DEV_INITIAL_ORIENTATION = "initial_orientation";
+    private static final String TAG_DEV_SCREEN_LARGE = "is_large";
+    private static final String TAG_DEV_SCREEN_ORIENTATION = "initial_orientation";
 
     // session information
     private String mApiKey;
@@ -95,19 +94,29 @@ public class Config {
 
         final DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
         final Resources resources = context.getResources();
+        final Configuration configuration = resources.getConfiguration();
 
         deviceConfig.put(TAG_DEV_OS_VERSION, Build.VERSION.RELEASE);
         deviceConfig.put(TAG_DEV_SDK_VERSION, String.valueOf(Build.VERSION.SDK_INT));
+
+        deviceConfig.put(TAG_DEV_DEVICE, Build.DEVICE);
+        deviceConfig.put(TAG_DEV_BRAND, Build.BRAND);
+        deviceConfig.put(TAG_DEV_MODEL, Build.MODEL);
+
+        deviceConfig.put(TAG_DEV_DEVICE_UNIQUE_ID, Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID));
+
         deviceConfig.put(TAG_DEV_LOCALE, Locale.getDefault().getLanguage());
+
         deviceConfig.put(TAG_DEV_SCREEN_WIDTH, String.valueOf(displayMetrics.widthPixels));
         deviceConfig.put(TAG_DEV_SCREEN_HEIGHT, String.valueOf(displayMetrics.heightPixels));
-        deviceConfig.put(TAG_DEV_SCREEN_DPI, String.valueOf(resources.getConfiguration().densityDpi));
-        deviceConfig.put(TAG_DEV_CLIENT_TIME, new Date().toString());
-        deviceConfig.put(TAG_DEV_MANUFACTURER, Build.MANUFACTURER);
-        deviceConfig.put(TAG_DEV_MODEL, Build.MODEL);
+        deviceConfig.put(TAG_DEV_SCREEN_DPI, String.valueOf(configuration.densityDpi));
+        deviceConfig.put(TAG_DEV_SCREEN_ORIENTATION, String.valueOf(configuration.orientation));
+        deviceConfig.put(TAG_DEV_SCREEN_LARGE, String.valueOf((configuration.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE));
+
+        deviceConfig.put(TAG_DEV_CONNECTIVITY, NetworkUtils.getConnectivityString(context));
         deviceConfig.put(TAG_DEV_PHYSICAL_MENU_BUTTON, String.valueOf(ViewConfiguration.get(context).hasPermanentMenuKey()));
         deviceConfig.put(TAG_DEV_FONT_SCALE, String.valueOf(resources.getConfiguration().fontScale));
-        deviceConfig.put(TAG_DEV_DEVICE_UNIQUE_ID, Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID));
+        deviceConfig.put(TAG_DEV_CLIENT_TIME, new Date().toString());
 
         return deviceConfig;
     }
