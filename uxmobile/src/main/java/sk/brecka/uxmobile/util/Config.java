@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.ViewConfiguration;
 
 import java.util.Date;
@@ -33,14 +34,14 @@ public class Config {
     private static final String TAG_DEV_SCREEN_HEIGHT = "screen_height";
     private static final String TAG_DEV_SCREEN_DPI = "screen_dpi";
     private static final String TAG_DEV_CLIENT_TIME = "client_time";
-    private static final String TAG_DEV_BRAND = "brand";
     private static final String TAG_DEV_DEVICE = "device";
+    private static final String TAG_DEV_MANUFACTURER = "brand";
     private static final String TAG_DEV_MODEL = "model";
     private static final String TAG_DEV_PHYSICAL_MENU_BUTTON = "physical_menu_button";
     private static final String TAG_DEV_FONT_SCALE = "font_scale";
     private static final String TAG_DEV_DEVICE_UNIQUE_ID = "device_id";
     private static final String TAG_DEV_SCREEN_LARGE = "is_large";
-    private static final String TAG_DEV_SCREEN_ORIENTATION = "initial_orientation";
+    private static final String TAG_DEV_SCREEN_ORIENTATION = "orientation";
 
     // session information
     private String mApiKey;
@@ -100,7 +101,7 @@ public class Config {
         deviceConfig.put(TAG_DEV_SDK_VERSION, String.valueOf(Build.VERSION.SDK_INT));
 
         deviceConfig.put(TAG_DEV_DEVICE, Build.DEVICE);
-        deviceConfig.put(TAG_DEV_BRAND, Build.BRAND);
+        deviceConfig.put(TAG_DEV_MANUFACTURER, Build.MANUFACTURER);
         deviceConfig.put(TAG_DEV_MODEL, Build.MODEL);
 
         deviceConfig.put(TAG_DEV_DEVICE_UNIQUE_ID, Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID));
