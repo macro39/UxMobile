@@ -1,5 +1,8 @@
 Performance nahravania
+Opravit aby nahravanie spravne sedelo pri otoceni
 Kvalita nahravania
+Vymazavanie nahravok
+	- odosielanie neodoslanych nahravok?
 Priebezne odosielanie videi po castiach
 Nahravat dialogy
 Nahravanie crashov

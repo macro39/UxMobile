@@ -47,9 +47,9 @@ public class Config {
     private String mApiKey;
     private String mSession;
 
-    private boolean mIsRecordingVideo;
-    private boolean mIsRecordingEvents;
-    private boolean mIsRecordingWifiOnly;
+    private boolean mIsRecordingVideo = false;
+    private boolean mIsRecordingEvents = false;
+    private boolean mIsRecordingWifiOnly = true;
 
     private int mVideoFps;
     private int mVideoBitrate;

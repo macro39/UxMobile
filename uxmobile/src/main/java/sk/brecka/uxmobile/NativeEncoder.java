@@ -78,10 +78,15 @@ public class NativeEncoder {
             Canvas canvas = null;
             try {
                 canvas = mRenderingSurface.lockCanvas(mRect);
-                canvas.drawBitmap(bitmap, 0, 0, null);
+
+                if (canvas != null) {
+                    canvas.drawBitmap(bitmap, 0, 0, null);
+                }
             } finally {
                 // tu to failne na emulatore
-                mRenderingSurface.unlockCanvasAndPost(canvas);
+                if (canvas != null) {
+                    mRenderingSurface.unlockCanvasAndPost(canvas);
+                }
             }
         }
     }
