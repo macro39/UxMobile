@@ -84,7 +84,7 @@ public class NativeEncoder {
                 }
             } finally {
                 // tu to failne na emulatore
-                if (canvas != null) {
+                if (canvas != null && mRenderingSurface != null) {
                     mRenderingSurface.unlockCanvasAndPost(canvas);
                 }
             }

@@ -11,7 +11,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.util.Iterator;
 import java.util.Map;
 
 import okhttp3.FormBody;
@@ -50,11 +49,10 @@ public class RestClient {
     private static final String RESPONSE_VIDEO_HEIGHT = "video_height";
     private static final String RESPONSE_VIDEO_WIDTH = "video_width";
 
-    //    private static final String HOST_BASE = "10.11.41.56";
     private static final String HOST_BASE = "mobux.team";
 
-    // TODO: toto odstranit ked sa mergne
-    private static final String HOST_TEMP = "sfs";
+    private static final String HOST_WEBAPP = "mobux_dev";
+//    private static final String HOST_WEBAPP = "sfs";
 
     private static final int HOST_PORT = 443;
     private static final String HOST_API = "api";
@@ -70,6 +68,7 @@ public class RestClient {
 
         // device information
         for (Map.Entry<String, String> entry : Config.getDeviceConfig(context).entrySet()) {
+            Log.d("UxMobile", "startSession: " + entry.getKey() + " " + entry.getValue());
             builder.add(entry.getKey(), entry.getValue());
         }
 
@@ -167,7 +166,7 @@ public class RestClient {
                 try {
                     response = mHttpClient.newCall(request).execute();
 
-                    Log.d("UxMobile", "doInBackground: "+response.body().string());
+                    Log.d("UxMobile", "doInBackground: " + response.body().string());
 
 //                    System.out.println("response start ----");
 //                    System.out.println(response.body().string());
@@ -185,7 +184,7 @@ public class RestClient {
                 .scheme("https")
                 .host(HOST_BASE)
                 .port(HOST_PORT)
-                .addPathSegment(HOST_TEMP)
+                .addPathSegment(HOST_WEBAPP)
                 .addPathSegment(HOST_API)
                 .addPathSegment(service)
                 .build();
@@ -222,7 +221,7 @@ public class RestClient {
                 Log.e("UxMobile", "doInBackground: ", e);
             }
 
-            Log.d("UxMobile", "doInBackground: here" );
+            Log.d("UxMobile", "doInBackground: here");
 
             return null;
         }
