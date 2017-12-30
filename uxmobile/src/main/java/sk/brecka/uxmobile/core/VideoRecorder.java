@@ -1,12 +1,11 @@
 package sk.brecka.uxmobile.core;
 
 import android.app.Activity;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
 import java.io.File;
 import java.io.IOException;
@@ -108,14 +107,15 @@ public class VideoRecorder extends BaseRecorder {
     }
 
     private void captureFrame() {
-        final View rootView = mCurrentActivity.getWindow().getDecorView().getRootView();
+        // TODO: ak crashne castovanie alebo getChild() tak treba inak premysliet nahravanie
+        final View rootLayout = ((ViewGroup) mCurrentActivity.getWindow().getDecorView().getRootView()).getChildAt(0);
 
-        if (rootView == null || (rootView.getWidth() == 0 && rootView.getHeight() == 0)) {
+        if (rootLayout == null || (rootLayout.getWidth() == 0 && rootLayout.getHeight() == 0)) {
             // nothing to record
             return;
         }
 
-        mScreenBuffer.drawToBuffer(rootView);
+        mScreenBuffer.drawToBuffer(rootLayout);
     }
 
     public File getOutput() {
