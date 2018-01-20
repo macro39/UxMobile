@@ -51,8 +51,8 @@ public class RestClient {
 
     private static final String HOST_BASE = "mobux.team";
 
-    private static final String HOST_WEBAPP = "mobux_dev";
-//    private static final String HOST_WEBAPP = "sfs";
+//    private static final String HOST_WEBAPP = "mobux_dev";
+    private static final String HOST_WEBAPP = "sfs";
 
     private static final int HOST_PORT = 443;
     private static final String HOST_API = "api";
@@ -77,7 +77,7 @@ public class RestClient {
                 .post(builder.build())
                 .build();
 
-        Log.d("UxMobile", "startSession: ");
+        Log.d("UxMobile", "startSession: " + request.url().toString());
 
         // async execute
         new HttpExecutor() {

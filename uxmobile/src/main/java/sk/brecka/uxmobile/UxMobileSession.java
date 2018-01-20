@@ -51,6 +51,8 @@ public class UxMobileSession implements LifecycleCallback {
 
         registerCallbacks(application);
 //        registerShakeSensor();
+
+        MyExceptionHandler.register();
     }
 
     @Override

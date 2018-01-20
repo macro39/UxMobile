@@ -1,6 +1,7 @@
 package me.blog.korn123.easydiary.activities;
 
 import android.annotation.TargetApi;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -17,6 +18,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
@@ -35,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -110,7 +114,7 @@ public class DiaryReadActivity extends EasyDiaryActivity {
 
         setContentView(R.layout.activity_diary_read);
         ButterKnife.bind(this);
-        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(getString(R.string.read_diary_detail_title));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -177,7 +181,7 @@ public class DiaryReadActivity extends EasyDiaryActivity {
         final PlaceholderFragment fragment = mSectionsPagerAdapter.getFragment(mViewPager.getCurrentItem());
         float fontSize = fragment.mTitle.getTextSize();
 
-        switch(view.getId()) {
+        switch (view.getId()) {
             case R.id.zoomIn:
                 CommonUtils.saveFloatPreference(DiaryReadActivity.this, Constants.SETTING_FONT_SIZE, fontSize + 5);
                 fragment.setFontsSize();
@@ -220,8 +224,7 @@ public class DiaryReadActivity extends EasyDiaryActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId())
-        {
+        switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
 //                this.overridePendingTransition(R.anim.anim_left_to_center, R.anim.anim_center_to_right);
@@ -368,7 +371,6 @@ public class DiaryReadActivity extends EasyDiaryActivity {
     }
 
 
-
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -394,7 +396,8 @@ public class DiaryReadActivity extends EasyDiaryActivity {
         @BindView(R.id.photoContainerScrollView)
         HorizontalScrollView mHorizontalScrollView;
 
-        public PlaceholderFragment() {}
+        public PlaceholderFragment() {
+        }
 
         /**
          * Returns a new instance of this fragment for the given section
@@ -414,13 +417,34 @@ public class DiaryReadActivity extends EasyDiaryActivity {
                                  Bundle savedInstanceState) {
 
             // bind view
-            View rootView = inflater.inflate(R.layout.fragment_diary_read, container, false);
+            final View rootView = inflater.inflate(R.layout.fragment_diary_read, container, false);
             mContents = (TextView) rootView.findViewById(R.id.contents);
             mTitle = (TextView) rootView.findViewById(R.id.title);
             mDate = (TextView) rootView.findViewById(R.id.date);
             mWeather = (ImageView) rootView.findViewById(R.id.weather);
             ViewGroup mPhotoContainer = (ViewGroup) rootView.findViewById(R.id.photoContainer);
             HorizontalScrollView mHorizontalScrollView = (HorizontalScrollView) rootView.findViewById(R.id.photoContainerScrollView);
+
+            //
+            rootView.findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    throw new RuntimeException("Test Exception fam");
+
+//                    Log.d("UxMobile", "onClick: showing dialog");
+//                    Calendar mcurrentTime = Calendar.getInstance();
+//                    final int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+//                    final int minute = mcurrentTime.get(Calendar.MINUTE);
+//
+//                    new TimePickerDialog(rootView.getContext(), new TimePickerDialog.OnTimeSetListener() {
+//                        @Override
+//                        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+//                            //
+//                        }
+//                    }, hour, minute, true).show();
+                }
+            });
 
             mSequence = getArguments().getInt(Constants.DIARY_SEQUENCE);
             DiaryDto diaryDto = EasyDiaryDbHelper.readDiaryBy(mSequence);

@@ -13,7 +13,11 @@ import android.support.v4.app.ActivityCompat;
 import android.util.TypedValue;
 import android.widget.TextView;
 
+//import com.appsee.Appsee;
+//import com.uxcam.UXCam;
+
 import com.appsee.Appsee;
+import com.uxcam.UXCam;
 
 import java.util.Locale;
 
@@ -64,8 +68,10 @@ public class IntroActivity extends Activity implements Handler.Callback {
         new Handler(this).sendEmptyMessageDelayed(START_MAIN_ACTIVITY, 500);
 
         //
-        UxMobile.start(this,"apikey123");
+        UxMobile.start(this,"2978d3dd-3b07-4b33-ab3b-5f482fe3862b");
 //        Appsee.start("f21c0ac7a5624f39835472a48e3610ec");
+//        UXCam.startWithKey("868f9c6b3f27106");
+
     }
 
     @Override
