@@ -71,9 +71,6 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
             return;
         }
 
-        //
-        mGestureDetector = new GestureDetector(activity, this);
-
         activity.getWindow().setCallback(new WindowCallbackAdapter(previousCallback) {
             @Override
             public boolean dispatchTouchEvent(MotionEvent event) {
@@ -81,6 +78,9 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
                 return super.dispatchTouchEvent(event);
             }
         });
+
+        //
+        mGestureDetector = new GestureDetector(activity, this);
     }
 
     @Override

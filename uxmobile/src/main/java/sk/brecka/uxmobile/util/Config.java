@@ -1,5 +1,6 @@
 package sk.brecka.uxmobile.util;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -42,6 +43,7 @@ public class Config {
     private static final String TAG_DEV_DEVICE_UNIQUE_ID = "device_id";
     private static final String TAG_DEV_SCREEN_LARGE = "is_large";
     private static final String TAG_DEV_SCREEN_ORIENTATION = "orientation";
+    private static final String TAG_DEV_TOTAL_MEMORY = "total_memory";
 
     // session information
     private String mApiKey;
@@ -118,6 +120,11 @@ public class Config {
         deviceConfig.put(TAG_DEV_PHYSICAL_MENU_BUTTON, String.valueOf(ViewConfiguration.get(context).hasPermanentMenuKey()));
         deviceConfig.put(TAG_DEV_FONT_SCALE, String.valueOf(resources.getConfiguration().fontScale));
         deviceConfig.put(TAG_DEV_CLIENT_TIME, new Date().toString());
+
+        ActivityManager actManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
+        actManager.getMemoryInfo(memoryInfo);
+        deviceConfig.put(TAG_DEV_TOTAL_MEMORY, String.valueOf(memoryInfo.totalMem));
 
         return deviceConfig;
     }
