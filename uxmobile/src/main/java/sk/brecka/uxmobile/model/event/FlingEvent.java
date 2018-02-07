@@ -8,8 +8,6 @@ import org.json.JSONException;
  */
 
 public class FlingEvent extends TouchEvent {
-    private static final String TYPE_FLING = "f";
-
     protected static final int INDEX_VELOCITY_X = 4;
     protected static final int INDEX_VELOCITY_Y = 5;
 

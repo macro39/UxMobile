@@ -11,6 +11,14 @@ import org.json.JSONObject;
  */
 
 public abstract class Event {
+    protected static final String TYPE_CUSTOM = "u";
+    protected static final String TYPE_CLICK = "c";
+    protected static final String TYPE_EXCEPTION = "e";
+    protected static final String TYPE_FLING = "f";
+    protected static final String TYPE_LONG_PRESS = "l";
+    protected static final String TYPE_SCROLL = "s";
+    protected static final String TYPE_ORIENTATION = "o";
+
     protected static final int INDEX_TYPE = 0;
     protected static final int INDEX_TIME = 1;
 

@@ -99,12 +99,12 @@ public class DiaryMainActivity extends EasyDiaryActivity {
         }
 
         // application finish 확인
-        if(getIntent().getBooleanExtra(Constants.APP_FINISH_FLAG, false)) {
+        if (getIntent().getBooleanExtra(Constants.APP_FINISH_FLAG, false)) {
             finish();
         }
 
         mCurrentTimeMillis = System.currentTimeMillis();
-        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(getString(R.string.read_diary_title));
 
@@ -166,6 +166,8 @@ public class DiaryMainActivity extends EasyDiaryActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.crash:
+                throw new RuntimeException("Test Crash App");
             case android.R.id.home:
                 finish();
                 break;
@@ -196,7 +198,7 @@ public class DiaryMainActivity extends EasyDiaryActivity {
 
     @OnClick({R.id.speechButton, R.id.insertDiaryButton})
     void onClick(View view) {
-        switch(view.getId()) {
+        switch (view.getId()) {
             case R.id.speechButton:
                 showSpeechDialog();
                 break;
@@ -290,7 +292,7 @@ public class DiaryMainActivity extends EasyDiaryActivity {
     }
 
     private void bindView() {
-        mSpeechButton = (FloatingActionButton)findViewById(R.id.speechButton);
+        mSpeechButton = (FloatingActionButton) findViewById(R.id.speechButton);
     }
 
     private void bindEvent() {
@@ -321,18 +323,20 @@ public class DiaryMainActivity extends EasyDiaryActivity {
         });
 
         mQuery.addTextChangedListener(new TextWatcher() {
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
 
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 refreshList(String.valueOf(charSequence));
             }
 
-            public void afterTextChanged(Editable editable) {}
+            public void afterTextChanged(Editable editable) {
+            }
         });
 
         mDiaryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                DiaryDto diaryDto = (DiaryDto)adapterView.getAdapter().getItem(i);
+                DiaryDto diaryDto = (DiaryDto) adapterView.getAdapter().getItem(i);
                 Intent detailIntent = new Intent(DiaryMainActivity.this, DiaryReadActivity.class);
                 detailIntent.putExtra(Constants.DIARY_SEQUENCE, diaryDto.getSequence());
                 detailIntent.putExtra(Constants.DIARY_SEARCH_QUERY, mDiaryMainItemAdapter.getCurrentQuery());

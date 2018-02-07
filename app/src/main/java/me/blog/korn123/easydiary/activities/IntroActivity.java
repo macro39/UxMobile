@@ -68,8 +68,8 @@ public class IntroActivity extends Activity implements Handler.Callback {
         new Handler(this).sendEmptyMessageDelayed(START_MAIN_ACTIVITY, 500);
 
         //
-        UxMobile.start(this,"2978d3dd-3b07-4b33-ab3b-5f482fe3862b");
-//        Appsee.start("f21c0ac7a5624f39835472a48e3610ec");
+        UxMobile.start(this,"9f5a2fdd-266e-446d-b753-7da883ec3d12");
+//        Appsee.start("31288f9be8424ddfa276f4cf85112f5a");
 //        UXCam.startWithKey("868f9c6b3f27106");
 
     }

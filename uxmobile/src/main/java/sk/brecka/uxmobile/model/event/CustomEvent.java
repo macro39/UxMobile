@@ -8,8 +8,6 @@ import org.json.JSONException;
  */
 
 public class CustomEvent extends Event {
-    private static final String TYPE_CUSTOM = "u";
-
     protected static final int INDEX_EVENT_NAME = 2;
 
     private final String mEventName;

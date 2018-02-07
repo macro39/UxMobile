@@ -17,8 +17,13 @@ public class MyExceptionHandler implements Thread.UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         // TODO: nejaky log
-        Log.e("UxMobile", "uncaughtException: " + e.toString());
+        Log.e("UxMobile", "uncaughtException: " + e);
         e.printStackTrace();
+
+        UxMobile.getSession().addExceptionEvent(e);
+
+        Log.d("UxMobile", "uncaughtException: attempting to upload");
+        UxMobile.getSession().uploadRecordings();
 
         // TODO: pozor: moze byt volane multithreadovo
 

@@ -1,7 +1,7 @@
 package me.blog.korn123.easydiary.activities;
 
 import android.annotation.TargetApi;
-import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -18,7 +18,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,7 +28,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
@@ -38,7 +36,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -429,20 +426,7 @@ public class DiaryReadActivity extends EasyDiaryActivity {
             rootView.findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                    throw new RuntimeException("Test Exception fam");
-
-//                    Log.d("UxMobile", "onClick: showing dialog");
-//                    Calendar mcurrentTime = Calendar.getInstance();
-//                    final int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                    final int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                    new TimePickerDialog(rootView.getContext(), new TimePickerDialog.OnTimeSetListener() {
-//                        @Override
-//                        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-//                            //
-//                        }
-//                    }, hour, minute, true).show();
+                    //
                 }
             });
 

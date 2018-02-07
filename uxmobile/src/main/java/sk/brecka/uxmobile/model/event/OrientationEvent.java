@@ -10,8 +10,6 @@ import sk.brecka.uxmobile.model.event.Event;
  */
 
 public class OrientationEvent extends Event {
-    private static final String TYPE_ORIENTATION = "o";
-
     protected static final int INDEX_ORIENTATION = 2;
 
     private final int mOrientation;

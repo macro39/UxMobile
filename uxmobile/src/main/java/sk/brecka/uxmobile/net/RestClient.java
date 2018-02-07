@@ -23,6 +23,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import sk.brecka.uxmobile.util.Config;
+import sk.brecka.uxmobile.util.LongLog;
 
 /**
  * Created by matej on 25.8.2017.
@@ -51,7 +52,7 @@ public class RestClient {
 
     private static final String HOST_BASE = "mobux.team";
 
-//    private static final String HOST_WEBAPP = "mobux_dev";
+    //    private static final String HOST_WEBAPP = "mobux_dev";
     private static final String HOST_WEBAPP = "sfs";
 
     private static final int HOST_PORT = 443;
@@ -125,6 +126,15 @@ public class RestClient {
 
     public void uploadVideo(final File file) {
 
+        if (file == null) {
+            Log.d("UxMobile", "uploadVideo: file is null, not uploading");
+            return;
+        }
+
+        if (!file.exists()) {
+            return;
+        }
+
         RequestBody fileForm = FormBody.create(MEDIA_TYPE_MP4, file);
 
         final RequestBody multipartBody = new MultipartBody.Builder()
@@ -135,10 +145,16 @@ public class RestClient {
 
         final HttpUrl url = buildUrl(SERVICE_VIDEO_UPLOAD);
 
-        upload(url, multipartBody);
+        uploadAsync(url, multipartBody);
     }
 
-    public void uploadInput(final JSONArray jsonArray) {
+    public void uploadEvents(final JSONArray jsonArray) {
+
+        if (jsonArray == null) {
+            Log.d("UxMobile", "uploadVideo: json is null, not uploading");
+            return;
+        }
+
         // TODO: musi to byt multipart?
         final RequestBody multipartBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
@@ -146,34 +162,38 @@ public class RestClient {
                 .addFormDataPart("event", jsonArray.toString())
                 .build();
 
-        Log.d("UxMobile", "uploadInput: " + jsonArray.toString());
+        Log.d("UxMobile", "uploadEvents: " + jsonArray.toString());
 
         final HttpUrl url = buildUrl(SERVICE_INPUT_UPLOAD);
 
-        upload(url, multipartBody);
+        uploadAsync(url, multipartBody);
     }
 
+
     private void upload(final HttpUrl url, final RequestBody requestBody) {
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        Response response;
+        try {
+            response = mHttpClient.newCall(request).execute();
+
+            LongLog.d("UxMobile", "doInBackground: " + response.body().string());
+        } catch (IOException e) {
+            Log.e("UxMobile", "doInBackground: ", e);
+        }
+    }
+
+    private void uploadAsync(final HttpUrl url, final RequestBody requestBody) {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
-                Request request = new Request.Builder()
-                        .url(url)
-                        .post(requestBody)
-                        .build();
 
-                Response response = null;
-                try {
-                    response = mHttpClient.newCall(request).execute();
+                upload(url, requestBody);
 
-                    Log.d("UxMobile", "doInBackground: " + response.body().string());
-
-//                    System.out.println("response start ----");
-//                    System.out.println(response.body().string());
-//                    System.out.println("response end ----");
-                } catch (IOException e) {
-                    Log.e("UxMobile", "doInBackground: ", e);
-                }
                 return null;
             }
         }.execute();
@@ -201,7 +221,7 @@ public class RestClient {
         @Override
         protected String doInBackground(Request... params) {
             try {
-                if (params.length < 1) {
+                if (params.length != 1) {
                     return null;
                 }
 
@@ -209,6 +229,7 @@ public class RestClient {
 
                 if (response.code() != HttpURLConnection.HTTP_OK) {
                     Log.d("UxMobile", "doInBackground: " + response.code());
+//                    LongLog.d("UxMobile", "doInBackground: " + response.body().string());
                     return null;
                 }
 
@@ -220,8 +241,6 @@ public class RestClient {
             } catch (IOException e) {
                 Log.e("UxMobile", "doInBackground: ", e);
             }
-
-            Log.d("UxMobile", "doInBackground: here");
 
             return null;
         }

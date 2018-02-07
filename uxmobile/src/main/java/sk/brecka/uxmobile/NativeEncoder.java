@@ -9,6 +9,7 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.os.Build;
+import android.util.Log;
 import android.view.Surface;
 
 import java.io.IOException;
@@ -41,6 +42,11 @@ public class NativeEncoder {
     public NativeEncoder(int screenWidth, int screenHeight, int framerate, int bitrate, String filePath) throws IOException {
 
         // format
+        // TODO: MediaCodec nema rad ked je vyska/sirka neparna a crashne
+        // TODO: tento "fix" odstranit
+        screenHeight += screenHeight % 2 != 0 ? 1 : 0;
+        screenWidth += screenWidth % 2 != 0 ? 1 : 0;
+
         mMediaFormat = MediaFormat.createVideoFormat(MIME_TYPE, screenWidth, screenHeight);
         mMediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
         mMediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
@@ -49,6 +55,7 @@ public class NativeEncoder {
 
         // codec
         mEncoder = MediaCodec.createEncoderByType(MIME_TYPE);
+        // TODO: crash na S3 -> java.lang.NoSuchMethodError: android.media.MediaCodec.reset
         mEncoder.reset();
         mEncoder.configure(mMediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 

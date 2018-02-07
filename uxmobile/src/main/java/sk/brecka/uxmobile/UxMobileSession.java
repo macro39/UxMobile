@@ -116,7 +116,7 @@ public class UxMobileSession implements LifecycleCallback {
         });
     }
 
-    private void uploadRecordings() {
+    void uploadRecordings() {
         Log.d("UxMobile", "uploadRecordings ");
         try {
             // only continue if uploading isn't set to wifi only or the device has an unlimited connection
@@ -129,16 +129,19 @@ public class UxMobileSession implements LifecycleCallback {
             }
 
             if (Config.get().isRecordingEvents()) {
-                mRestClient.uploadInput(mEventRecorder.getOutput());
+                mRestClient.uploadEvents(mEventRecorder.getOutput());
             }
 
         } catch (JSONException e) {
             Log.e("UxMobile", "uploadRecordings: ", e);
         }
-
     }
 
-    public void addEvent(String eventName) {
+    public void addCustomEvent(String eventName) {
         mEventRecorder.addEvent(eventName);
+    }
+
+    public void addExceptionEvent(Throwable throwable){
+        mEventRecorder.addExceptionEvent(throwable);
     }
 }

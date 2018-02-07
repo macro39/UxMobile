@@ -20,9 +20,13 @@ public class UxMobile {
         }
     }
 
+    public static UxMobileSession getSession() {
+        return sSession;
+    }
+
     public static void addEvent(String eventName) {
         if (sSession != null) {
-            sSession.addEvent(eventName);
+            sSession.addCustomEvent(eventName);
         } else {
             // exception?
         }

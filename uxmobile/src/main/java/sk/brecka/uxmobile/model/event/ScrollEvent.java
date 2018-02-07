@@ -8,8 +8,6 @@ import org.json.JSONException;
  */
 
 public class ScrollEvent extends TouchEvent {
-    private static final String TYPE_SCROLL = "s";
-
     protected static final int INDEX_DISTANCE_X = 4;
     protected static final int INDEX_DISTANCE_Y = 5;
 

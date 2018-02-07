@@ -33,6 +33,12 @@ android {
     }
 }
 
+repositories {
+    maven{
+        url 'http://sdk.uxcam.com/android/'
+    }
+}
+
 dependencies {
     compile project(":uxmobile")
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -77,5 +83,6 @@ dependencies {
     // Alex Curran
     compile 'com.github.amlcurran.showcaseview:library:5.4.3'
 
+    compile 'com.uxcam:uxcam:2.6.2@aar'
     compile 'com.appsee:appsee-android:+'
 }

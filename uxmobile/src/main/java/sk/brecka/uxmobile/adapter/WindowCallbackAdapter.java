@@ -24,11 +24,6 @@ public class WindowCallbackAdapter implements Window.Callback {
     }
 
     //
-    public boolean hasBaseCallback() {
-        return mBaseCallback != null;
-    }
-
-    //
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (mBaseCallback != null) {
