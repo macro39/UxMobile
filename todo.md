@@ -1,22 +1,22 @@
-Performance nahravania
-- podla hw prostriedkov zariadenia, pamat, cpu, gpu?
-- kvalita nahravania
-- priebezne odosielanie videi po castiach
+// Performance nahravania
+// - podla hw prostriedkov zariadenia, pamat, cpu, gpu?
+// - kvalita nahravania
+// - priebezne odosielanie videi po castiach
 
-Opravit aby nahravanie spravne sedelo pri otoceni
+// Opravit aby nahravanie spravne sedelo pri otoceni
 
 31.12. check point
 
-Vymazavanie nahravok
-- odosielanie neodoslanych nahravok? ak crashne tak pri dalsom spusteni?
+// Vymazavanie nahravok
+// - odosielanie neodoslanych nahravok? ak crashne tak pri dalsom spusteni?
 
-Nahravat dialogy
-- detegovanie otvorenia dialogu
+// Nahravat dialogy
+// - detegovanie otvorenia dialogu
 
 23.1. stretnutie 13:00? potvrdit cez slack
 
-Nahravanie crashov
-- zaznamenanie crash appky - odslanie stacktrace
+// Nahravanie crashov
+// - zaznamenanie crash appky - odslanie stacktrace
 
 Privacy
 - obdlznik cierny
