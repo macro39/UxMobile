@@ -132,6 +132,7 @@ public class RestClient {
         }
 
         if (!file.exists()) {
+            Log.d("UxMobile", "uploadVideo: file doesnt exist, not uploading");
             return;
         }
 
@@ -142,6 +143,8 @@ public class RestClient {
                 .addFormDataPart(FORM_SESSION, Config.get().getSession())
                 .addFormDataPart("file", file.getName(), fileForm)
                 .build();
+
+        Log.d("UxMobile", "uploadVideo: " + file);
 
         final HttpUrl url = buildUrl(SERVICE_VIDEO_UPLOAD);
 
@@ -162,7 +165,7 @@ public class RestClient {
                 .addFormDataPart("event", jsonArray.toString())
                 .build();
 
-        Log.d("UxMobile", "uploadEvents: " + jsonArray.toString());
+        Log.d("UxMobile", "uploadEvents: " + jsonArray);
 
         final HttpUrl url = buildUrl(SERVICE_INPUT_UPLOAD);
 
@@ -181,7 +184,7 @@ public class RestClient {
         try {
             response = mHttpClient.newCall(request).execute();
 
-            LongLog.d("UxMobile", "doInBackground: " + response.body().string());
+//            LongLog.d("UxMobile", "doInBackground: " + response.body().string());
         } catch (IOException e) {
             Log.e("UxMobile", "doInBackground: ", e);
         }

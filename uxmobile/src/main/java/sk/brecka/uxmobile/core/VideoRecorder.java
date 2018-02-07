@@ -21,15 +21,17 @@ import sk.brecka.uxmobile.util.Config;
  */
 
 public class VideoRecorder extends BaseRecorder {
+    private static final String FILENAME = "uxmobile_screen_recording.mp4";
+
     private NativeEncoder mEncoder;
     private ScreenBuffer mScreenBuffer;
 
     private Timer mVideoTimer;
     private TimerTask mVideoTask;
 
-    private String mVideoPath;
-
     private boolean mIsRecording = false;
+
+    private File mOutputFile;
 
     public VideoRecorder() {
     }
@@ -45,39 +47,43 @@ public class VideoRecorder extends BaseRecorder {
 
         Log.i("UxMobile", "onSessionStarted: starting video recording");
 
-        final String filename = String.valueOf(System.currentTimeMillis()) + ".mp4";
-
-        // TODO: nezapisovat to na external storage
-        mVideoPath = mCurrentActivity.getFilesDir().toString() + "/" + filename;
-
-        final int screenWidth = Config.get().getVideoWidth();
-        final int screenHeight = Config.get().getVideoHeight();
-        final int bitrate = Config.get().getVideoBitrate();
-        final int framerate = Config.get().getVideoFps();
-
         try {
-            mEncoder = new NativeEncoder(screenWidth, screenHeight, framerate, bitrate, mVideoPath);
+            final String videoPath = mCurrentActivity.getFilesDir().toString() + File.separator + FILENAME;
+            mOutputFile = new File(videoPath);
+
+            // overwrite has issues, delete to be sure
+            if (mOutputFile.exists()) {
+                mOutputFile.delete();
+            }
+
+            final int screenWidth = Config.get().getVideoWidth();
+            final int screenHeight = Config.get().getVideoHeight();
+            final int bitrate = Config.get().getVideoBitrate();
+            final int framerate = Config.get().getVideoFps();
+
+            mEncoder = new NativeEncoder(screenWidth, screenHeight, framerate, bitrate, videoPath);
             mScreenBuffer = new ScreenBuffer(screenWidth, screenHeight);
+
+            final Handler handler = new Handler();
+            mVideoTask = new TimerTask() {
+                @Override
+                public void run() {
+                    handler.post(new Runnable() {
+                        public void run() {
+                            captureFrame();
+                            new FrameEncodingAsyncTask().execute();
+                        }
+                    });
+
+                }
+            };
+
+            mVideoTimer = new Timer();
+            mVideoTimer.schedule(mVideoTask, 0, 1000 / framerate);
+
         } catch (IOException e) {
             Log.e("UxMobile", "doInBackground: ", e);
         }
-
-        final Handler handler = new Handler();
-        mVideoTask = new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    public void run() {
-                        captureFrame();
-                        new FrameEncodingAsyncTask().execute();
-                    }
-                });
-
-            }
-        };
-
-        mVideoTimer = new Timer();
-        mVideoTimer.schedule(mVideoTask, 0, 1000 / framerate);
     }
 
     @Override
@@ -119,7 +125,7 @@ public class VideoRecorder extends BaseRecorder {
     }
 
     public File getOutput() {
-        return new File(mVideoPath);
+        return mOutputFile;
     }
 
     private class FrameEncodingAsyncTask extends AsyncTask<Void, Void, Void> {
