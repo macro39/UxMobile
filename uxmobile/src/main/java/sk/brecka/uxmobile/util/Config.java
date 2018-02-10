@@ -9,8 +9,9 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.ViewConfiguration;
+
+import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -58,6 +59,15 @@ public class Config {
     private int mVideoHeight;
     private int mVideoWidth;
 
+    private boolean mRequestingTest = false;
+    private boolean mTestOptIn = false;
+
+    private JSONObject mInstructionDialogJson;
+    private JSONObject mTaskDialogJson;
+    private JSONObject mTaskCompletionDialogJson;
+    private JSONObject mThankYouDialogJson;
+    private static final Config sSession = new Config();
+
     // potencialne v buducnosti
 //    public static final String TAG_DETECT_CRASHES = "detect_crash";
 //    public static final String TAG_HIDE_INPUT = "hide_input";
@@ -65,8 +75,8 @@ public class Config {
 //    public static final String TAG_HIDE_WEB = "hide_web";
 //    public static final String TAG_UPLOAD_APP_ICON = "upload_icon";
 //    public static final String TAG_UPLOAD_VIDEO_ON_CRASH = "upload_video_on_crash";
-
-    private static final Config sSession = new Config();
+    // dialogs
+    private JSONObject mWelcomeDialogJson;
 
     private Config() {
     }
@@ -199,5 +209,61 @@ public class Config {
 
     public void setVideoWidth(int videoWidth) {
         mVideoWidth = videoWidth;
+    }
+
+    public boolean isRequestingTest() {
+        return mRequestingTest;
+    }
+
+    public void setRequestingTest(boolean requestingTest) {
+        mRequestingTest = requestingTest;
+    }
+
+    public boolean isTestOptIn() {
+        return mTestOptIn;
+    }
+
+    public void setTestOptIn(boolean testOptIn) {
+        mTestOptIn = testOptIn;
+    }
+
+    public JSONObject getWelcomeDialogJson() {
+        return mWelcomeDialogJson;
+    }
+
+    public void setWelcomeDialogJson(JSONObject welcomeDialogJson) {
+        mWelcomeDialogJson = welcomeDialogJson;
+    }
+
+    public JSONObject getInstructionDialogJson() {
+        return mInstructionDialogJson;
+    }
+
+    public void setInstructionDialogJson(JSONObject instructionDialogJson) {
+        mInstructionDialogJson = instructionDialogJson;
+    }
+
+    public JSONObject getTaskDialogJson() {
+        return mTaskDialogJson;
+    }
+
+    public void setTaskDialogJson(JSONObject taskDialogJson) {
+        mTaskDialogJson = taskDialogJson;
+    }
+
+    public JSONObject getTaskCompletionDialogJson() {
+        return mTaskCompletionDialogJson;
+    }
+
+    public void setTaskCompletionDialogJson(JSONObject taskCompletionDialogJson) {
+        mTaskCompletionDialogJson = taskCompletionDialogJson;
+    }
+
+    public JSONObject getThankYouDialogJson() {
+        return mThankYouDialogJson;
+    }
+
+    public void setThankYouDialogJson(JSONObject thankYouDialogJson) {
+        mThankYouDialogJson = thankYouDialogJson;
     }
 }

@@ -48,6 +48,8 @@ import me.blog.korn123.easydiary.R;
 import me.blog.korn123.easydiary.adapters.DiaryMainItemAdapter;
 import me.blog.korn123.easydiary.helper.EasyDiaryDbHelper;
 import me.blog.korn123.easydiary.models.DiaryDto;
+import sk.brecka.uxmobile.DialogBuilder;
+import sk.brecka.uxmobile.UxMobile;
 
 /**
  * Created by CHO HANJOONG on 2017-03-16.
@@ -127,6 +129,8 @@ public class DiaryMainActivity extends EasyDiaryActivity {
         bindEvent();
         initShowcase();
         EasyDiaryUtils.initWorkingDirectory(Environment.getExternalStorageDirectory().getAbsolutePath() + Path.USER_CUSTOM_FONTS_DIRECTORY);
+
+        UxMobile.start(this,"9f5a2fdd-266e-446d-b753-7da883ec3d12");
     }
 
     @Override
@@ -168,6 +172,10 @@ public class DiaryMainActivity extends EasyDiaryActivity {
         switch (item.getItemId()) {
             case R.id.crash:
                 throw new RuntimeException("Test Crash App");
+            case R.id.debug_dialog:
+//                DialogBuilder dialogBuilder = new DialogBuilder();
+//                dialogBuilder.buildTestDialog(this).show();
+                break;
             case android.R.id.home:
                 finish();
                 break;

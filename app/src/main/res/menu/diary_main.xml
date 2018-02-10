@@ -30,4 +30,10 @@
         android:orderInCategory="200"
         android:title="Crash app"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/debug_dialog"
+        android:orderInCategory="300"
+        android:title="Debug dialog"
+        app:showAsAction="never" />
 </menu>

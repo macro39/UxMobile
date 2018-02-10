@@ -24,6 +24,7 @@ import sk.brecka.uxmobile.util.NetworkUtils;
 
 public class UxMobileSession implements LifecycleCallback {
     private Context mContext;
+    private Activity mActivity;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -69,6 +70,7 @@ public class UxMobileSession implements LifecycleCallback {
 
     @Override
     public void onEveryActivityStarted(Activity activity) {
+        mActivity = activity;
         mVideoRecorder.onEveryActivityStarted(activity);
         mEventRecorder.onEveryActivityStarted(activity);
     }
@@ -93,9 +95,27 @@ public class UxMobileSession implements LifecycleCallback {
         mEventRecorder.onConfigurationChanged(configuration);
     }
 
-    public void onSessionStarted() {
+    private void onSessionStarted() {
         mVideoRecorder.onSessionStarted();
         mEventRecorder.onSessionStarted();
+
+        //
+        if (Config.get().isRequestingTest()) {
+            mRestClient.requestTest(new Runnable() {
+                @Override
+                public void run() {
+                    onTestRequested();
+                }
+            });
+        }
+    }
+
+    private void onTestRequested() {
+        try {
+            DialogBuilder.buildWelcomeDialog(mActivity).show();
+        } catch (JSONException e) {
+            Log.e("UxMobile", "onTestRequested: ", e);
+        }
     }
 
     private void registerCallbacks(Application application) {
@@ -141,7 +161,7 @@ public class UxMobileSession implements LifecycleCallback {
         mEventRecorder.addEvent(eventName);
     }
 
-    public void addExceptionEvent(Throwable throwable){
+    public void addExceptionEvent(Throwable throwable) {
         mEventRecorder.addExceptionEvent(throwable);
     }
 }

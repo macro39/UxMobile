@@ -37,6 +37,7 @@ public class RestClient {
     private static final String SERVICE_SESSION_START = "config";
     private static final String SERVICE_VIDEO_UPLOAD = "video";
     private static final String SERVICE_INPUT_UPLOAD = "input";
+    private static final String SERVICE_REQUEST_TEST = "test";
 
     private static final String FORM_SESSION = "session";
     private static final String FORM_API_KEY = "api_key";
@@ -49,6 +50,12 @@ public class RestClient {
     private static final String RESPONSE_VIDEO_BITRATE = "video_bitrate";
     private static final String RESPONSE_VIDEO_HEIGHT = "video_height";
     private static final String RESPONSE_VIDEO_WIDTH = "video_width";
+    private static final String RESPONSE_REQUEST_TEST = "request_test";
+    private static final String RESPONSE_WELCOME_DIALOG = "dialog_welcome";
+    private static final String RESPONSE_INSTRUCTION_DIALOG = "dialog_instruction";
+    private static final String RESPONSE_TASK_DIALOG = "dialog_task";
+    private static final String RESPONSE_TASK_COMPLETION_DIALOG = "dialog_task_completion";
+    private static final String RESPONSE_THANK_YOU_DIALOG = "dialog_thank_you";
 
     private static final String HOST_BASE = "mobux.team";
 
@@ -103,6 +110,7 @@ public class RestClient {
                     final int videoBitrate = jsonResponse.getInt(RESPONSE_VIDEO_BITRATE);
                     final int videoHeight = jsonResponse.getInt(RESPONSE_VIDEO_HEIGHT);
                     final int videoWidth = jsonResponse.getInt(RESPONSE_VIDEO_WIDTH);
+                    final boolean requestTest = jsonResponse.getBoolean(RESPONSE_REQUEST_TEST);
 
                     //
                     Config.get().setSession(session);
@@ -113,6 +121,60 @@ public class RestClient {
                     Config.get().setVideoBitrate(videoBitrate);
                     Config.get().setVideoHeight(videoHeight);
                     Config.get().setVideoWidth(videoWidth);
+                    Config.get().setRequestingTest(requestTest);
+
+                    callback.run();
+                } catch (JSONException e) {
+                    // malformed result
+                    Log.e("UxMobile", "doInBackground: ", e);
+                }
+            }
+        }.execute(request);
+
+    }
+
+    public void requestTest(final Runnable callback) {
+
+        final FormBody.Builder builder = new FormBody.Builder();
+
+        // session
+        builder.add(FORM_SESSION, Config.get().getSession());
+
+        //
+        Request request = new Request.Builder()
+                .url(buildUrl(SERVICE_REQUEST_TEST))
+                .post(builder.build())
+                .build();
+
+        Log.d("UxMobile", "requestTest: " + request.url().toString());
+
+        // async execute
+        new HttpExecutor() {
+            @Override
+            protected void onPostExecute(String response) {
+                try {
+                    Log.d("UxMobile", "onPostExecute: " + response);
+                    if (response == null) {
+                        // exception?
+                        return;
+                    }
+
+                    //
+                    final JSONObject jsonResponse = new JSONObject(response);
+
+                    //
+                    final JSONObject welcomeDialog  = jsonResponse.getJSONObject(RESPONSE_WELCOME_DIALOG);
+                    final JSONObject instructionDialog  = jsonResponse.getJSONObject(RESPONSE_INSTRUCTION_DIALOG);
+                    final JSONObject taskDialog  = jsonResponse.getJSONObject(RESPONSE_TASK_DIALOG);
+                    final JSONObject taskCompletionDialog  = jsonResponse.getJSONObject(RESPONSE_TASK_COMPLETION_DIALOG);
+                    final JSONObject thankYouDialog  = jsonResponse.getJSONObject(RESPONSE_THANK_YOU_DIALOG);
+
+                    //
+                    Config.get().setWelcomeDialogJson(welcomeDialog);
+                    Config.get().setInstructionDialogJson(instructionDialog);
+                    Config.get().setTaskDialogJson(taskDialog);
+                    Config.get().setTaskCompletionDialogJson(taskCompletionDialog);
+                    Config.get().setThankYouDialogJson(thankYouDialog);
 
                     callback.run();
                 } catch (JSONException e) {
