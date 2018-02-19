@@ -18,6 +18,7 @@ public abstract class Event {
     protected static final String TYPE_LONG_PRESS = "l";
     protected static final String TYPE_SCROLL = "s";
     protected static final String TYPE_ORIENTATION = "o";
+    protected static final String TYPE_SESSION_END = "x";   // dummy event
 
     protected static final int INDEX_TYPE = 0;
     protected static final int INDEX_TIME = 1;

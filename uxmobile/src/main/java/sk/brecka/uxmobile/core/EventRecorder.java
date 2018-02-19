@@ -23,6 +23,7 @@ import sk.brecka.uxmobile.model.event.FlingEvent;
 import sk.brecka.uxmobile.model.event.LongPressEvent;
 import sk.brecka.uxmobile.model.event.OrientationEvent;
 import sk.brecka.uxmobile.model.event.ScrollEvent;
+import sk.brecka.uxmobile.model.event.SessionEndEvent;
 import sk.brecka.uxmobile.util.ViewUtils;
 
 
@@ -87,6 +88,7 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
     @Override
     public void onLastActivityStopped(Activity activity) {
         super.onLastActivityStopped(activity);
+        recordEvent(new SessionEndEvent(currentRelativeMillis()));
     }
 
     @Override
@@ -165,7 +167,7 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
         recordEvent(new CustomEvent(currentRelativeMillis(), eventName));
     }
 
-    public void addExceptionEvent(Throwable throwable){
+    public void addExceptionEvent(Throwable throwable) {
         recordEvent(new ExceptionEvent(currentRelativeMillis(), throwable));
     }
 

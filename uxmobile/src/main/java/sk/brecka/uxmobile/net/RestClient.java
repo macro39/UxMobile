@@ -37,7 +37,7 @@ public class RestClient {
     private static final String SERVICE_SESSION_START = "config";
     private static final String SERVICE_VIDEO_UPLOAD = "video";
     private static final String SERVICE_INPUT_UPLOAD = "input";
-    private static final String SERVICE_REQUEST_TEST = "test";
+    private static final String SERVICE_REQUEST_TEST = "study";
 
     private static final String FORM_SESSION = "session";
     private static final String FORM_API_KEY = "api_key";
