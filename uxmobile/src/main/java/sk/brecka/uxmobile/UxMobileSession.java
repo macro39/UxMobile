@@ -27,7 +27,6 @@ public class UxMobileSession implements LifecycleCallback {
     private Activity mActivity;
 
     private SensorManager mSensorManager;
-    private Sensor mAccelerometer;
     private ShakeSensor mShakeDetector;
 
     private LifecycleObserver mLifecycleObserver;
@@ -96,6 +95,8 @@ public class UxMobileSession implements LifecycleCallback {
     }
 
     private void onSessionStarted() {
+        Config.get().setHasUploaded(false);
+
         mVideoRecorder.onSessionStarted();
         mEventRecorder.onSessionStarted();
 
@@ -125,30 +126,50 @@ public class UxMobileSession implements LifecycleCallback {
 
     private void registerShakeSensor() {
         mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
-        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mShakeDetector = new ShakeSensor();
         mShakeDetector.setOnShakeListener(new ShakeSensor.OnShakeListener() {
 
             @Override
             public void onShake(int count) {
+                Log.d("UxMobile", "onShake: " + count);
+                try {
+                    DialogBuilder.buildTaskCompletionDialog(mActivity).show();
+                } catch (JSONException e) {
+                    Log.e("UxMobile", "onShake: ", e);
+                }
+
                 // TODO
             }
         });
+
+        mSensorManager.registerListener(mShakeDetector, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
+    }
+
+    private void unregisterShakeSensor() {
+        mSensorManager.unregisterListener(mShakeDetector);
     }
 
     void uploadRecordings() {
         Log.d("UxMobile", "uploadRecordings ");
         try {
-            // only continue if uploading isn't set to wifi only or the device has an unlimited connection
-            if (Config.get().isRecordingWifiOnly() && !NetworkUtils.hasUnlimitedConnection(mContext)) {
+            final Config config = Config.get();
+
+            if (config.hasUploaded()) {
                 return;
             }
 
-            if (Config.get().isRecordingVideo()) {
+            // only continue if uploading isn't set to wifi only or the device has an unlimited connection
+            if (config.isRecordingWifiOnly() && !NetworkUtils.hasUnlimitedConnection(mContext)) {
+                return;
+            }
+
+            config.setHasUploaded(true);
+
+            if (config.isRecordingVideo()) {
                 mRestClient.uploadVideo(mVideoRecorder.getOutput());
             }
 
-            if (Config.get().isRecordingEvents()) {
+            if (config.isRecordingEvents()) {
                 mRestClient.uploadEvents(mEventRecorder.getOutput());
             }
 
@@ -163,5 +184,9 @@ public class UxMobileSession implements LifecycleCallback {
 
     public void addExceptionEvent(Throwable throwable) {
         mEventRecorder.addExceptionEvent(throwable);
+    }
+
+    public void startTest() {
+        registerShakeSensor();
     }
 }

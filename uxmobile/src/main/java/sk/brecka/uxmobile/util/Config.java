@@ -61,11 +61,15 @@ public class Config {
 
     private boolean mRequestingTest = false;
     private boolean mTestOptIn = false;
+    private boolean mIsTestRunning = false;
 
     private JSONObject mInstructionDialogJson;
     private JSONObject mTaskDialogJson;
     private JSONObject mTaskCompletionDialogJson;
     private JSONObject mThankYouDialogJson;
+
+    private boolean mHasUploaded = false;
+
     private static final Config sSession = new Config();
 
     // potencialne v buducnosti
@@ -265,5 +269,21 @@ public class Config {
 
     public void setThankYouDialogJson(JSONObject thankYouDialogJson) {
         mThankYouDialogJson = thankYouDialogJson;
+    }
+
+    public boolean isTestRunning() {
+        return mIsTestRunning;
+    }
+
+    public void setTestRunning(boolean testRunning) {
+        mIsTestRunning = testRunning;
+    }
+
+    public boolean hasUploaded() {
+        return mHasUploaded;
+    }
+
+    public void setHasUploaded(boolean hasUploaded) {
+        mHasUploaded = hasUploaded;
     }
 }
