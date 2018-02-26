@@ -9,6 +9,7 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import sk.brecka.uxmobile.model.study.Task;
 import sk.brecka.uxmobile.util.Config;
 
 /**
@@ -103,7 +104,12 @@ public class DialogBuilder {
     }
 
     public static Dialog buildTaskDialog(final Activity activity, final UxMobileSession session) throws JSONException {
-        return buildAlertDialog(activity, Config.get().getTaskDialogJson(), new DialogInterface.OnClickListener() {
+        final Task task = Config.get().getCurrentTask();
+        final JSONObject dialog = Config.get().getTaskDialogJson()
+                .put("title", task.getTitle())
+                .put("message", task.getMessage());
+
+        return buildAlertDialog(activity, dialog, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // positive

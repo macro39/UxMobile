@@ -22,6 +22,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import sk.brecka.uxmobile.model.study.Task;
 import sk.brecka.uxmobile.util.Config;
 import sk.brecka.uxmobile.util.LongLog;
 
@@ -56,6 +57,7 @@ public class RestClient {
     private static final String RESPONSE_TASK_DIALOG = "dialog_task";
     private static final String RESPONSE_TASK_COMPLETION_DIALOG = "dialog_task_completion";
     private static final String RESPONSE_THANK_YOU_DIALOG = "dialog_thank_you";
+    private static final String RESPONSE_TASK = "task";
 
     private static final String HOST_BASE = "mobux.team";
 
@@ -163,11 +165,14 @@ public class RestClient {
                     final JSONObject jsonResponse = new JSONObject(response);
 
                     //
-                    final JSONObject welcomeDialog  = jsonResponse.getJSONObject(RESPONSE_WELCOME_DIALOG);
-                    final JSONObject instructionDialog  = jsonResponse.getJSONObject(RESPONSE_INSTRUCTION_DIALOG);
-                    final JSONObject taskDialog  = jsonResponse.getJSONObject(RESPONSE_TASK_DIALOG);
-                    final JSONObject taskCompletionDialog  = jsonResponse.getJSONObject(RESPONSE_TASK_COMPLETION_DIALOG);
-                    final JSONObject thankYouDialog  = jsonResponse.getJSONObject(RESPONSE_THANK_YOU_DIALOG);
+                    final JSONObject welcomeDialog = jsonResponse.getJSONObject(RESPONSE_WELCOME_DIALOG);
+                    final JSONObject instructionDialog = jsonResponse.getJSONObject(RESPONSE_INSTRUCTION_DIALOG);
+                    final JSONObject taskDialog = jsonResponse.getJSONObject(RESPONSE_TASK_DIALOG);
+                    final JSONObject taskCompletionDialog = jsonResponse.getJSONObject(RESPONSE_TASK_COMPLETION_DIALOG);
+                    final JSONObject thankYouDialog = jsonResponse.getJSONObject(RESPONSE_THANK_YOU_DIALOG);
+
+                    //
+                    final Task task = Task.fromJson(jsonResponse.getJSONObject(RESPONSE_TASK));
 
                     //
                     Config.get().setWelcomeDialogJson(welcomeDialog);
@@ -175,6 +180,8 @@ public class RestClient {
                     Config.get().setTaskDialogJson(taskDialog);
                     Config.get().setTaskCompletionDialogJson(taskCompletionDialog);
                     Config.get().setThankYouDialogJson(thankYouDialog);
+
+                    Config.get().setCurrentTask(task);
 
                     callback.run();
                 } catch (JSONException e) {

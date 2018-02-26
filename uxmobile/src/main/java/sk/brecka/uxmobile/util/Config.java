@@ -18,6 +18,8 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import sk.brecka.uxmobile.model.study.Task;
+
 /**
  * Created by matej on 16.10.2017.
  */
@@ -59,9 +61,10 @@ public class Config {
     private int mVideoHeight;
     private int mVideoWidth;
 
+    private Task mCurrentTask = null;
     private boolean mRequestingTest = false;
     private boolean mTestOptIn = false;
-    private boolean mIsTestRunning = false;
+    private boolean mIsTaskRunning = false;
 
     private JSONObject mInstructionDialogJson;
     private JSONObject mTaskDialogJson;
@@ -271,12 +274,12 @@ public class Config {
         mThankYouDialogJson = thankYouDialogJson;
     }
 
-    public boolean isTestRunning() {
-        return mIsTestRunning;
+    public boolean isTaskRunning() {
+        return mIsTaskRunning;
     }
 
-    public void setTestRunning(boolean testRunning) {
-        mIsTestRunning = testRunning;
+    public void setTaskRunning(boolean taskRunning) {
+        mIsTaskRunning = taskRunning;
     }
 
     public boolean hasUploaded() {
@@ -285,5 +288,13 @@ public class Config {
 
     public void setHasUploaded(boolean hasUploaded) {
         mHasUploaded = hasUploaded;
+    }
+
+    public Task getCurrentTask() {
+        return mCurrentTask;
+    }
+
+    public void setCurrentTask(Task currentTask) {
+        mCurrentTask = currentTask;
     }
 }

@@ -188,27 +188,27 @@ public class UxMobileSession implements LifecycleCallback {
     }
 
     private void addTaskEvent(TaskEvent.Status status) {
-        mEventRecorder.addTaskEvent(status);
+        mEventRecorder.addTaskEvent(Config.get().getCurrentTask(), status);
     }
 
     public void startTest() {
         registerShakeSensor();
         addTaskEvent(TaskEvent.Status.STARTED);
-        Config.get().setTestRunning(true);
+        Config.get().setTaskRunning(true);
     }
 
     public void completeTest() {
         addTaskEvent(TaskEvent.Status.COMPLETED);
-        Config.get().setTestRunning(false);
+        Config.get().setTaskRunning(false);
     }
 
     public void skipTest() {
         addTaskEvent(TaskEvent.Status.SKIPPED);
-        Config.get().setTestRunning(false);
+        Config.get().setTaskRunning(false);
     }
 
     public void cancelTest() {
         addTaskEvent(TaskEvent.Status.CANCELLED);
-        Config.get().setTestRunning(false);
+        Config.get().setTaskRunning(false);
     }
 }

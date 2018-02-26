@@ -25,6 +25,7 @@ import sk.brecka.uxmobile.model.event.OrientationEvent;
 import sk.brecka.uxmobile.model.event.ScrollEvent;
 import sk.brecka.uxmobile.model.event.SessionEndEvent;
 import sk.brecka.uxmobile.model.event.TaskEvent;
+import sk.brecka.uxmobile.model.study.Task;
 import sk.brecka.uxmobile.util.ViewUtils;
 
 
@@ -172,8 +173,8 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
         recordEvent(new ExceptionEvent(currentRelativeMillis(), throwable));
     }
 
-    public void addTaskEvent(TaskEvent.Status status) {
-        recordEvent(new TaskEvent(currentRelativeMillis(), status));
+    public void addTaskEvent(Task task, TaskEvent.Status status) {
+        recordEvent(new TaskEvent(currentRelativeMillis(), task, status));
     }
 
     //
