@@ -14,6 +14,7 @@ import sk.brecka.uxmobile.adapter.LifecycleObserver;
 import sk.brecka.uxmobile.core.EventRecorder;
 import sk.brecka.uxmobile.core.LifecycleCallback;
 import sk.brecka.uxmobile.core.VideoRecorder;
+import sk.brecka.uxmobile.model.event.TaskEvent;
 import sk.brecka.uxmobile.net.RestClient;
 import sk.brecka.uxmobile.util.Config;
 import sk.brecka.uxmobile.util.NetworkUtils;
@@ -113,7 +114,7 @@ public class UxMobileSession implements LifecycleCallback {
 
     private void onTestRequested() {
         try {
-            DialogBuilder.buildWelcomeDialog(mActivity).show();
+            DialogBuilder.buildWelcomeDialog(mActivity, this).show();
         } catch (JSONException e) {
             Log.e("UxMobile", "onTestRequested: ", e);
         }
@@ -133,7 +134,7 @@ public class UxMobileSession implements LifecycleCallback {
             public void onShake(int count) {
                 Log.d("UxMobile", "onShake: " + count);
                 try {
-                    DialogBuilder.buildTaskCompletionDialog(mActivity).show();
+                    DialogBuilder.buildTaskCompletionDialog(mActivity, UxMobileSession.this).show();
                 } catch (JSONException e) {
                     Log.e("UxMobile", "onShake: ", e);
                 }
@@ -179,14 +180,35 @@ public class UxMobileSession implements LifecycleCallback {
     }
 
     public void addCustomEvent(String eventName) {
-        mEventRecorder.addEvent(eventName);
+        mEventRecorder.addCustomEvent(eventName);
     }
 
     public void addExceptionEvent(Throwable throwable) {
         mEventRecorder.addExceptionEvent(throwable);
     }
 
+    private void addTaskEvent(TaskEvent.Status status) {
+        mEventRecorder.addTaskEvent(status);
+    }
+
     public void startTest() {
         registerShakeSensor();
+        addTaskEvent(TaskEvent.Status.STARTED);
+        Config.get().setTestRunning(true);
+    }
+
+    public void completeTest() {
+        addTaskEvent(TaskEvent.Status.COMPLETED);
+        Config.get().setTestRunning(false);
+    }
+
+    public void skipTest() {
+        addTaskEvent(TaskEvent.Status.SKIPPED);
+        Config.get().setTestRunning(false);
+    }
+
+    public void cancelTest() {
+        addTaskEvent(TaskEvent.Status.CANCELLED);
+        Config.get().setTestRunning(false);
     }
 }

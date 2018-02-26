@@ -3,7 +3,6 @@ package sk.brecka.uxmobile;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
 
@@ -55,13 +54,13 @@ public class DialogBuilder {
         return null;
     }
 
-    public static Dialog buildWelcomeDialog(final Activity activity) throws JSONException {
+    public static Dialog buildWelcomeDialog(final Activity activity, final UxMobileSession session) throws JSONException {
         return buildAlertDialog(activity, Config.get().getWelcomeDialogJson(), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // positive
                 try {
-                    buildInstructionDialog(activity).show();
+                    buildInstructionDialog(activity, session).show();
                 } catch (JSONException e) {
                     Log.e("UxMobile", "onClick: ", e);
                 }
@@ -79,13 +78,13 @@ public class DialogBuilder {
         });
     }
 
-    public static Dialog buildInstructionDialog(final Activity activity) throws JSONException {
+    public static Dialog buildInstructionDialog(final Activity activity, final UxMobileSession session) throws JSONException {
         return buildAlertDialog(activity, Config.get().getInstructionDialogJson(), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // positive
                 try {
-                    buildTaskDialog(activity).show();
+                    buildTaskDialog(activity, session).show();
                 } catch (JSONException e) {
                     Log.e("UxMobile", "onClick: ", e);
                 }
@@ -103,15 +102,12 @@ public class DialogBuilder {
         });
     }
 
-    public static Dialog buildTaskDialog(final Activity activity) throws JSONException {
+    public static Dialog buildTaskDialog(final Activity activity, final UxMobileSession session) throws JSONException {
         return buildAlertDialog(activity, Config.get().getTaskDialogJson(), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // positive
-
-                Config.get().setTestRunning(true);
-
-                UxMobile.getSession().startTest();
+                session.startTest();
             }
         }, new DialogInterface.OnClickListener() {
             @Override
@@ -126,13 +122,14 @@ public class DialogBuilder {
         });
     }
 
-    public static Dialog buildTaskCompletionDialog(final Activity activity) throws JSONException {
+    public static Dialog buildTaskCompletionDialog(final Activity activity, final UxMobileSession session) throws JSONException {
         return buildAlertDialog(activity, Config.get().getTaskCompletionDialogJson(), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // positive
                 try {
-                    buildThankYouDialog(activity).show();
+                    session.completeTest();
+                    buildThankYouDialog(activity, session).show();
                 } catch (JSONException e) {
                     Log.e("UxMobile", "onClick: ", e);
                 }
@@ -150,7 +147,7 @@ public class DialogBuilder {
         });
     }
 
-    public static Dialog buildThankYouDialog(final Activity activity) throws JSONException {
+    public static Dialog buildThankYouDialog(final Activity activity, final UxMobileSession session) throws JSONException {
         return buildAlertDialog(activity, Config.get().getThankYouDialogJson(), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

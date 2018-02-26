@@ -65,6 +65,7 @@ public class LifecycleObserver implements Application.ActivityLifecycleCallbacks
 
     @Override
     public void onActivityStarted(Activity activity) {
+        Log.d("UxMobile", "onActivityStarted: " + activity.getLocalClassName());
         mIsStarted = true;
         mLatestConfiguration = null;
 
@@ -81,6 +82,7 @@ public class LifecycleObserver implements Application.ActivityLifecycleCallbacks
 
     @Override
     public void onActivityStopped(Activity activity) {
+        Log.d("UxMobile", "onActivityStopped: " + activity.getLocalClassName());
         mIsStarted = false;
 
         mActivityCounter--;
