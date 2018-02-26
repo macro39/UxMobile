@@ -24,6 +24,7 @@ import sk.brecka.uxmobile.model.event.LongPressEvent;
 import sk.brecka.uxmobile.model.event.OrientationEvent;
 import sk.brecka.uxmobile.model.event.ScrollEvent;
 import sk.brecka.uxmobile.model.event.SessionEndEvent;
+import sk.brecka.uxmobile.model.event.TaskEvent;
 import sk.brecka.uxmobile.util.ViewUtils;
 
 
@@ -163,12 +164,16 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
         return false;
     }
 
-    public void addEvent(String eventName) {
+    public void addCustomEvent(String eventName) {
         recordEvent(new CustomEvent(currentRelativeMillis(), eventName));
     }
 
     public void addExceptionEvent(Throwable throwable) {
         recordEvent(new ExceptionEvent(currentRelativeMillis(), throwable));
+    }
+
+    public void addTaskEvent(TaskEvent.Status status) {
+        recordEvent(new TaskEvent(currentRelativeMillis(), status));
     }
 
     //
