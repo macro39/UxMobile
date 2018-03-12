@@ -234,7 +234,7 @@ public class RestClient {
                 .addFormDataPart("event", jsonArray.toString())
                 .build();
 
-        Log.d("UxMobile", "uploadEvents: " + jsonArray);
+        LongLog.d("UxMobile", "uploadEvents: " + jsonArray);
 
         final HttpUrl url = buildUrl(SERVICE_INPUT_UPLOAD);
 

@@ -10,6 +10,8 @@ import android.util.Log;
 
 import org.json.JSONException;
 
+import java.util.Map;
+
 import sk.brecka.uxmobile.adapter.LifecycleObserver;
 import sk.brecka.uxmobile.core.EventRecorder;
 import sk.brecka.uxmobile.core.LifecycleCallback;
@@ -181,6 +183,10 @@ public class UxMobileSession implements LifecycleCallback {
 
     public void addCustomEvent(String eventName) {
         mEventRecorder.addCustomEvent(eventName);
+    }
+
+    public void addCustomEvent(String eventName, Map<String, String> payload) {
+        mEventRecorder.addCustomEvent(eventName, payload);
     }
 
     public void addExceptionEvent(Throwable throwable) {

@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.LinkedList;
+import java.util.Map;
 
 import sk.brecka.uxmobile.adapter.WindowCallbackAdapter;
 import sk.brecka.uxmobile.model.event.ExceptionEvent;
@@ -167,6 +168,10 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
 
     public void addCustomEvent(String eventName) {
         recordEvent(new CustomEvent(currentRelativeMillis(), eventName));
+    }
+
+    public void addCustomEvent(String eventName, Map<String, String> payload) {
+        recordEvent(new CustomEvent(currentRelativeMillis(), eventName, payload));
     }
 
     public void addExceptionEvent(Throwable throwable) {

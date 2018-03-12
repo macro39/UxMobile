@@ -3,6 +3,8 @@ package sk.brecka.uxmobile;
 import android.app.Application;
 import android.content.Context;
 
+import java.util.Map;
+
 /**
  * Created by matej on 4.10.2017.
  */
@@ -27,6 +29,14 @@ public class UxMobile {
     public static void addEvent(String eventName) {
         if (sSession != null) {
             sSession.addCustomEvent(eventName);
+        } else {
+            // exception?
+        }
+    }
+
+    public static void addEvent(String eventName, Map<String, String> payload) {
+        if (sSession != null) {
+            sSession.addCustomEvent(eventName, payload);
         } else {
             // exception?
         }
