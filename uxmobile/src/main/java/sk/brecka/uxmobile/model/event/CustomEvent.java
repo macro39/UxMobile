@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class CustomEvent extends Event {
     protected static final int INDEX_EVENT_NAME = 2;
-    protected static final int INDEX_PAYLOAD = 2;
+    protected static final int INDEX_PAYLOAD = 3;
 
     private final String mEventName;
     private final Map<String, String> mPayload;
