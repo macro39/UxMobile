@@ -75,7 +75,6 @@ public class NativeEncoder {
     }
 
     public void encodeFrame(Bitmap bitmap) throws IOException {
-        Log.d("UxMobile", "encodeFrame: start");
 
         if (mRenderingSurface == null) {
             return;
@@ -89,6 +88,8 @@ public class NativeEncoder {
                 canvas = mRenderingSurface.lockCanvas(mRect);
 
                 if (canvas != null) {
+                    // hide previous frame and paint a new one
+                    canvas.drawColor(0xff_00_00_00);
                     canvas.drawBitmap(bitmap, 0, 0, null);
                 }
             } catch (Exception e) {
