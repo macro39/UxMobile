@@ -168,7 +168,7 @@ public class UxMobileSession implements LifecycleCallback {
 
             config.setRecordingsUploaded(true);
 
-            if (config.isUploadingOverriden() || config.isUploadingVideo()) {
+            if ((config.getParticipatedInStudy() && config.isUploadingOverriden()) || config.isUploadingVideo()) {
                 mRestClient.uploadVideo(mVideoRecorder.getOutput());
             }
 

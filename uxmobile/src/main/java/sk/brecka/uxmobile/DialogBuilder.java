@@ -61,6 +61,7 @@ public class DialogBuilder {
             public void onClick(DialogInterface dialog, int which) {
                 // positive
                 try {
+                    Config.get().setParticipatedInStudy(true);
                     buildInstructionDialog(activity, session).show();
                 } catch (JSONException e) {
                     Log.e("UxMobile", "onClick: ", e);
@@ -75,6 +76,7 @@ public class DialogBuilder {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // negative
+                Config.get().setParticipatedInStudy(false);
             }
         });
     }
