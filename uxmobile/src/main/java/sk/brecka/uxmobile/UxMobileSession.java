@@ -98,7 +98,7 @@ public class UxMobileSession implements LifecycleCallback {
     }
 
     private void onSessionStarted() {
-        Config.get().setHasUploaded(false);
+        Config.get().setRecordingsUploaded(false);
 
         mVideoRecorder.onSessionStarted();
         mEventRecorder.onSessionStarted();
@@ -162,17 +162,17 @@ public class UxMobileSession implements LifecycleCallback {
             }
 
             // only continue if uploading isn't set to wifi only or the device has an unlimited connection
-            if (config.isRecordingWifiOnly() && !NetworkUtils.hasUnlimitedConnection(mContext)) {
+            if (config.isUploadingWifiOnly() && !NetworkUtils.hasUnlimitedConnection(mContext)) {
                 return;
             }
 
-            config.setHasUploaded(true);
+            config.setRecordingsUploaded(true);
 
-            if (config.isRecordingVideo()) {
+            if (config.isUploadingOverriden() || config.isUploadingVideo()) {
                 mRestClient.uploadVideo(mVideoRecorder.getOutput());
             }
 
-            if (config.isRecordingEvents()) {
+            if (config.isUploadingEvents()) {
                 mRestClient.uploadEvents(mEventRecorder.getOutput());
             }
 

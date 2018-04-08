@@ -6,15 +6,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.net.wifi.WifiManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.provider.Settings;
-import android.telephony.TelephonyManager;
-import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 import android.view.ViewConfiguration;
 
@@ -59,9 +52,12 @@ public class Config {
     private String mApiKey;
     private String mSession;
 
-    private boolean mIsRecordingVideo = false;
-    private boolean mIsRecordingEvents = false;
-    private boolean mIsRecordingWifiOnly = true;
+    private boolean mIsRecordingVideo = true;
+
+    private boolean mIsUploadingVideo = false;
+    private boolean mIsUploadingEvents = false;
+    private boolean mIsUploadingWifiOnly = true;
+    private boolean mIsUploadingOverriden = false;
 
     private int mVideoFps;
     private int mVideoBitrate;
@@ -72,13 +68,14 @@ public class Config {
     private boolean mRequestingTest = false;
     private boolean mTestOptIn = false;
     private boolean mIsTaskRunning = false;
+    private boolean mParticipatedInStudy = false;
 
     private JSONObject mInstructionDialogJson;
     private JSONObject mTaskDialogJson;
     private JSONObject mTaskCompletionDialogJson;
     private JSONObject mThankYouDialogJson;
 
-    private boolean mHasUploaded = false;
+    private boolean mRecordingsUploaded = false;
 
     private static final Config sSession = new Config();
 
@@ -177,20 +174,12 @@ public class Config {
         mIsRecordingVideo = recordingVideo;
     }
 
-    public boolean isRecordingEvents() {
-        return mIsRecordingEvents;
+    public boolean isUploadingWifiOnly() {
+        return mIsUploadingWifiOnly;
     }
 
-    public void setRecordingEvents(boolean recordingEvents) {
-        mIsRecordingEvents = recordingEvents;
-    }
-
-    public boolean isRecordingWifiOnly() {
-        return mIsRecordingWifiOnly;
-    }
-
-    public void setRecordingWifiOnly(boolean recordingWifiOnly) {
-        mIsRecordingWifiOnly = recordingWifiOnly;
+    public void setUploadingWifiOnly(boolean uploadingWifiOnly) {
+        mIsUploadingWifiOnly = uploadingWifiOnly;
     }
 
     public int getVideoFps() {
@@ -290,11 +279,11 @@ public class Config {
     }
 
     public boolean hasUploaded() {
-        return mHasUploaded;
+        return mRecordingsUploaded;
     }
 
-    public void setHasUploaded(boolean hasUploaded) {
-        mHasUploaded = hasUploaded;
+    public void setRecordingsUploaded(boolean recordingsUploaded) {
+        mRecordingsUploaded = recordingsUploaded;
     }
 
     public Task getCurrentTask() {
@@ -303,5 +292,41 @@ public class Config {
 
     public void setCurrentTask(Task currentTask) {
         mCurrentTask = currentTask;
+    }
+
+    public boolean isUploadingOverriden() {
+        return mIsUploadingOverriden;
+    }
+
+    public void setUploadingOverriden(boolean uploadingOverriden) {
+        mIsUploadingOverriden = uploadingOverriden;
+    }
+
+    public boolean getParticipatedInStudy() {
+        return mParticipatedInStudy;
+    }
+
+    public void setParticipatedInStudy(boolean participatedInStudy) {
+        mParticipatedInStudy = participatedInStudy;
+    }
+
+    public boolean getRecordingsUploaded() {
+        return mRecordingsUploaded;
+    }
+
+    public boolean isUploadingVideo() {
+        return mIsUploadingVideo;
+    }
+
+    public void setUploadingVideo(boolean uploadingVideo) {
+        mIsUploadingVideo = uploadingVideo;
+    }
+
+    public boolean isUploadingEvents() {
+        return mIsUploadingEvents;
+    }
+
+    public void setUploadingEvents(boolean uploadingEvents) {
+        mIsUploadingEvents = uploadingEvents;
     }
 }

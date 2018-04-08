@@ -46,7 +46,9 @@ public class RestClient {
     private static final String RESPONSE_SESSION = "session";
     private static final String RESPONSE_RECORD_VIDEO = "video_record";
     private static final String RESPONSE_RECORD_EVENT = "event_record";
-    private static final String RESPONSE_RECORD_WIFI_ONLY = "wifi_only";
+    private static final String RESPONSE_UPLOAD_VIDEO = "video_upload";
+    private static final String RESPONSE_UPLOAD_EVENT = "event_upload";
+    private static final String RESPONSE_UPLOAD_WIFI_ONLY = "wifi_only";
     private static final String RESPONSE_VIDEO_FPS = "video_fps";
     private static final String RESPONSE_VIDEO_BITRATE = "video_bitrate";
     private static final String RESPONSE_VIDEO_HEIGHT = "video_height";
@@ -106,8 +108,9 @@ public class RestClient {
                     //
                     final String session = jsonResponse.getString(RESPONSE_SESSION);
                     final boolean recordVideo = jsonResponse.getBoolean(RESPONSE_RECORD_VIDEO);
-                    final boolean recordEvent = jsonResponse.getBoolean(RESPONSE_RECORD_EVENT);
-                    final boolean recordWifiOnly = jsonResponse.getBoolean(RESPONSE_RECORD_WIFI_ONLY);
+                    final boolean uploadWifiOnly = jsonResponse.getBoolean(RESPONSE_UPLOAD_WIFI_ONLY);
+                    final boolean uploadVideo = jsonResponse.getBoolean(RESPONSE_UPLOAD_VIDEO);
+                    final boolean uploadEvent = jsonResponse.getBoolean(RESPONSE_UPLOAD_EVENT);
                     final int videoFps = jsonResponse.getInt(RESPONSE_VIDEO_FPS);
                     final int videoBitrate = jsonResponse.getInt(RESPONSE_VIDEO_BITRATE);
                     final int videoHeight = jsonResponse.getInt(RESPONSE_VIDEO_HEIGHT);
@@ -117,8 +120,9 @@ public class RestClient {
                     //
                     Config.get().setSession(session);
                     Config.get().setRecordingVideo(recordVideo);
-                    Config.get().setRecordingEvents(recordEvent);
-                    Config.get().setRecordingWifiOnly(recordWifiOnly);
+                    Config.get().setUploadingWifiOnly(uploadWifiOnly);
+                    Config.get().setUploadingVideo(uploadVideo);
+                    Config.get().setUploadingEvents(uploadEvent);
                     Config.get().setVideoFps(videoFps);
                     Config.get().setVideoBitrate(videoBitrate);
                     Config.get().setVideoHeight(videoHeight);
