@@ -25,6 +25,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 
+import com.appsee.Appsee;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
@@ -130,7 +131,8 @@ public class DiaryMainActivity extends EasyDiaryActivity {
         initShowcase();
         EasyDiaryUtils.initWorkingDirectory(Environment.getExternalStorageDirectory().getAbsolutePath() + Path.USER_CUSTOM_FONTS_DIRECTORY);
 
-        UxMobile.start(this,"9f5a2fdd-266e-446d-b753-7da883ec3d12");
+//        Appsee.start("1bf07ceea1b14bf788fce8d87b532b7a");
+        UxMobile.start(this, "9f5a2fdd-266e-446d-b753-7da883ec3d12");
     }
 
     @Override
@@ -414,6 +416,15 @@ public class DiaryMainActivity extends EasyDiaryActivity {
                 this.mCurrentTimeMillis - 4000000L, getString(R.string.sample_diary_title_4), getString(R.string.sample_diary_4),
                 4
         ));
+
+
+        for (int i = 0; i < 100; i++) {
+            EasyDiaryDbHelper.insertDiary(new DiaryDto(
+                    -1, this.mCurrentTimeMillis - 100000L * (i + 2), "Dummy title #" + (i + 1), "Dummy text"
+            ));
+        }
+
+
     }
 
 }

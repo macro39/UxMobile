@@ -66,7 +66,7 @@ public class ScreenBuffer {
 
             mCanvas.restore();
         } else {
-            // orientacia bufferu a obrazu sa zhoduje
+            // orientacia bufferu a obrazu sa zhodnuje
             view.draw(mCanvas);
         }
 

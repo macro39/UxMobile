@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,6 +55,7 @@ import me.blog.korn123.easydiary.R;
 import me.blog.korn123.easydiary.models.PhotoUriDto;
 import me.blog.korn123.easydiary.helper.EasyDiaryDbHelper;
 import me.blog.korn123.easydiary.models.DiaryDto;
+import sk.brecka.uxmobile.UxMobile;
 
 /**
  * Created by CHO HANJOONG on 2017-03-16.
@@ -427,6 +429,12 @@ public class DiaryReadActivity extends EasyDiaryActivity {
                 @Override
                 public void onClick(View v) {
                     //
+
+                    Map<String, String> payload = new HashMap<>();
+                    payload.put("nejaky_key", "nic");
+                    payload.put("iny_key", "asdf");
+
+                    UxMobile.addEvent("hocijaky_btn_event", payload);
                 }
             });
 

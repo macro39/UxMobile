@@ -75,11 +75,13 @@ public class NativeEncoder {
     }
 
     public void encodeFrame(Bitmap bitmap) throws IOException {
-//        drainEncoder(false);
+        Log.d("UxMobile", "encodeFrame: start");
 
         if (mRenderingSurface == null) {
             return;
         }
+
+        drainEncoder(false);
 
         if (mRenderingSurface.isValid()) {
             Canvas canvas = null;
@@ -89,6 +91,8 @@ public class NativeEncoder {
                 if (canvas != null) {
                     canvas.drawBitmap(bitmap, 0, 0, null);
                 }
+            } catch (Exception e) {
+                Log.e("UxMobile", "encodeFrame:", e);
             } finally {
                 // tu to failne na emulatore
                 if (canvas != null && mRenderingSurface != null) {
