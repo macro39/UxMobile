@@ -45,6 +45,15 @@ public class EventRecorder extends BaseRecorder implements GestureDetector.OnGes
     private long mStartTime;
 
     @Override
+    public void onSessionStarted() {
+        super.onSessionStarted();
+
+        //
+        onFirstActivityStarted(mCurrentActivity);
+        onEveryActivityStarted(mCurrentActivity);
+    }
+
+    @Override
     public void onFirstActivityStarted(Activity activity) {
         super.onFirstActivityStarted(activity);
 
