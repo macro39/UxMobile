@@ -33,4 +33,23 @@ public class Task {
     public String getMessage() {
         return mMessage;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return mId == task.mId &&
+                mTitle.equals(task.mTitle) &&
+                mMessage.equals(task.mMessage);
+    }
+
+    @Override
+    public int hashCode() {
+
+        long result = mTitle != null ? mTitle.hashCode() : 0;
+        result = 31 * result + mMessage != null ? mMessage.hashCode() : 0;
+        result = 31 * result + (mId ^ (mId >>> 32));
+        return (int) result;
+    }
 }
