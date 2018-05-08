@@ -38,6 +38,17 @@ public class UxMobileSession implements LifecycleCallback {
     private EventRecorder mEventRecorder;
     private RestClient mRestClient;
 
+    private final Runnable mPostSkipRunnable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                DialogBuilder.buildTaskDialog(mActivity, UxMobileSession.this);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
 
     public UxMobileSession(Application application, String apiKey) {
         Log.d("UxMobile", "UxMobileSession: New UxMobile Session");
@@ -105,7 +116,7 @@ public class UxMobileSession implements LifecycleCallback {
 
         //
         if (Config.get().isRequestingTest()) {
-            mRestClient.requestTest(new Runnable() {
+            mRestClient.requestStudy(new Runnable() {
                 @Override
                 public void run() {
                     onTestRequested();
@@ -216,5 +227,9 @@ public class UxMobileSession implements LifecycleCallback {
     public void cancelTest() {
         addTaskEvent(TaskEvent.Status.CANCELLED);
         Config.get().setTaskRunning(false);
+    }
+
+    public void requestTask(){
+        mRestClient.requestTask(mPostSkipRunnable);
     }
 }

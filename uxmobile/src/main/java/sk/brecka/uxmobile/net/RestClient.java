@@ -38,7 +38,8 @@ public class RestClient {
     private static final String SERVICE_SESSION_START = "config";
     private static final String SERVICE_VIDEO_UPLOAD = "video";
     private static final String SERVICE_INPUT_UPLOAD = "input";
-    private static final String SERVICE_REQUEST_TEST = "study";
+    private static final String SERVICE_REQUEST_STUDY = "study";
+    private static final String SERVICE_REQUEST_TASK = "study_task";
 
     private static final String FORM_SESSION = "session";
     private static final String FORM_API_KEY = "api_key";
@@ -49,6 +50,7 @@ public class RestClient {
     private static final String RESPONSE_UPLOAD_VIDEO = "video_upload";
     private static final String RESPONSE_UPLOAD_EVENT = "event_upload";
     private static final String RESPONSE_UPLOAD_WIFI_ONLY = "wifi_only";
+    private static final String RESPONSE_UPLOADING_OVERRIDEN = "uploading_overriden";
     private static final String RESPONSE_VIDEO_FPS = "video_fps";
     private static final String RESPONSE_VIDEO_BITRATE = "video_bitrate";
     private static final String RESPONSE_VIDEO_HEIGHT = "video_height";
@@ -61,12 +63,13 @@ public class RestClient {
     private static final String RESPONSE_THANK_YOU_DIALOG = "dialog_thank_you";
     private static final String RESPONSE_TASK = "task";
 
-    private static final String HOST_BASE = "mobux.team";
+//    private static final String HOST_BASE = "mobux.team";
+    private static final String HOST_BASE = "10.11.41.56";
 
     //    private static final String HOST_WEBAPP = "mobux_dev";
     private static final String HOST_WEBAPP = "sfs";
 
-    private static final int HOST_PORT = 443;
+    private static final int HOST_PORT = 8765;
     private static final String HOST_API = "api";
 
     private OkHttpClient mHttpClient = new OkHttpClient();
@@ -139,7 +142,7 @@ public class RestClient {
 
     }
 
-    public void requestTest(final Runnable callback) {
+    public void requestStudy(final Runnable callback) {
 
         final FormBody.Builder builder = new FormBody.Builder();
 
@@ -148,11 +151,11 @@ public class RestClient {
 
         //
         Request request = new Request.Builder()
-                .url(buildUrl(SERVICE_REQUEST_TEST))
+                .url(buildUrl(SERVICE_REQUEST_STUDY))
                 .post(builder.build())
                 .build();
 
-        Log.d("UxMobile", "requestTest: " + request.url().toString());
+        Log.d("UxMobile", "requestStudy: " + request.url().toString());
 
         // async execute
         new HttpExecutor() {
@@ -185,6 +188,51 @@ public class RestClient {
                     Config.get().setTaskCompletionDialogJson(taskCompletionDialog);
                     Config.get().setThankYouDialogJson(thankYouDialog);
 
+                    Config.get().setCurrentTask(task);
+
+                    callback.run();
+                } catch (JSONException e) {
+                    // malformed result
+                    Log.e("UxMobile", "doInBackground: ", e);
+                }
+            }
+        }.execute(request);
+
+    }
+
+    public void requestTask(final Runnable callback) {
+
+        final FormBody.Builder builder = new FormBody.Builder();
+
+        // session
+        builder.add(FORM_SESSION, Config.get().getSession());
+
+        //
+        Request request = new Request.Builder()
+                .url(buildUrl(SERVICE_REQUEST_TASK))
+                .post(builder.build())
+                .build();
+
+        Log.d("UxMobile", "requestTask: " + request.url().toString());
+
+        // async execute
+        new HttpExecutor() {
+            @Override
+            protected void onPostExecute(String response) {
+                try {
+                    Log.d("UxMobile", "onPostExecute: " + response);
+                    if (response == null) {
+                        // exception?
+                        return;
+                    }
+
+                    //
+                    final JSONObject jsonResponse = new JSONObject(response);
+
+                    //
+                    final Task task = Task.fromJson(jsonResponse.getJSONObject(RESPONSE_TASK));
+
+                    //
                     Config.get().setCurrentTask(task);
 
                     callback.run();
@@ -277,10 +325,10 @@ public class RestClient {
 
     private HttpUrl buildUrl(String service) {
         return new HttpUrl.Builder()
-                .scheme("https")
+                .scheme("http")
                 .host(HOST_BASE)
                 .port(HOST_PORT)
-                .addPathSegment(HOST_WEBAPP)
+//                .addPathSegment(HOST_WEBAPP)
                 .addPathSegment(HOST_API)
                 .addPathSegment(service)
                 .build();

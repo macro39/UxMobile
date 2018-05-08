@@ -121,11 +121,14 @@ public class DialogBuilder {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // neutral
+                session.skipTest();
+                session.requestTask();
             }
         }, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // negative
+                session.cancelTest();
             }
         });
     }
@@ -146,6 +149,8 @@ public class DialogBuilder {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // neutral
+                session.skipTest();
+                session.requestTask();
             }
         }, new DialogInterface.OnClickListener() {
             @Override
@@ -160,6 +165,7 @@ public class DialogBuilder {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // positive
+                session.requestTest();
             }
         }, new DialogInterface.OnClickListener() {
             @Override

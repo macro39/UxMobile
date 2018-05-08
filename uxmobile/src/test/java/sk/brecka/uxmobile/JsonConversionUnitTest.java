@@ -41,7 +41,7 @@ public class JsonConversionUnitTest {
         final ViewEnum viewEnum = ViewEnum.BUTTON;
         final int viewEnumValue = 4; // ViewEnum.BUTTON.getJsonValue()
         final String viewText = "hello";
-        final String viewInfo = "eventRecordingConversion_isCorrect";
+        final String viewInfo = "basic_info";
 
         final JSONArray expected = new JSONArray("[" +
                 type + "," +
@@ -54,6 +54,7 @@ public class JsonConversionUnitTest {
                 "]");
 
         ClickEvent clickEvent = new ClickEvent(startTime, x, y, viewEnum, viewText, viewInfo);
+
         assertEquals(expected.toString(), clickEvent.toJson().toString());
     }
 
@@ -67,7 +68,7 @@ public class JsonConversionUnitTest {
         final ViewEnum viewEnum = ViewEnum.BUTTON;
         final int viewEnumValue = 4; // ViewEnum.BUTTON.getJsonValue()
         final String viewText = "hello";
-        final String viewInfo = "eventRecordingConversion_isCorrect";
+        final String viewInfo = "basic_info";
 
         final JSONArray expected = new JSONArray("[" +
                 type + "," +
@@ -80,6 +81,7 @@ public class JsonConversionUnitTest {
                 "]");
 
         LongPressEvent longPressEvent = new LongPressEvent(startTime, x, y, viewEnum, viewText, viewInfo);
+
         assertEquals(expected.toString(), longPressEvent.toJson().toString());
     }
 
@@ -109,6 +111,7 @@ public class JsonConversionUnitTest {
         map.put(key2, value2);
 
         CustomEvent customEvent = new CustomEvent(startTime, customEventName, map);
+
         assertEquals(expected.toString(), customEvent.toJson().toString());
     }
 
@@ -132,6 +135,7 @@ public class JsonConversionUnitTest {
                 "]");
 
         ScrollEvent scrollEvent = new ScrollEvent(startTime, x, y, distanceX, distanceY);
+
         assertEquals(expected.toString(), scrollEvent.toJson().toString());
     }
 
@@ -155,6 +159,7 @@ public class JsonConversionUnitTest {
                 "]");
 
         FlingEvent flingEvent = new FlingEvent(startTime, x, y, velocityX, velocityY);
+
         assertEquals(expected.toString(), flingEvent.toJson().toString());
     }
 
@@ -172,6 +177,7 @@ public class JsonConversionUnitTest {
                 "]");
 
         OrientationEvent orientationEvent = new OrientationEvent(startTime, orientation);
+
         assertEquals(expected.toString(), orientationEvent.toJson().toString());
     }
 
@@ -218,6 +224,5 @@ public class JsonConversionUnitTest {
                 "}");
 
         assertEquals(expected.toString(), eventRecording.toJson().toString());
-
     }
 }

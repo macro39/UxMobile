@@ -70,6 +70,8 @@ public class Config {
     private boolean mIsTaskRunning = false;
     private boolean mParticipatedInStudy = false;
 
+    // dialogs
+    private JSONObject mWelcomeDialogJson;
     private JSONObject mInstructionDialogJson;
     private JSONObject mTaskDialogJson;
     private JSONObject mTaskCompletionDialogJson;
@@ -86,8 +88,6 @@ public class Config {
 //    public static final String TAG_HIDE_WEB = "hide_web";
 //    public static final String TAG_UPLOAD_APP_ICON = "upload_icon";
 //    public static final String TAG_UPLOAD_VIDEO_ON_CRASH = "upload_video_on_crash";
-    // dialogs
-    private JSONObject mWelcomeDialogJson;
 
     private Config() {
     }
