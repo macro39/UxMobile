@@ -42,7 +42,7 @@ public class UxMobileSession implements LifecycleCallback {
         @Override
         public void run() {
             try {
-                DialogBuilder.buildTaskDialog(mActivity, UxMobileSession.this);
+                DialogBuilder.buildTaskDialog(mActivity, UxMobileSession.this).show();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -146,13 +146,16 @@ public class UxMobileSession implements LifecycleCallback {
             @Override
             public void onShake(int count) {
                 Log.d("UxMobile", "onShake: " + count);
+
+                if (!Config.get().isTaskRunning()) {
+                    return;
+                }
+
                 try {
                     DialogBuilder.buildTaskCompletionDialog(mActivity, UxMobileSession.this).show();
                 } catch (JSONException e) {
                     Log.e("UxMobile", "onShake: ", e);
                 }
-
-                // TODO
             }
         });
 
@@ -229,7 +232,7 @@ public class UxMobileSession implements LifecycleCallback {
         Config.get().setTaskRunning(false);
     }
 
-    public void requestTask(){
+    public void requestTask() {
         mRestClient.requestTask(mPostSkipRunnable);
     }
 }

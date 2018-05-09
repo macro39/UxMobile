@@ -63,10 +63,8 @@ public class RestClient {
     private static final String RESPONSE_THANK_YOU_DIALOG = "dialog_thank_you";
     private static final String RESPONSE_TASK = "task";
 
-//    private static final String HOST_BASE = "mobux.team";
-    private static final String HOST_BASE = "10.11.41.56";
+    private static final String HOST_BASE = "mobux.team";
 
-    //    private static final String HOST_WEBAPP = "mobux_dev";
     private static final String HOST_WEBAPP = "sfs";
 
     private static final int HOST_PORT = 8765;
@@ -279,7 +277,6 @@ public class RestClient {
             return;
         }
 
-        // TODO: musi to byt multipart?
         final RequestBody multipartBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart(FORM_SESSION, Config.get().getSession())
@@ -328,7 +325,7 @@ public class RestClient {
                 .scheme("http")
                 .host(HOST_BASE)
                 .port(HOST_PORT)
-//                .addPathSegment(HOST_WEBAPP)
+                .addPathSegment(HOST_WEBAPP)
                 .addPathSegment(HOST_API)
                 .addPathSegment(service)
                 .build();

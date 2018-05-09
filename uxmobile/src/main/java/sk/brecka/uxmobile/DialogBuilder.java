@@ -165,7 +165,7 @@ public class DialogBuilder {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // positive
-                session.requestTest();
+                session.requestTask();
             }
         }, new DialogInterface.OnClickListener() {
             @Override
@@ -220,7 +220,6 @@ public class DialogBuilder {
             builder.setMessage(dialogJson.getString(KEY_MESSAGE));
         }
 
-        // TODO: checkovat listenery na null?
         if (dialogJson.has(KEY_BUTTON_POSITIVE)) {
             builder.setPositiveButton(dialogJson.getString(KEY_BUTTON_POSITIVE), positiveListener);
         }
@@ -232,8 +231,6 @@ public class DialogBuilder {
         if (dialogJson.has(KEY_BUTTON_NEGATIVE)) {
             builder.setNegativeButton(dialogJson.getString(KEY_BUTTON_NEGATIVE), negativeListener);
         }
-
-        // TODO: body parsovanie
 
         return builder;
     }

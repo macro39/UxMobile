@@ -42,8 +42,7 @@ public class NativeEncoder {
     public NativeEncoder(int screenWidth, int screenHeight, int framerate, int bitrate, String filePath) throws IOException {
 
         // format
-        // TODO: MediaCodec nema rad ked je vyska/sirka neparna a crashne
-        // TODO: tento "fix" odstranit
+        // MediaCodec nema rad ked je vyska/sirka neparna a crashne
         screenHeight += screenHeight % 2 != 0 ? 1 : 0;
         screenWidth += screenWidth % 2 != 0 ? 1 : 0;
 
@@ -55,7 +54,7 @@ public class NativeEncoder {
 
         // codec
         mEncoder = MediaCodec.createEncoderByType(MIME_TYPE);
-        // TODO: crash na S3 -> java.lang.NoSuchMethodError: android.media.MediaCodec.reset
+        // crash na starsich zariadeniach (ako napr Galaxy S3) -> java.lang.NoSuchMethodError: android.media.MediaCodec.reset
         mEncoder.reset();
         mEncoder.configure(mMediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 

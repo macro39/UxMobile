@@ -55,7 +55,6 @@ public class ScreenBuffer {
             mIsInitialized = true;
         }
 
-        // TODO: mozno otacat inym smerom podla mIsLandscape
         if (mIsLandscape != isLandscape(viewWidth, viewHeight)) {
             // orientacia bufferu a obrazu sa nezhoduje, rotuj obraz
             mCanvas.save();

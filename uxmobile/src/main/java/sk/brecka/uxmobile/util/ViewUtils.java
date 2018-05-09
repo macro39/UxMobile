@@ -25,7 +25,6 @@ public class ViewUtils {
     }
 
     private static View rGetTouchedView(View view, MotionEvent motionEvent, Rect rect) {
-        // TODO: co ak sa viewy overlapuju?
         if (!view.isShown() || view.getWidth() == 0 || view.getHeight() == 0) {
             return null;
         }

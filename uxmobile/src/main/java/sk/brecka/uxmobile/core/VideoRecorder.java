@@ -113,7 +113,6 @@ public class VideoRecorder extends BaseRecorder {
     }
 
     private void captureFrame() {
-        // TODO: ak crashne castovanie alebo getChild() tak treba inak premysliet nahravanie
 //        final View rootLayout = ((ViewGroup) mCurrentActivity.getWindow().getDecorView().getRootView()).getChildAt(0); // neobsahuje listy, ma problem s vrstvami
         final View rootLayout = mCurrentActivity.getWindow().getDecorView(); // obsahuje hornu aj spodnu listu, nema problem s vrstvami
 
