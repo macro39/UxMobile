@@ -322,7 +322,7 @@ public class RestClient {
 
     private HttpUrl buildUrl(String service) {
         return new HttpUrl.Builder()
-                .scheme("http")
+                .scheme("https")
                 .host(HOST_BASE)
                 .port(HOST_PORT)
                 .addPathSegment(HOST_WEBAPP)
