@@ -67,7 +67,7 @@ public class RestClient {
 
     private static final String HOST_WEBAPP = "sfs";
 
-    private static final int HOST_PORT = 8765;
+    private static final int HOST_PORT = 443;
     private static final String HOST_API = "api";
 
     private OkHttpClient mHttpClient = new OkHttpClient();
