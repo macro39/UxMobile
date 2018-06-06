@@ -49,6 +49,8 @@ public class UxMobileSession implements LifecycleCallback {
         }
     };
 
+    private boolean mShowingTaskCompletionDialog = false;
+
 
     public UxMobileSession(Application application, String apiKey) {
         Log.d("UxMobile", "UxMobileSession: New UxMobile Session");
@@ -147,11 +149,14 @@ public class UxMobileSession implements LifecycleCallback {
             public void onShake(int count) {
                 Log.d("UxMobile", "onShake: " + count);
 
-                if (!Config.get().isTaskRunning()) {
+                //
+                if (mShowingTaskCompletionDialog || !Config.get().isTaskRunning()) {
                     return;
                 }
 
                 try {
+                    Log.d("UxMobile", "onShake: showing TaskCompletion dialog");
+                    mShowingTaskCompletionDialog = true;
                     DialogBuilder.buildTaskCompletionDialog(mActivity, UxMobileSession.this).show();
                 } catch (JSONException e) {
                     Log.e("UxMobile", "onShake: ", e);
@@ -209,6 +214,10 @@ public class UxMobileSession implements LifecycleCallback {
 
     private void addTaskEvent(TaskEvent.Status status) {
         mEventRecorder.addTaskEvent(Config.get().getCurrentTask(), status);
+    }
+
+    public void setShowingTaskCompletionDialog(boolean showingTaskCompletionDialog) {
+        mShowingTaskCompletionDialog = showingTaskCompletionDialog;
     }
 
     public void startTest() {

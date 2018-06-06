@@ -29,34 +29,8 @@ public class DialogBuilder {
 
     private static final String VALUE_TYPE_ALERT = "alert";
 
-    private static final String[] items = {"jeden", "dva"};
-
-    public static Dialog buildTestDialog(final Activity activity) {
-        String jsonString = "{\n" +
-                "\t\"type\":\"alert\",\n" +
-                "\t\"title\":\"Welcome title\",\n" +
-                "\t\"message\":\"Welcome message\"\n" +
-                "}";
-        try {
-            return buildAlertDialog2(activity, new JSONObject(jsonString), null, null, null)
-                    .setMultiChoiceItems(items, new boolean[]{false, false}, new DialogInterface.OnMultiChoiceClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                            Log.d("UxMobile", "onClick: " + which);
-                        }
-                    })
-
-
-                    .create();
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public static Dialog buildWelcomeDialog(final Activity activity, final UxMobileSession session) throws JSONException {
-        return buildAlertDialog(activity, Config.get().getWelcomeDialogJson(), new DialogInterface.OnClickListener() {
+        return prepareAlertDialog(activity, Config.get().getWelcomeDialogJson(), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // positive
@@ -78,11 +52,11 @@ public class DialogBuilder {
                 // negative
                 Config.get().setParticipatedInStudy(false);
             }
-        });
+        }).create();
     }
 
     public static Dialog buildInstructionDialog(final Activity activity, final UxMobileSession session) throws JSONException {
-        return buildAlertDialog(activity, Config.get().getInstructionDialogJson(), new DialogInterface.OnClickListener() {
+        return prepareAlertDialog(activity, Config.get().getInstructionDialogJson(), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // positive
@@ -102,7 +76,7 @@ public class DialogBuilder {
             public void onClick(DialogInterface dialog, int which) {
                 // negative
             }
-        });
+        }).create();
     }
 
     public static Dialog buildTaskDialog(final Activity activity, final UxMobileSession session) throws JSONException {
@@ -111,7 +85,7 @@ public class DialogBuilder {
                 .put("title", task.getTitle())
                 .put("message", task.getMessage());
 
-        return buildAlertDialog(activity, dialog, new DialogInterface.OnClickListener() {
+        return prepareAlertDialog(activity, dialog, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // positive
@@ -130,11 +104,11 @@ public class DialogBuilder {
                 // negative
                 session.cancelTest();
             }
-        });
+        }).create();
     }
 
     public static Dialog buildTaskCompletionDialog(final Activity activity, final UxMobileSession session) throws JSONException {
-        return buildAlertDialog(activity, Config.get().getTaskCompletionDialogJson(), new DialogInterface.OnClickListener() {
+        return prepareAlertDialog(activity, Config.get().getTaskCompletionDialogJson(), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // positive
@@ -157,11 +131,17 @@ public class DialogBuilder {
             public void onClick(DialogInterface dialog, int which) {
                 // negative
             }
-        });
+        }).setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                Log.d("UxMobile", "onDismiss: dismissing TaskCompletion dialog");
+                session.setShowingTaskCompletionDialog(false);
+            }
+        }).create();
     }
 
     public static Dialog buildThankYouDialog(final Activity activity, final UxMobileSession session) throws JSONException {
-        return buildAlertDialog(activity, Config.get().getThankYouDialogJson(), new DialogInterface.OnClickListener() {
+        return prepareAlertDialog(activity, Config.get().getThankYouDialogJson(), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // positive
@@ -177,10 +157,10 @@ public class DialogBuilder {
             public void onClick(DialogInterface dialog, int which) {
                 // negative
             }
-        });
+        }).create();
     }
 
-    private static AlertDialog buildAlertDialog(final Activity activity, JSONObject dialogJson, DialogInterface.OnClickListener positiveListener, DialogInterface.OnClickListener neutralListener, DialogInterface.OnClickListener negativeListener) throws JSONException {
+    private static AlertDialog.Builder prepareAlertDialog(final Activity activity, JSONObject dialogJson, DialogInterface.OnClickListener positiveListener, DialogInterface.OnClickListener neutralListener, DialogInterface.OnClickListener negativeListener) throws JSONException {
         final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
         if (dialogJson.has(KEY_TITLE)) {
@@ -192,34 +172,6 @@ public class DialogBuilder {
         }
 
         // TODO: checkovat listenery na null?
-        if (dialogJson.has(KEY_BUTTON_POSITIVE)) {
-            builder.setPositiveButton(dialogJson.getString(KEY_BUTTON_POSITIVE), positiveListener);
-        }
-
-        if (dialogJson.has(KEY_BUTTON_NEUTRAL)) {
-            builder.setNeutralButton(dialogJson.getString(KEY_BUTTON_NEUTRAL), neutralListener);
-        }
-
-        if (dialogJson.has(KEY_BUTTON_NEGATIVE)) {
-            builder.setNegativeButton(dialogJson.getString(KEY_BUTTON_NEGATIVE), negativeListener);
-        }
-
-        // TODO: body parsovanie
-
-        return builder.create();
-    }
-
-    private static AlertDialog.Builder buildAlertDialog2(final Activity activity, JSONObject dialogJson, DialogInterface.OnClickListener positiveListener, DialogInterface.OnClickListener neutralListener, DialogInterface.OnClickListener negativeListener) throws JSONException {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-
-        if (dialogJson.has(KEY_TITLE)) {
-            builder.setTitle(dialogJson.getString(KEY_TITLE));
-        }
-
-        if (dialogJson.has(KEY_MESSAGE)) {
-            builder.setMessage(dialogJson.getString(KEY_MESSAGE));
-        }
-
         if (dialogJson.has(KEY_BUTTON_POSITIVE)) {
             builder.setPositiveButton(dialogJson.getString(KEY_BUTTON_POSITIVE), positiveListener);
         }

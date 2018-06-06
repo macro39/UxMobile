@@ -63,9 +63,9 @@ public class RestClient {
     private static final String RESPONSE_THANK_YOU_DIALOG = "dialog_thank_you";
     private static final String RESPONSE_TASK = "task";
 
-    private static final String HOST_BASE = "mobux.team";
+    private static final String HOST_BASE = "team11-17.studenti.fiit.stuba.sk";
 
-    private static final String HOST_WEBAPP = "sfs";
+    private static final String HOST_WEBAPP = "mobux_api";
 
     private static final int HOST_PORT = 443;
     private static final String HOST_API = "api";
