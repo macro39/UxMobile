@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/UxMobileApp.iml" filepath="$PROJECT_DIR$/UxMobileApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/plugin-mobe.iml" filepath="$PROJECT_DIR$/plugin-mobe.iml" />
       <module fileurl="file://$PROJECT_DIR$/uxmobile/uxmobile.iml" filepath="$PROJECT_DIR$/uxmobile/uxmobile.iml" />
     </modules>
   </component>

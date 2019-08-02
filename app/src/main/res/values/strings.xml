@@ -1,178 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Easy\nDiary</string>
+    <string name="app_name">Simple Calendar</string>
+    <string name="app_launcher_name">Calendar</string>
+    <string name="change_view">Change view</string>
+    <string name="daily_view">Daily view</string>
+    <string name="weekly_view">Weekly view</string>
+    <string name="monthly_view">Monthly view</string>
+    <string name="yearly_view">Yearly view</string>
+    <string name="simple_event_list">Simple event list</string>
+    <string name="no_upcoming_events">Seems like you don\'t have any upcoming events.</string>
+    <string name="go_to_today">Go to today</string>
+    <string name="go_to_date">Go to date</string>
+    <string name="upgraded_from_free">Hey,\n\nseems like you upgraded from the old free app. You have to migrate locally stored events manually via exporting in an .ics file, then importing. You can find both export/import buttons at the main screen menu.\n\nYou can then uninstall the old version, which has an \'Upgrade to Pro\' button at the top of the app settings. You will then only have to reset your app settings.\n\nThanks!</string>
 
-    <!--DiaryInsertActivity-->
-    <string name="create_diary_title">Write Diary</string>
-    <string name="write_date">Date</string>
-    <string name="request_title_message">Please enter a title.</string>
-    <string name="request_content_message">Please enter your content.</string>
-    <string name="guide_message">Type or speak the title.</string>
-    <string name="contents_text_hint">Type or speak the contents.</string>
-    <string name="delete_photo_confirm_message">Are you sure you want to delete this photo?</string>
-    <string name="gallery_intent_not_found_message">The Gallery app is not installed or is disabled.</string>
-    <string name="create_diary_showcase_button_1">Next</string>
-    <string name="create_diary_showcase_button_2">Close</string>
-    <string name="create_diary_showcase_title_1">Weather</string>
-    <string name="create_diary_showcase_title_2">Title</string>
-    <string name="create_diary_showcase_title_3">Contents</string>
-    <string name="create_diary_showcase_title_4">Attach photo</string>
-    <string name="create_diary_showcase_title_5">Scale up font</string>
-    <string name="create_diary_showcase_title_6">Scale down font</string>
-    <string name="create_diary_showcase_title_7">Pick date</string>
-    <string name="create_diary_showcase_title_8">Pick time</string>
-    <string name="create_diary_showcase_title_9">Save</string>
-    <string name="create_diary_showcase_message_1">Select the weather for the diary creation time. Weather selection is not mandatory.</string>
-    <string name="create_diary_showcase_message_2">Type the title of the diary. Entering a subject is not mandatory.</string>
-    <string name="create_diary_showcase_message_3">Enter diaries, notes, summary notes, and more.</string>
-    <string name="create_diary_showcase_message_4">Attach a photo to the diary.</string>
-    <string name="create_diary_showcase_message_5">Enlarge the text used in the diary.</string>
-    <string name="create_diary_showcase_message_6">Reduce the font used in the diary.</string>
-    <string name="create_diary_showcase_message_7">Select the diary creation date. If you want to create a diary for the past date, you can change the date.</string>
-    <string name="create_diary_showcase_message_8">Select diary creation time. You can change the time if you want to create a diary for the last time.</string>
-    <string name="create_diary_showcase_message_9">Save the completed diary.</string>
+    <!-- Widget titles -->
+    <string name="widget_monthly">Calendar monthly</string>
+    <string name="widget_list">Calendar event list</string>
 
-    <!--DiaryMainActivity-->
-    <string name="read_diary_title">Search</string>
-    <string name="input_mode_a">Speech mode</string>
-    <string name="input_mode_c">Keypad mode</string>
-    <string name="guide_message_2">Type or speak the subject.</string>
-    <string name="recognizer_intent_not_found_message">The speech recognition module is not installed or is disabled.</string>
-    <string name="sample_diary_title_1">Be dangerous rather than careful.</string>
-    <string name="sample_diary_title_2">I repeat what I know when I speak.</string>
-    <string name="sample_diary_title_3">The more bad news we hear, the more we should be happy.</string>
-    <string name="sample_diary_title_4">Abundance calls comfort, constraint calls creativity.</string>
-    <string name="sample_diary_1">When you look back at your past life, you will surely know that you have been damaging your life because you are too careful not to be in danger.\nDanger of danger.\nDanger rather than being careful.\n- Grant money, In the law of</string>
-    <string name="sample_diary_2">When you talk, you are only repeating what you already know.\nBut if you listen, you may learn something new.\n-The Dalai Lama</string>
-    <string name="sample_diary_3">It is the bad news that you need to hear most as a leader. \nThe good news is good tomorrow, but the bad news will be worse tomorrow. \nThis is because even if the facts are heartbreaking, That\'s why it\'s safe to say. \n- Eric Schmidt, President of Google, \"How does Google work?\"</string>
-    <string name="sample_diary_4">Constraints are not a barrier to creativity, but creativity is used to overcome constraints. \nAll great works or creative solutions are those that have a lot of time constraints, physical constraints, and resource constraints. Creativity is born in a constrained environment. \n- Representative Kim Bong-Jin</string>
-    <string name="read_diary_showcase_button_1">Next</string>
-    <string name="read_diary_showcase_button_2">Close</string>
-    <string name="read_diary_showcase_title_1">Write diary</string>
-    <string name="read_diary_showcase_title_2">Search</string>
-    <string name="read_diary_showcase_title_3">Speech recognition</string>
-    <string name="read_diary_showcase_title_4">Calendar</string>
-    <string name="read_diary_showcase_title_5">Timeline</string>
-    <string name="read_diary_showcase_title_6">Chart</string>
-    <string name="read_diary_showcase_title_7">Advanced setting</string>
-    <string name="read_diary_showcase_title_8">View diary</string>
-    <string name="read_diary_showcase_message_1">You can create various diaries such as diary, memo, summary note, etc. according to the flow of time.</string>
-    <string name="read_diary_showcase_message_2">You can search for diaries using keywords. When a keyword is entered, the matching diary is searched and the keyword is highlighted.</string>
-    <string name="read_diary_showcase_message_3">You can use the speech recognition feature to enter search keywords without a keypad.</string>
-    <string name="read_diary_showcase_message_4">The created diary can be collected by date using the calendar.</string>
-    <string name="read_diary_showcase_message_5">The created diary is provided as a timeline.</string>
-    <string name="read_diary_showcase_message_6">You can view charts of diary entries for the entire period.</string>
-    <string name="read_diary_showcase_message_7">You can use advanced settings to change fonts, set lock number, backup and restore diary.</string>
-    <string name="read_diary_showcase_message_8">Click the diary card in the list to view the diary.</string>
+    <!-- Event -->
+    <string name="event">Event</string>
+    <string name="edit_event">Edit Event</string>
+    <string name="new_event">New Event</string>
+    <string name="create_new_event">Create a new event</string>
+    <string name="duplicate_event">Duplicate event</string>
+    <string name="title_empty">Title cannot be empty</string>
+    <string name="end_before_start">The event cannot end earlier than it starts</string>
+    <string name="event_added">Event added successfully</string>
+    <string name="event_updated">Event updated successfully</string>
+    <string name="filter_events_by_type">Filter events by type</string>
+    <string name="please_fill_location">Please fill in a location to be shown on a map</string>
+    <string name="public_event_notification_text">An event is upcoming</string>
 
-    <!--DiaryReadActivity-->
-    <string name="read_diary_detail_title">Read Diary</string>
-    <string name="delete_confirm">Are you sure you want to delete?</string>
-    <string name="read_diary_detail_showcase_button_1">Next</string>
-    <string name="read_diary_detail_showcase_button_2">Close</string>
-    <string name="read_diary_detail_showcase_title_1">Move page</string>
-    <string name="read_diary_detail_showcase_title_2">Edit diary</string>
-    <string name="read_diary_detail_showcase_title_3">TTS</string>
-    <string name="read_diary_detail_showcase_title_4">Postcard</string>
-    <string name="read_diary_detail_showcase_title_5">Delete diary</string>
-    <string name="read_diary_detail_showcase_message_1">Drag the screen left or right to view diaries created before or after.</string>
-    <string name="read_diary_detail_showcase_message_2">You can go to the diary editing screen to edit the diary being viewed.</string>
-    <string name="read_diary_detail_showcase_message_3">You can listen to the diary text by voice using the Google TTS feature.</string>
-    <string name="read_diary_detail_showcase_message_4">Use the diary to create post cards and share them with others.</string>
-    <string name="read_diary_detail_showcase_message_5">You can delete the current diary and go to the search screen.</string>
+    <!-- Event Repetition -->
+    <string name="repetition">Repetition</string>
+    <string name="no_repetition">No repetition</string>
+    <string name="daily">Daily</string>
+    <string name="weekly">Weekly</string>
+    <string name="monthly">Monthly</string>
+    <string name="yearly">Yearly</string>
+    <string name="weeks_raw">weeks</string>
+    <string name="months_raw">months</string>
+    <string name="years_raw">years</string>
+    <string name="repeat_till">Repeat till</string>
+    <string name="forever">Forever</string>
+    <string name="event_is_repeatable">The event is repeatable</string>
+    <string name="selection_contains_repetition">The selection contains repeating events</string>
+    <string name="delete_one_only">Delete the selected occurrence only</string>
+    <string name="delete_future_occurrences">Delete this and all future occurrences</string>
+    <string name="delete_all_occurrences">Delete all occurrences</string>
+    <string name="update_one_only">Update the selected occurrence only</string>
+    <string name="update_all_occurrences">Update all occurrences</string>
+    <string name="repeat_till_date">Repeat till a date</string>
+    <string name="stop_repeating_after_x">Stop repeating after x occurrences</string>
+    <string name="repeat_forever">Repeat forever</string>
+    <string name="times">times</string>
+    <string name="repeat">Repeat</string>
+    <string name="repeat_on">Repeat on</string>
+    <string name="every_day">Every day</string>
+    <string name="selected_days">On selected days</string>
+    <string name="the_same_day">The same day</string>
+    <string name="the_last_day">The last day</string>
+    <string name="repeat_on_the_same_day_monthly">Repeat on the same day each month</string>
+    <string name="repeat_on_the_last_day_monthly">Repeat on the last day of the month</string>
+    <string name="repeat_on_the_same_day_yearly">Repeat on the same day every year</string>
+    <string name="repeat_every_m">Repeat every</string>
+    <string name="every_m">Every</string>
+    <string name="first_m">first</string>
+    <string name="second_m">second</string>
+    <string name="third_m">third</string>
+    <string name="fourth_m">fourth</string>
+    <string name="last_m">last</string>
 
-    <!--DiaryUpdateActivity-->
-    <string name="update_diary_title">Edit Diary</string>
-    <string name="back_pressed_confirm">Click the \'OK\' button to go to the diary search screen without saving the current diary.</string>
+    <!-- alternative versions for some languages, use the same translations if you are not sure what this means -->
+    <!-- used in repetition, like "Every first Sunday" -->
+    <string name="repeat_every_f">Repeat every</string>
+    <string name="every_f">Every</string>
+    <string name="first_f">first</string>
+    <string name="second_f">second</string>
+    <string name="third_f">third</string>
+    <string name="fourth_f">fourth</string>
+    <string name="last_f">last</string>
 
-    <!--SettingsActivity-->
-    <string name="setting_title">Preferences</string>
-    <string name="lock_number">Lock Number:</string>
-    <string name="rate_app">Rate App</string>
-    <string name="guide_message_3">Insufficient permission for the request feature.</string>
-    <string name="application_lock_title">Lock apps</string>
-    <string name="application_lock_summary">When the lock setting is enabled, the application is locked with the set password.</string>
-    <string name="application_lock_password_title">Set lock number</string>
-    <string name="restore_diary">Recover Diary</string>
-    <string name="restore_diary_summary">Recover all content using data backed up to Google Drive.\nIn the case of an attached photo, only the link information exists. Therefore, on a device that does not have an original photo, only the content except the attached photo is restored.\nRecovery features, including original photos, will be available in the future.</string>
-    <string name="backup_diary">Backup diary</string>
-    <string name="backup_diary_summary">Back up all your content to Google Drive.\nIn the case of an attached photo, only the link information is backed up. Therefore, only the contents except the attached photo will be restored on devices that do not have the original photo.\nBackup features including original photos will be available in the future.</string>
-    <string name="font_setting">Font setting</string>
-    <string name="add_ttf_fonts_title">Add TTF font</string>
-    <string name="add_ttf_fonts_summary">Add your own TTF fonts to the Easy Diary.\nIf the fonts are added, you can use the added fonts with the built-in fonts.</string>
-    <string name="add_ttf_fonts_info_url">https://github.com/hanjoongcho/aaf-easydiary/blob/master/MANUAL.md</string>
+    <!-- Birthdays -->
+    <string name="birthdays">Birthdays</string>
+    <string name="add_birthdays">Add contact birthdays</string>
+    <string name="no_birthdays">No birthdays have been found</string>
+    <string name="no_new_birthdays">No new birthdays have been found</string>
+    <string name="birthdays_added">Birthdays added successfully</string>
 
-    <!--CalendarActivity-->
-    <string name="calendar_title">Calendar</string>
-    <string name="guide_message_4">There is no diary created on that day.</string>
+    <!-- Anniversaries -->
+    <string name="anniversaries">Anniversaries</string>
+    <string name="add_anniversaries">Add contact anniversaries</string>
+    <string name="no_anniversaries">No anniversaries have been found</string>
+    <string name="no_new_anniversaries">No new anniversaries have been found</string>
+    <string name="anniversaries_added">Anniversaries added successfully</string>
 
-    <!--BarChartActivity-->
-    <string name="bar_chart_title">Chart</string>
-    <string name="bar_chart_status">Time Diary Creation Status</string>
-    <string name="range_a">0h~3h</string>
-    <string name="range_b">4h~7h</string>
-    <string name="range_c">8h~11h</string>
-    <string name="range_d">12h~15h</string>
-    <string name="range_e">16h~19h</string>
-    <string name="range_f">20h~23h</string>
-    <string name="range_g">1h~24h</string>
-    <string name="write_time">write time</string>
-    <string name="write_count">write count</string>
+    <!-- Event Reminders -->
+    <string name="reminder">Reminder</string>
+    <string name="before">before</string>
+    <string name="add_another_reminder">Add another reminder</string>
+    <string name="event_reminders">Event reminders</string>
 
-    <!--LockDiaryActivity-->
-    <string name="unlock_guide_message">Please enter your lock number</string>
+    <!-- Event attendees -->
+    <string name="add_another_attendee">Add another attendee</string>
+    <string name="my_status">My status:</string>
+    <string name="going">Going</string>
+    <string name="not_going">Not going</string>
+    <string name="maybe_going">Maybe going</string>
+    <string name="invited">Invited</string>
 
-    <!--PhotoViewPagerActivity-->
-    <string name="photo_view_error_info">No photos found.\nAttached photos from Gallery may have been deleted or moved.</string>
+    <!-- Export / Import -->
+    <string name="import_events">Import events</string>
+    <string name="export_events">Export events</string>
+    <string name="import_events_from_ics">Import events from an .ics file</string>
+    <string name="export_events_to_ics">Export events to an .ics file</string>
+    <string name="default_event_type">Default event type</string>
+    <string name="export_past_events_too">Export past events too</string>
+    <string name="include_event_types">Include event types</string>
+    <string name="filename_without_ics">Filename (without .ics)</string>
+    <string name="override_event_types">Override event types in the file</string>
 
-    <!--PostCardActivity-->
-    <string name="diary_card_export_info">Diary card saved path</string>
-    <string name="diary_card_share_info">Share diary card</string>
-    <string name="diary_card_export_error_message">An error occurred while generating the diary card. Please try again.</string>
-    <string name="post_card_showcase_button_1">Next</string>
-    <string name="post_card_showcase_button_2">Close</string>
-    <string name="post_card_showcase_title_1">Text color</string>
-    <string name="post_card_showcase_title_2">Background color</string>
-    <string name="post_card_showcase_title_3">Create postcard</string>
-    <string name="post_card_showcase_title_4">Share postcard</string>
-    <string name="post_card_showcase_title_5">Exit Editing</string>
-    <string name="post_card_showcase_message_1">Change the postcard text color. You can select the desired color using the color picker.</string>
-    <string name="post_card_showcase_message_2">Change the postcard background color. You can select the desired color using the color picker.</string>
-    <string name="post_card_showcase_message_3">Postcard created can be saved as image files.</string>
-    <string name="post_card_showcase_message_4">Postcard created can be shared with friends. Share your postcard with email, mms, messenger, and more.</string>
-    <string name="post_card_showcase_message_5">Exit the postcard editing screen and return to the previous screen.</string>
+    <!-- Event details -->
+    <string name="title">Title</string>
+    <string name="location">Location</string>
+    <string name="description">Description</string>
+    <string name="all_day">All-day</string>
 
-    <!--TimelineActivity-->
-    <string name="timeline_title">Timeline</string>
+    <!-- Weekly view -->
+    <string name="week">Week</string>
 
-    <!--CaldroidItemAdapter-->
-    <string name="diary_count"></string>
+    <!-- Event types -->
+    <string name="event_types">Event types</string>
+    <string name="add_new_type">Add a new type</string>
+    <string name="edit_type">Edit type</string>
+    <string name="type_already_exists">Type with this title already exists</string>
+    <string name="color">Color</string>
+    <string name="regular_event">Regular event</string>
+    <string name="cannot_delete_default_type">Default event type cannot be deleted</string>
+    <string name="select_event_type">Select an event type</string>
+    <string name="move_events_into_default">Move affected events into the default event type</string>
+    <string name="remove_affected_events">Permanently remove affected events</string>
+    <string name="unsync_caldav_calendar">To remove a CalDAV calendar you have to unsynchronize it</string>
 
-    <!--diary_main.xml-->
-    <string name="menu_calendar">Calendar</string>
-    <string name="menu_chart">Chart</string>
-    <string name="menu_timeline">Timeline</string>
-    <string name="menu_preference">Preferences</string>
+    <!-- Holidays -->
+    <string name="holidays">Holidays</string>
+    <string name="add_holidays">Add holidays</string>
+    <string name="national_holidays">National holidays</string>
+    <string name="religious_holidays">Religious holidays</string>
+    <string name="holidays_imported_successfully">Holidays have been successfully imported into the \"Holidays\" event type</string>
+    <string name="importing_some_holidays_failed">Importing some events failed</string>
+    <string name="importing_holidays_failed">Importing holidays failed</string>
 
-    <!--Array-->
-    <string-array name="weather_item_array">
-        <item>Weather</item>
-        <item></item>
-        <item></item>
-        <item></item>
-        <item></item>
-        <item></item>
-        <item></item>
-        <item></item>
-        <item></item>
-        <item></item>
-        <item></item>
-    </string-array>
+    <!-- Settings -->
+    <string name="manage_event_types">Manage event types</string>
+    <string name="start_day_at">Start day at</string>
+    <string name="end_day_at">End day at</string>
+    <string name="week_numbers">Show week numbers</string>
+    <string name="vibrate">Vibrate on reminder notification</string>
+    <string name="reminder_sound">Reminder sound</string>
+    <string name="no_ringtone_picker">No app capable of setting ringtone found</string>
+    <string name="no_ringtone_selected">None</string>
+    <string name="day_end_before_start">The day cannot end earlier than it starts</string>
+    <string name="caldav_sync">CalDAV sync</string>
+    <string name="event_lists">Event lists</string>
+    <string name="display_past_events">Display events from the past</string>
+    <string name="replace_description_with_location">Replace event description with location</string>
+    <string name="delete_all_events">Delete all events</string>
+    <string name="delete_all_events_confirmation">Are you sure you want to delete all events? This will leave your event types and other settings intact.</string>
+    <string name="show_a_grid">Show a grid</string>
+    <string name="loop_reminders">Loop reminders until dismissed</string>
+    <string name="dim_past_events">Dim past events</string>
+    <string name="events">Events</string>
+    <string name="reminder_stream">Audio stream used by reminders</string>
+    <string name="system_stream">System</string>
+    <string name="alarm_stream">Alarm</string>
+    <string name="notification_stream">Notification</string>
+    <string name="ring_stream">Ring</string>
+    <string name="use_last_event_reminders">Use the last events\' reminders as the default for new events</string>
+    <string name="default_reminder_1">Default reminder 1</string>
+    <string name="default_reminder_2">Default reminder 2</string>
+    <string name="default_reminder_3">Default reminder 3</string>
+    <string name="view_to_open_from_widget">View to open from the event list widget</string>
+    <string name="last_view">Last view</string>
+    <string name="new_events">New events</string>
+    <string name="default_start_time">Default start time</string>
+    <string name="next_full_hour">Next full hour</string>
+    <string name="default_duration">Default duration</string>
+    <string name="last_used_one">Last used one</string>
+    <string name="other_time">Other time</string>
+    <string name="highlight_weekends">Highlight weekends on some views</string>
 
-    <string-array name="pref_list_fonts_title">
-        <item>Device setting font</item>
-    </string-array>
-    <string-array name="pref_list_fonts_values">
-        <item>Default</item>
-    </string-array>
+    <!-- CalDAV sync -->
+    <string name="caldav">CalDAV</string>
+    <string name="select_caldav_calendars">Select calendars to sync</string>
+    <string name="manage_synced_calendars">Manage synced calendars</string>
+    <string name="store_locally_only">Store locally only</string>
+    <string name="refresh_caldav_calendars">Refresh CalDAV calendars</string>
+    <string name="refreshing">Refreshing…</string>
+    <string name="refreshing_complete">Refreshing complete</string>
+    <string name="editing_calendar_failed">Editing calendar failed</string>
+    <string name="syncing">Syncing…</string>
+    <string name="synchronization_completed">Sync completed</string>
+    <string name="select_a_different_caldav_color">Select a different color (might be applied locally only)</string>
+    <string name="insufficient_permissions">You are not allowed to write in the selected calendar</string>
 
+    <!-- alternative versions for some languages, use the same translations if you are not sure what this means -->
+    <!-- used in repetition, like "Every last Sunday" -->
+    <string name="monday_alt">Monday</string>
+    <string name="tuesday_alt">Tuesday</string>
+    <string name="wednesday_alt">Wednesday</string>
+    <string name="thursday_alt">Thursday</string>
+    <string name="friday_alt">Friday</string>
+    <string name="saturday_alt">Saturday</string>
+    <string name="sunday_alt">Sunday</string>
+
+    <!-- List widget config example events -->
+    <string name="sample_title_1">Workout</string>
+    <string name="sample_description_1">Leg day</string>
+    <string name="sample_title_2">Meeting with John</string>
+    <string name="sample_description_2">In Rockstone garden</string>
+    <string name="sample_title_3">Library</string>
+    <string name="sample_title_4">Lunch with Mary</string>
+    <string name="sample_description_4">In the Plaza</string>
+    <string name="sample_title_5">Coffee time</string>
+
+    <!-- FAQ -->
+    <string name="faq_1_title">How can I remove the holidays imported via the \"Add holidays\" button?</string>
+    <string name="faq_1_text">Holidays created that way are inserted in a new event type called \"Holidays\". You can go in Settings -> Manage Event Types,
+        long press the given event type and delete it by selecting the trashbin.</string>
+    <string name="faq_2_title">Can I sync my events via Google Calendar, or other service supporting CalDAV?</string>
+    <string name="faq_2_text">Yes, just toggle \"CalDAV sync\" in the app settings and select the calendars you want to sync. However, you will need some third party app handling the synchronization between the device and servers.
+        In case you want to synchronize a Google calendar, their official Calendar app will do the job. For other calendars you will need a third party sync adapter, for example DAVdroid.</string>
+    <string name="faq_3_title">I see the visual reminders, but hear no audio. What can I do?</string>
+    <string name="faq_3_text">Not just displaying the actual reminder, but playing the audio is hugely affected by the system too. If you can\'t hear any sound, try going in the app settings,
+        pressing the \"Audio stream used by reminders\" option and changing it to a different value. If it still won\'t work, check your sound settings, if the particular stream isn\'t muted.</string>
+
+    <!-- Strings displayed only on Google Playstore. Optional, but good to have -->
+    <!-- App title has to have less than 50 characters. If you cannot squeeze it, just remove a part of it -->
+    <string name="app_title">Simple Calendar Pro - Events &amp; Reminders</string>
+    <!-- Short description has to have less than 80 chars -->
+    <string name="app_short_description">A beautiful calendar without ads or weird permissions.</string>
+    <string name="app_long_description">
+        Simple Calendar Pro is a fully customizable, offline calendar designed to do exactly what a calendar should do. <b>No complicated features, unnecessary permissions and no ads!</b>
+
+        Whether you’re organizing single or recurring events, birthdays, anniversaries, business meetings, appointments or anything else, Simple Calendar Pro makes it <b>easy to stay organized</b>. With an incredible variety of <b>customization options</b> you can customize event reminders, notification sounds, calendar widgets and how the app looks.
+
+        Daily, weekly and monthly views make checking your upcoming events &amp; appointments a breeze. You can even view everything as a simple list of events rather than in calendar view, so you <b>know exactly what’s coming up in your life and when. </b>
+
+        ----------------------------------------------------------
+        <b>Simple Calendar Pro – Features &amp; Benefits</b>
+        ----------------------------------------------------------
+
+        ✔️ No ads or annoying popups
+        ✔️ No internet access needed, giving you more privacy &amp; security
+        ✔️ Only the bare minimum permissions required
+        ✔️ Emphasis on simplicity – does what a calendar needs to do!
+        ✔️ Open source
+        ✔️ Fully customizable themes &amp; calendar / event widgets
+        ✔️ Translated into 29 languages
+        ✔️ Export settings to .txt files to import to another device
+        ✔️ CalDAV calendar sync supported to sync events across devices
+        ✔️ Daily, weekly, monthly, yearly &amp; event views on the calendar
+        ✔️ Supports exporting &amp; importing events via .ics files
+        ✔️ Set multiple event reminders, customize event reminder sound and vibration
+        ✔️ Snooze option for reminders
+        ✔️ Easily add holidays, birthdays, anniversaries &amp; appointments
+        ✔️ Customize events – start time, duration, reminders etc
+        ✔️ Add event attendees to each event
+        ✔️ Use as a personal calendar or a business calendar
+        ✔️ Choose between reminders &amp; email notifications to alert you about an event
+
+        DOWNLOAD SIMPLE CALENDAR PRO – THE SIMPLE OFFLINE CALENDAR WITH NO ADS!
+
+        <b>Check out the full suite of Simple Tools here:</b>
+        https://www.simplemobiletools.com
+
+        <b>Facebook:</b>
+        https://www.facebook.com/simplemobiletools
+
+        <b>Reddit:</b>
+        https://www.reddit.com/r/SimpleMobileTools
+    </string>
+
+    <!--
+        Haven't found some strings? There's more at
+        https://github.com/SimpleMobileTools/Simple-Commons/tree/master/commons/src/main/res
+    -->
 </resources>
