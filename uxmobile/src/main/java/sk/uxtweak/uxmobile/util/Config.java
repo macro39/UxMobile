@@ -26,27 +26,27 @@ import sk.uxtweak.uxmobile.model.study.Task;
 
 public class Config {
     // device information tags
-    private static final String TAG_DEV_APP_VERSION = "app_version";
-    private static final String TAG_DEV_APP_VERSION_CODE = "app_version_code";
-    private static final String TAG_DEV_PACKAGE_NAME = "package_name";
-    private static final String TAG_DEV_DEVICE_CODE = "device_code";
-    private static final String TAG_DEV_OS_VERSION = "os_version";
-    private static final String TAG_DEV_SDK_VERSION = "sdk_version";
-    private static final String TAG_DEV_LOCALE = "locale";
-    private static final String TAG_DEV_CONNECTIVITY = "connectivity";
-    private static final String TAG_DEV_SCREEN_WIDTH = "screen_width";
-    private static final String TAG_DEV_SCREEN_HEIGHT = "screen_height";
-    private static final String TAG_DEV_SCREEN_DPI = "screen_dpi";
-    private static final String TAG_DEV_CLIENT_TIME = "client_time";
-    private static final String TAG_DEV_DEVICE = "device";
-    private static final String TAG_DEV_MANUFACTURER = "brand";
-    private static final String TAG_DEV_MODEL = "model";
-    private static final String TAG_DEV_PHYSICAL_MENU_BUTTON = "physical_menu_button";
-    private static final String TAG_DEV_FONT_SCALE = "font_scale";
-    private static final String TAG_DEV_DEVICE_UNIQUE_ID = "device_id";
-    private static final String TAG_DEV_SCREEN_LARGE = "is_large";
-    private static final String TAG_DEV_SCREEN_ORIENTATION = "orientation";
-    private static final String TAG_DEV_TOTAL_MEMORY = "total_memory";
+    public static final String TAG_DEV_APP_VERSION = "app_version";
+    public static final String TAG_DEV_APP_VERSION_CODE = "app_version_code";
+    public static final String TAG_DEV_PACKAGE_NAME = "package_name";
+    public static final String TAG_DEV_DEVICE_CODE = "device_code";
+    public static final String TAG_DEV_OS_VERSION = "os_version";
+    public static final String TAG_DEV_SDK_VERSION = "sdk_version";
+    public static final String TAG_DEV_LOCALE = "locale";
+    public static final String TAG_DEV_CONNECTIVITY = "connectivity";
+    public static final String TAG_DEV_SCREEN_WIDTH = "screen_width";
+    public static final String TAG_DEV_SCREEN_HEIGHT = "screen_height";
+    public static final String TAG_DEV_SCREEN_DPI = "screen_dpi";
+    public static final String TAG_DEV_CLIENT_TIME = "client_time";
+    public static final String TAG_DEV_DEVICE = "device";
+    public static final String TAG_DEV_MANUFACTURER = "brand";
+    public static final String TAG_DEV_MODEL = "model";
+    public static final String TAG_DEV_PHYSICAL_MENU_BUTTON = "physical_menu_button";
+    public static final String TAG_DEV_FONT_SCALE = "font_scale";
+    public static final String TAG_DEV_DEVICE_UNIQUE_ID = "device_id";
+    public static final String TAG_DEV_SCREEN_LARGE = "is_large";
+    public static final String TAG_DEV_SCREEN_ORIENTATION = "orientation";
+    public static final String TAG_DEV_TOTAL_MEMORY = "total_memory";
 
     // session information
     private String mApiKey;

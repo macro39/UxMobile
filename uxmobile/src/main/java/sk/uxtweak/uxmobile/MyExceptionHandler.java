@@ -23,7 +23,7 @@ public class MyExceptionHandler implements Thread.UncaughtExceptionHandler {
         UxMobile.getSession().addExceptionEvent(e);
 
         Log.d("UxMobile", "uncaughtException: attempting to upload");
-        UxMobile.getSession().uploadRecordings();
+        // TODO: Close connections normally
 
         // TODO: pozor: moze byt volane multithreadovo
 

@@ -47,14 +47,13 @@ public class VideoRecorder extends BaseRecorder {
         Log.i("UxMobile", "onSessionStarted: starting video recording");
 
         try {
-            final String videoPath = mCurrentActivity.getFilesDir().toString() + File.separator + FILENAME;
+            final String videoPath = getCurrentActivity().getFilesDir().toString() + File.separator + FILENAME;
             mOutputFile = new File(videoPath);
 
             // overwrite has issues, delete to be sure
             if (mOutputFile.exists()) {
                 mOutputFile.delete();
             }
-
             final int screenWidth = Config.get().getVideoWidth();
             final int screenHeight = Config.get().getVideoHeight();
             final int bitrate = Config.get().getVideoBitrate();
@@ -113,7 +112,7 @@ public class VideoRecorder extends BaseRecorder {
 
     private void captureFrame() {
 //        final View rootLayout = ((ViewGroup) mCurrentActivity.getWindow().getDecorView().getRootView()).getChildAt(0); // neobsahuje listy, ma problem s vrstvami
-        final View rootLayout = mCurrentActivity.getWindow().getDecorView(); // obsahuje hornu aj spodnu listu, nema problem s vrstvami
+        final View rootLayout = getCurrentActivity().getWindow().getDecorView(); // obsahuje hornu aj spodnu listu, nema problem s vrstvami
 
         if (rootLayout == null || (rootLayout.getWidth() == 0 && rootLayout.getHeight() == 0)) {
             // nothing to record

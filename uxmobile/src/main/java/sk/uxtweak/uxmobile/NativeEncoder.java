@@ -46,6 +46,10 @@ public class NativeEncoder {
         screenHeight += screenHeight % 2 != 0 ? 1 : 0;
         screenWidth += screenWidth % 2 != 0 ? 1 : 0;
 
+        Log.d("UxMobile", "NativeEncoder: " + screenWidth + "x" + screenHeight);
+        Log.d("UxMobile", "NativeEncoder: Bitrate " + bitrate);
+        Log.d("UxMobile", "NativeEncoder: Framerate " + framerate);
+
         mMediaFormat = MediaFormat.createVideoFormat(MIME_TYPE, screenWidth, screenHeight);
         mMediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
         mMediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
