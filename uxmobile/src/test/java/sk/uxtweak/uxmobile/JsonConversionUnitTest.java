@@ -7,7 +7,6 @@ import org.junit.Test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import sk.uxtweak.uxmobile.model.EventRecording;
 import sk.uxtweak.uxmobile.model.ViewEnum;
 import sk.uxtweak.uxmobile.model.event.ClickEvent;
 import sk.uxtweak.uxmobile.model.event.CustomEvent;

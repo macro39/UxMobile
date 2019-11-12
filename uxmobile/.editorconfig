@@ -1,0 +1,28 @@
+# This is the file in the root of the project.
+# For sub folders you can have other files that override only some settings.
+# For these, this settings should be false.
+root=true
+
+[*]
+max_line_length=100
+indent_style=space
+indent_size=4
+
+charset=utf-8
+
+trim_trailing_whitespace=true
+insert_final_newline=true
+
+[*.properties]
+# Exception for Java properties files should be encoded latin1 (aka iso8859-1)
+charset=latin1
+
+[*.{cmd,bat}]
+# Batch files on Windows should stay with CRLF
+end_of_line=crlf
+
+[*.md]
+trim_trailing_whitespace=false
+
+[.drone.yml]
+indent_size=2

@@ -18,8 +18,6 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import sk.uxtweak.uxmobile.model.study.Task;
-
 /**
  * Created by matej on 16.10.2017.
  */
@@ -64,7 +62,6 @@ public class Config {
     private int mVideoHeight;
     private int mVideoWidth;
 
-    private Task mCurrentTask = null;
     private boolean mRequestingTest = false;
     private boolean mTestOptIn = false;
     private boolean mIsTaskRunning = false;
@@ -284,14 +281,6 @@ public class Config {
 
     public void setRecordingsUploaded(boolean recordingsUploaded) {
         mRecordingsUploaded = recordingsUploaded;
-    }
-
-    public Task getCurrentTask() {
-        return mCurrentTask;
-    }
-
-    public void setCurrentTask(Task currentTask) {
-        mCurrentTask = currentTask;
     }
 
     public boolean isUploadingOverriden() {

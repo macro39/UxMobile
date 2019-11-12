@@ -10,7 +10,7 @@ open class WindowCallbackAdapter(private val baseCallback: Window.Callback? = nu
     override fun dispatchKeyShortcutEvent(event: KeyEvent?) =
         baseCallback?.dispatchKeyShortcutEvent(event) ?: false
 
-    override fun dispatchTouchEvent(event: MotionEvent?) =
+    override fun dispatchTouchEvent(event: MotionEvent) =
         baseCallback?.dispatchTouchEvent(event) ?: false
 
     override fun dispatchTrackballEvent(event: MotionEvent?) =
