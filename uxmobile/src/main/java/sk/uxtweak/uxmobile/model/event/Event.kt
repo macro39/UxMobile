@@ -17,6 +17,9 @@ abstract class Event(private val startTime: Long) {
         const val TYPE_LONG_PRESS = "l"
         const val TYPE_SCROLL = "s"
         const val TYPE_ORIENTATION = "o"
+        const val TYPE_ACTIVITY_START = "a"
+
+        const val TYPE_VIDEO_CHUNK = "v"
 
         const val TYPE_TASK = "t"
 
@@ -25,4 +28,6 @@ abstract class Event(private val startTime: Long) {
         const val INDEX_TYPE = 0
         const val INDEX_TIME = 1
     }
+
+    override fun toString() = toJson().toString()
 }

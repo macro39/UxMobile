@@ -50,7 +50,7 @@ public class ViewUtils {
         if (view == null) {
             return "";
         } else if (view instanceof EditText) {
-            // do not send edittext contents
+            // do not send EditText contents
             return "";
         } else if (view instanceof TextView) {
             return ((TextView) view).getText().toString();

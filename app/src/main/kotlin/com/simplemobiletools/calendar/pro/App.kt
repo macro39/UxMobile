@@ -9,6 +9,6 @@ class App : MultiDexApplication() {
         super.onCreate()
         checkUseEnglish()
 
-        UxMobile.start(this, "api-key")
+        UxMobile.start("myapikey")
     }
 }
