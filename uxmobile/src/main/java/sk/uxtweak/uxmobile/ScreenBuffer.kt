@@ -40,7 +40,7 @@ class ScreenBuffer(
 
             canvas.translate(0f, viewWidth.toFloat())
             canvas.rotate(ROTATION_ORIENTATION)
-            view.draw(canvas)
+            withContext(Dispatchers.Main) { view.draw(canvas) }
 
             canvas.restore()
         } else {

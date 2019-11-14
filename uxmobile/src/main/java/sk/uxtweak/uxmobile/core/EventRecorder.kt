@@ -10,7 +10,6 @@ import android.view.View
 import sk.uxtweak.uxmobile.SessionExceptionHandler
 import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
 import sk.uxtweak.uxmobile.adapter.WindowCallbackAdapter
-import sk.uxtweak.uxmobile.findViewAt
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle.currentActivity
 import sk.uxtweak.uxmobile.model.ViewEnum
