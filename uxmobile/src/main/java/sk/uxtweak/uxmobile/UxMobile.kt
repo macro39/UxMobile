@@ -2,8 +2,6 @@ package sk.uxtweak.uxmobile
 
 import android.app.Application
 import android.content.pm.PackageManager
-import android.os.Environment
-import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
 import androidx.room.Room
@@ -11,11 +9,10 @@ import sk.uxtweak.uxmobile.UxMobile.start
 import sk.uxtweak.uxmobile.core.EventRecorder
 import sk.uxtweak.uxmobile.core.VideoRecorder
 import sk.uxtweak.uxmobile.lifecycle.SessionAgent
-import sk.uxtweak.uxmobile.model.event.VideoChunkEvent
 import sk.uxtweak.uxmobile.net.WebSocketClient
 import sk.uxtweak.uxmobile.repository.EventsDatabase
 import sk.uxtweak.uxmobile.repository.LocalEventStore
-import java.io.File
+import sk.uxtweak.uxmobile.study.StudyFlowController
 import java.nio.ByteBuffer
 
 /**
@@ -37,10 +34,11 @@ object UxMobile {
     private lateinit var videoRecorder: VideoRecorder
     private lateinit var webSocketClient: WebSocketClient
     private lateinit var localEventStore: LocalEventStore
+    private lateinit var studyFlowController: StudyFlowController
 
     /**
      * Called by [sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycleInitializer] to attach
-     * application context to this class before [start] is called.
+     * application activity to this class before [start] is called.
      * @param app application object to assign
      */
     internal fun initialize(app: Application) {
@@ -76,14 +74,15 @@ object UxMobile {
 
     private fun startInternal(apiKey: String) {
         eventRecorder = EventRecorder()
-        videoRecorder = VideoRecorder(1440, 2960, NativeEncoder.VARIABLE_BIT_RATE, 60)
+        studyFlowController = StudyFlowController(application.applicationContext)
+        videoRecorder = VideoRecorder(1080, 2280, 100000, 60)
         videoRecorder.setBufferReadyListener {
             Log.d(TAG, "Buffer ready (${it.limit()})")
             val copy = ByteBuffer.allocate(it.limit())
             copy.put(it)
             webSocketClient.sendRaw("video", Base64.encodeToString(copy.array(), Base64.DEFAULT))
         }
-        webSocketClient = WebSocketClient("ws://147.175.163.44:8000/asyngular/")
+        webSocketClient = WebSocketClient("ws://vlado5678.ynet.sk:8000/asyngular/")
         webSocketClient.connect()
 
         val database = Room.databaseBuilder(

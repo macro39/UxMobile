@@ -56,9 +56,9 @@ class NativeEncoder(
             MediaFormat.KEY_COLOR_FORMAT,
             MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
         )
-        if (bitRate == VARIABLE_BIT_RATE) {
-            mediaFormat.setInteger(MediaFormat.KEY_BITRATE_MODE, MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR)
-        }
+//        if (bitRate == VARIABLE_BIT_RATE) {
+//            mediaFormat.setInteger(MediaFormat.KEY_BITRATE_MODE, MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR)
+//        }
         mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitRate)
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, frameRate)
         mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL)
