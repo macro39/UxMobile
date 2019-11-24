@@ -1,7 +1,6 @@
-package sk.uxtweak.uxmobile.study.float_button
+package sk.uxtweak.uxmobile.study.float_widget
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build

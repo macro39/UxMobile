@@ -14,7 +14,7 @@
         android:allowBackup="true"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true">
-        <activity android:name=".study.float_button.FloatButtonService"></activity>
+        <activity android:name=".study.float_widget.FloatWidgetService"></activity>
 
         <provider
             android:name=".lifecycle.ApplicationLifecycleInitializer"

@@ -6,19 +6,22 @@ import android.content.res.Configuration
 import android.util.Log
 import sk.uxtweak.uxmobile.core.LifecycleObserver
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
-import sk.uxtweak.uxmobile.study.float_button.FloatButtonService
-import sk.uxtweak.uxmobile.study.float_button.PermissionChecker
+import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetService
+import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
+import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
 
 /**
  * Created by Kamil Macek on 12. 11. 2019.
  */
-class StudyFlowController (
+class StudyFlowController(
     val context: Context
-) : LifecycleObserver {
+) : LifecycleObserver, FloatWidgetClickObserver {
+
+    private var isInStudy = false
 
     private val TAG = this::class.java.simpleName
 
-    private lateinit var floatButtonService: FloatButtonService
+    private lateinit var floatWidgetService: FloatWidgetService
     private lateinit var permissionChecker: PermissionChecker
 
     init {
@@ -27,18 +30,28 @@ class StudyFlowController (
     }
 
     private fun configure() {
-        floatButtonService = FloatButtonService(context)
+        floatWidgetService = FloatWidgetService(context, this)
         Log.d(TAG, "Configured")
     }
 
+    override fun studyStateChanged(studyInProgress: Boolean) {
+        isInStudy = studyInProgress
 
-    // TODO teraz mi tu chodia vsetky eventy
+        //TODO disable video recording and remove float widget
+        if (!isInStudy) {
+            floatWidgetService.onDestroy()
+        }
+    }
+
+    override fun instructionClicked(instructionClicked: Boolean) {
+    }
+
     // ked sa spusti app
     override fun onFirstActivityStarted(activity: Activity) {
         permissionChecker = PermissionChecker(activity)
 
         if (permissionChecker.canDrawOverlay()) {
-            floatButtonService.onCreate()
+            floatWidgetService.onCreate()
         }
     }
 
@@ -54,11 +67,10 @@ class StudyFlowController (
 
     // minimalizacia
     override fun onLastActivityStopped(activity: Activity) {
-        floatButtonService.onDestroy()
+        floatWidgetService.onDestroy()
     }
 
     // otocenie displeja
     override fun onConfigurationChanged(configuration: Configuration) {
     }
-
 }
