@@ -34,6 +34,11 @@ class FloatWidgetMoveController(
         bindOnTouchListener()
     }
 
+    fun getPosition(): Point {
+        val layoutParams = mFloatView.layoutParams as WindowManager.LayoutParams
+        return Point(layoutParams.x, layoutParams.y)
+    }
+
     private fun bindOnTouchListener() {
         mFloatView.setOnTouchListener(object : View.OnTouchListener {
             var start: Long = 0
@@ -52,6 +57,11 @@ class FloatWidgetMoveController(
                 when (motionEvent.action) {
 
                     MotionEvent.ACTION_DOWN -> {
+
+                        if (!floatWidgetClickListener.canMove()) {
+                            return false
+                        }
+
                         start = System.currentTimeMillis()
 
                         initX = shiftX
@@ -64,6 +74,10 @@ class FloatWidgetMoveController(
                     }
 
                     MotionEvent.ACTION_UP -> {
+
+                        if (!floatWidgetClickListener.canMove()) {
+                            return false
+                        }
 
                         val diffX = shiftX - initX
                         val diffY = shiftY - initY
@@ -94,6 +108,10 @@ class FloatWidgetMoveController(
                     }
 
                     MotionEvent.ACTION_MOVE -> {
+
+                        if (!floatWidgetClickListener.canMove()) {
+                            return false
+                        }
 
                         layoutParams.x = shiftX + marginX - initX
                         layoutParams.y = shiftY + marginY - initY

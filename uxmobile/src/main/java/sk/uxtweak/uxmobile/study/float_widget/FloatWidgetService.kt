@@ -31,28 +31,46 @@ class FloatWidgetService(
 
     private lateinit var mFloatWidgetMoveController: FloatWidgetMoveController
 
-    fun onCreate() {
+    private var positionX = 0
+    private var positionY = 100
+
+    fun onInit() {
         listener.studyStateChanged(true)
-        listener.instructionClicked(false)
 
         mFloatView = mLayoutInflater.inflate(R.layout.float_widget, null)
+    }
+
+    fun onCreate() {
+        listener.studyStateChanged(true)
+
+        initializeDisplaySize()
 
         // TODO WindowManager Bad token exe... need to fix
         mWindowManager.addView(mFloatView, getWindowParams())
 
-        initializeDisplaySize()
         mFloatWidgetMoveController =
             FloatWidgetMoveController(context, listener, mWindowManager, mFloatView, mDisplaySize)
     }
 
     fun onDestroy() {
+        val positionParams = mFloatWidgetMoveController.getPosition()
+
+        // save last x and y position of float widget
+        positionX = positionParams.x
+        positionY = positionParams.y
+
         if (mFloatView.parent != null) {
             mWindowManager.removeView(mFloatView)
         }
     }
 
-    fun onMinimalize() {
+    fun setVisibility(visible : Boolean) {
+        if (visible) {
+            mFloatView.visibility = View.VISIBLE
+        } else {
+            mFloatView.visibility = View.GONE
 
+        }
     }
 
     private fun initializeDisplaySize() {
@@ -84,9 +102,9 @@ class FloatWidgetService(
             )
         }
 
-        params.gravity = Gravity.TOP or Gravity.RIGHT
-        params.x = 0
-        params.y = 100
+        params.gravity = Gravity.TOP or Gravity.END
+        params.x = positionX
+        params.y = positionY
 
         return params
     }

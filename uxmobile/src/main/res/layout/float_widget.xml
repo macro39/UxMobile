@@ -12,7 +12,7 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_marginTop="4dp"
-            android:src="@drawable/float_button_example" />
+            android:src="@drawable/img_circle" />
     </RelativeLayout>
 
     <!--when expanded-->
@@ -24,7 +24,8 @@
         android:gravity="center"
         android:orientation="horizontal"
         android:padding="8dp"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:backgroundTint="@color/lightGreen">
 
         <ImageView
             android:id="@+id/imageView_float_widget_back_right"
@@ -44,7 +45,9 @@
                 android:layout_height="match_parent"
                 android:text="UXMobile menu"
                 android:textAlignment="center"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"

@@ -3,6 +3,7 @@ package sk.uxtweak.uxmobile.study.float_widget
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
+import android.content.Intent
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -10,7 +11,9 @@ import android.view.animation.TranslateAnimation
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.content.ContextCompat.startActivity
 import sk.uxtweak.uxmobile.R
+import sk.uxtweak.uxmobile.study.flow_activities.InstructionActivity
 
 /**
  * Created by Kamil Macek on 24. 11. 2019.
@@ -45,14 +48,16 @@ class FloatWidgetClickListener(
 
         expandedView.findViewById<Button>(R.id.button_float_widget_instructions)
             .setOnClickListener {
-                // TODO
-                Toast.makeText(context, "INSTRUKCIE", Toast.LENGTH_SHORT).show()
                 listener.instructionClicked(true)
             }
 
         expandedView.findViewById<Button>(R.id.button_float_widget_end_study).setOnClickListener {
             listener.studyStateChanged(false)
         }
+    }
+
+    fun canMove() : Boolean {
+        return !this.isExpanded
     }
 
     fun onClick(isOnRightSide: Boolean) {
@@ -63,6 +68,8 @@ class FloatWidgetClickListener(
 
             collapsedView.visibility = View.VISIBLE
             expandedView.visibility = View.GONE
+
+            //TODO https://stackoverflow.com/questions/18147840/slide-right-to-left-android-animations
 
 //            expandedView.animate()
 //                .setDuration(800)
