@@ -7,9 +7,10 @@ import android.content.res.Configuration
 import android.util.Log
 import sk.uxtweak.uxmobile.core.LifecycleObserver
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
+import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENABLED
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetService
-import sk.uxtweak.uxmobile.study.study_flow.InstructionActivity
+import sk.uxtweak.uxmobile.study.shared_preferences_utility.SharedPreferencesChangeListener
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowAcceptedObserver
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragment
 
@@ -23,9 +24,10 @@ class StudyFlowController(
     private val TAG = this::class.java.simpleName
 
     private var isInStudy = false
+    private var isOnlyInstructionDisplayed = false
 
     private lateinit var floatWidgetService: FloatWidgetService
-    private lateinit var sharedPreferenceChangeListener: SharedPreferenceChangeListener
+    private lateinit var sharedPreferencesChangeListener: SharedPreferencesChangeListener
 
     init {
         ApplicationLifecycle.addObserver(this)
@@ -34,7 +36,7 @@ class StudyFlowController(
 
     private fun configure() {
         isInStudy = false
-        sharedPreferenceChangeListener = SharedPreferenceChangeListener(context, this)
+        sharedPreferencesChangeListener = SharedPreferencesChangeListener(context, this)
 
         floatWidgetService = FloatWidgetService(context, this)
         floatWidgetService.onInit()
@@ -67,15 +69,18 @@ class StudyFlowController(
         //TODO disable video recording and remove float widget
         if (!isInStudy) {
             floatWidgetService.onDestroy()
-            sharedPreferenceChangeListener.changeInStudyState(false)
+            sharedPreferencesChangeListener.changeInStudyState(false)
         }
     }
 
     override fun instructionClicked(instructionClicked: Boolean) {
         floatWidgetService.setVisibility(!instructionClicked)
 
-        val intent = Intent(context, InstructionActivity::class.java)
+        isOnlyInstructionDisplayed = true
+
+        val intent = Intent(context, StudyFlowFragment::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtra(EXTRA_INSTRUCTIONS_ONLY_ENABLED, true)
         context.startActivity(intent)
     }
 
@@ -87,12 +92,13 @@ class StudyFlowController(
 //        val intent = Intent(context, GlobalMessageActivity::class.java)
 //        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 //        context.startActivity(intent)
-        sharedPreferenceChangeListener.addListener()
+        sharedPreferencesChangeListener.addListener()
 
         if (!isInStudy) {
             // when starting as fragment
             val intent = Intent(context, StudyFlowFragment::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra(EXTRA_INSTRUCTIONS_ONLY_ENABLED, false)
             context.startActivity(intent)
         } else {
             floatWidgetService.onCreate()
@@ -114,7 +120,8 @@ class StudyFlowController(
     // TODO lifecycle context
     override fun onEveryActivityStopped(activity: Activity) {
         // detect if stopped context is instruction context
-        if (InstructionActivity::class.qualifiedName.equals(activity.localClassName)) {
+        // TODO change this visibility set
+        if (StudyFlowFragment::class.qualifiedName.equals(activity.localClassName) && isOnlyInstructionDisplayed) {
             floatWidgetService.setVisibility(true)
         }
     }
@@ -122,7 +129,7 @@ class StudyFlowController(
     // minimalizacia
     override fun onLastActivityStopped(activity: Activity) {
         floatWidgetService.onDestroy()
-        sharedPreferenceChangeListener.removeListener()
+        sharedPreferencesChangeListener.removeListener()
 
         // only for testing - remove
 //        val controller = SharedPreferencesController(context)

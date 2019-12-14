@@ -8,12 +8,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.activity_global_message.*
 import sk.uxtweak.uxmobile.R
-import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
 
 /**
  * Created by Kamil Macek on 13. 12. 2019.
  */
-class GlobalMessageFragment() : Fragment() {
+class GlobalMessageFragment : Fragment() {
 
     private val TAG = this::class.java.simpleName
 

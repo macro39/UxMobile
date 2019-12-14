@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.study
+package sk.uxtweak.uxmobile.study.shared_preferences_utility
 
 
 import android.content.Context
@@ -15,7 +15,7 @@ open class SharedPreferencesController(
         const val IN_STUDY_KEY = "IN_STUDY"
     }
 
-    val TAG = this::class.java.simpleName
+    private val TAG = this::class.java.simpleName
     private val SHARED_PREFERENCES_NAME = "STUDY"
 
     var sharedPreferences : SharedPreferences? = null

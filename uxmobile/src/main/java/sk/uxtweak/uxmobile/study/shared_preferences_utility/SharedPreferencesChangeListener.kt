@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.study
+package sk.uxtweak.uxmobile.study.shared_preferences_utility
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -7,7 +7,7 @@ import sk.uxtweak.uxmobile.study.study_flow.StudyFlowAcceptedObserver
 /**
  * Created by Kamil Macek on 13. 12. 2019.
  */
-class SharedPreferenceChangeListener(
+class SharedPreferencesChangeListener(
     context: Context,
     private val studyFlowAcceptedObserver: StudyFlowAcceptedObserver
 ) : SharedPreferences.OnSharedPreferenceChangeListener, SharedPreferencesController(context) {
@@ -28,18 +28,18 @@ class SharedPreferenceChangeListener(
         }
     }
 
-    fun checkInStudyState() {
-        if (sharedPreferences?.getBoolean(IN_STUDY_KEY, true)!!) {
-            studyFlowAcceptedObserver.studyAccepted(true)
-        } else {
-            studyFlowAcceptedObserver.studyAccepted(false)
-        }
-    }
-
     fun removeListener() {
         if (isListenerAttached) {
             isListenerAttached = false
             sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
+        }
+    }
+
+    private fun checkInStudyState() {
+        if (sharedPreferences?.getBoolean(IN_STUDY_KEY, true)!!) {
+            studyFlowAcceptedObserver.studyAccepted(true)
+        } else {
+            studyFlowAcceptedObserver.studyAccepted(false)
         }
     }
 }
