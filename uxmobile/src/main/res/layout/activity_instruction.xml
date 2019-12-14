@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightGreen"
-    tools:context=".study.flow_activities.InstructionActivity">
+    tools:context=".study.study_flow.InstructionActivity">
 
     <TextView
         android:id="@+id/textView_instruction"

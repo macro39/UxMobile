@@ -1,17 +1,10 @@
-package sk.uxtweak.uxmobile.study.flow_activities
+package sk.uxtweak.uxmobile.study.study_flow
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.Window
-import android.widget.Button
-import androidx.appcompat.app.AppCompatActivity
-import sk.uxtweak.uxmobile.R
-import sk.uxtweak.uxmobile.study.StudyFlowController
-import androidx.core.app.ActivityCompat.startActivityForResult
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_instruction.*
+import sk.uxtweak.uxmobile.R
 
 
 class InstructionActivity : AppCompatActivity() {
@@ -22,10 +15,7 @@ class InstructionActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContentView(R.layout.activity_instruction)
 
-
-        val buttonNext = findViewById<Button>(R.id.button_instruction_next)
-
-        buttonNext.setOnClickListener {
+        button_instruction_next.setOnClickListener {
             super.onBackPressed()
             finish()
         }

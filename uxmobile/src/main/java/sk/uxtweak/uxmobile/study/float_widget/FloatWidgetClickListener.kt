@@ -1,19 +1,10 @@
 package sk.uxtweak.uxmobile.study.float_widget
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.content.Context
-import android.content.Intent
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
-import android.view.animation.TranslateAnimation
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.Toast
-import androidx.core.content.ContextCompat.startActivity
 import sk.uxtweak.uxmobile.R
-import sk.uxtweak.uxmobile.study.flow_activities.InstructionActivity
 
 /**
  * Created by Kamil Macek on 24. 11. 2019.

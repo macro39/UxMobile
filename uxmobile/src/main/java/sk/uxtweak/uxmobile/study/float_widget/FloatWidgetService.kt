@@ -29,7 +29,7 @@ class FloatWidgetService(
 
     private lateinit var mDisplaySize: Point
 
-    private lateinit var mFloatWidgetMoveController: FloatWidgetMoveController
+    private var mFloatWidgetMoveController: FloatWidgetMoveController? = null
 
     private var positionX = 0
     private var positionY = 100
@@ -53,15 +53,19 @@ class FloatWidgetService(
     }
 
     fun onDestroy() {
-        val positionParams = mFloatWidgetMoveController.getPosition()
+        if (mFloatWidgetMoveController != null) {
+            val positionParams = mFloatWidgetMoveController?.getPosition()
 
-        // save last x and y position of float widget
-        positionX = positionParams.x
-        positionY = positionParams.y
+            // save last x and y position of float widget
+            positionX = positionParams!!.x
+            positionY = positionParams.y
 
-        if (mFloatView.parent != null) {
-            mWindowManager.removeView(mFloatView)
+            if (mFloatView.parent != null) {
+                mWindowManager.removeView(mFloatView)
+            }
         }
+
+
     }
 
     fun setVisibility(visible : Boolean) {
