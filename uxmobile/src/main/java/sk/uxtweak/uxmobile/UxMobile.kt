@@ -2,20 +2,17 @@ package sk.uxtweak.uxmobile
 
 import android.app.Application
 import android.content.pm.PackageManager
-import android.os.Environment
-import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
 import androidx.room.Room
+import kotlinx.coroutines.launch
 import sk.uxtweak.uxmobile.UxMobile.start
 import sk.uxtweak.uxmobile.core.EventRecorder
 import sk.uxtweak.uxmobile.core.VideoRecorder
 import sk.uxtweak.uxmobile.lifecycle.SessionAgent
-import sk.uxtweak.uxmobile.model.event.VideoChunkEvent
 import sk.uxtweak.uxmobile.net.WebSocketClient
 import sk.uxtweak.uxmobile.repository.EventsDatabase
 import sk.uxtweak.uxmobile.repository.LocalEventStore
-import java.io.File
 import java.nio.ByteBuffer
 
 /**
@@ -76,15 +73,21 @@ object UxMobile {
 
     private fun startInternal(apiKey: String) {
         eventRecorder = EventRecorder()
-        videoRecorder = VideoRecorder(1440, 2960, NativeEncoder.VARIABLE_BIT_RATE, 60)
+//        videoRecorder = VideoRecorder(1440, 2960, NativeEncoder.VARIABLE_BIT_RATE, 60)
+        videoRecorder = VideoRecorder(1440, 2960, 6 * 1000 * 1000, 2)
         videoRecorder.setBufferReadyListener {
             Log.d(TAG, "Buffer ready (${it.limit()})")
             val copy = ByteBuffer.allocate(it.limit())
             copy.put(it)
-            webSocketClient.sendRaw("video", Base64.encodeToString(copy.array(), Base64.DEFAULT))
+            ForegroundScope.launch {
+                webSocketClient.emit("video", Base64.encodeToString(copy.array(), Base64.DEFAULT))
+            }
         }
-        webSocketClient = WebSocketClient("ws://147.175.163.44:8000/asyngular/")
-        webSocketClient.connect()
+        webSocketClient = WebSocketClient("ws://vlado5678.ynet.sk:8000/asyngular/")
+
+        ForegroundScope.launch {
+            webSocketClient.connect()
+        }
 
         val database = Room.databaseBuilder(
             application,
@@ -114,7 +117,7 @@ object UxMobile {
     /**
      * Sets if sessions should be recorded even without session config when there is no access
      * to config server.
-     * @param shouldRecord whether sessions should be recorded even when offline
+     * @param shouldRecord whether sessions should be recorded even when device is offline
      */
     @JvmStatic
     fun setRecordWhenOffline(shouldRecord: Boolean) {

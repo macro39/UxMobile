@@ -21,8 +21,8 @@ import java.nio.ByteBuffer
 class NativeEncoder(
     width: Int,
     height: Int,
-    private val frameRate: Int,
-    private val bitRate: Int
+    private val frameRate: Int = 1,
+    private val bitRate: Int = 150000
 ) {
     private val screenWidth = if (width % 2 != 0) width + 1 else width
     private val screenHeight = if (height % 2 != 0) height + 1 else height
@@ -56,6 +56,7 @@ class NativeEncoder(
             MediaFormat.KEY_COLOR_FORMAT,
             MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
         )
+        // TODO: Check if crashes or not
         if (bitRate == VARIABLE_BIT_RATE) {
             mediaFormat.setInteger(MediaFormat.KEY_BITRATE_MODE, MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR)
         }
@@ -146,7 +147,7 @@ class NativeEncoder(
         const val TAG = "UxMobile"
         const val MIME_TYPE = "video/avc"
         const val VARIABLE_BIT_RATE = 0
-        const val IFRAME_INTERVAL = 5
+        const val IFRAME_INTERVAL = 100
         const val TIMEOUT_USEC = 10000L
     }
 }

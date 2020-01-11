@@ -17,7 +17,7 @@ import sk.uxtweak.uxmobile.model.event.*
 import sk.uxtweak.uxmobile.util.ViewUtils
 
 class EventRecorder : LifecycleObserverAdapter(), GestureDetector.OnGestureListener {
-    private var isRecording = true
+    private var isRecording = false
     private var startTime = 0L
     private var orientation = 0
     private var configurationRecentlyChanged = false
@@ -69,7 +69,7 @@ class EventRecorder : LifecycleObserverAdapter(), GestureDetector.OnGestureListe
     }
 
     private fun stopRecording() {
-        if (isRecording) {
+        if (!isRecording) {
             Log.w(TAG, "Recording is not running. First call startRecording()")
             return
         }

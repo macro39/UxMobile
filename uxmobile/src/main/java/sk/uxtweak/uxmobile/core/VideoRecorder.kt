@@ -3,12 +3,12 @@ package sk.uxtweak.uxmobile.core
 import android.app.Activity
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import sk.uxtweak.uxmobile.ForegroundScope
 import sk.uxtweak.uxmobile.NativeEncoder
 import sk.uxtweak.uxmobile.ScreenBuffer
-import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle.currentActivity
-import sk.uxtweak.uxmobile.lifecycle.SessionCoroutineScope
+import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
 import sk.uxtweak.uxmobile.atFixedRate
+import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle.currentActivity
 import java.io.IOException
 import java.nio.ByteBuffer
 
@@ -17,7 +17,7 @@ class VideoRecorder(
     private val screenHeight: Int,
     private val bitRate: Int,
     private val frameRate: Int
-) : SessionCoroutineScope() {
+) : LifecycleObserverAdapter() {
     private lateinit var encoder: NativeEncoder
     private lateinit var screenBuffer: ScreenBuffer
 
@@ -36,7 +36,7 @@ class VideoRecorder(
             encoder.setBufferListener(::onBufferAvailable)
             screenBuffer = ScreenBuffer(screenWidth, screenHeight)
 
-            atFixedRate(Dispatchers.Default, 1000L / frameRate) {
+            ForegroundScope.atFixedRate(Dispatchers.Default, 1000L / frameRate) {
                 captureFrame()
                 encodeFrame()
             }
@@ -48,8 +48,6 @@ class VideoRecorder(
     override fun onLastActivityStopped(activity: Activity) {
         super.onLastActivityStopped(activity)
         Log.d(TAG, "onLastActivityStopped: stopping video recording")
-
-        cancel()
 
         try {
             encoder.finish()
@@ -87,7 +85,7 @@ class VideoRecorder(
                 encoder.encodeFrame(screenBuffer.getBitmap())
             }
         } catch (e: IOException) {
-            Log.e(TAG, "doInBackground: ", e)
+            Log.e(TAG, "encodeFrame: ", e)
         }
     }
 

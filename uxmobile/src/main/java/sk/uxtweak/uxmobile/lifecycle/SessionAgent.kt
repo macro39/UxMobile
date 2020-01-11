@@ -1,7 +1,9 @@
 package sk.uxtweak.uxmobile.lifecycle
 
 import android.util.Log
-import sk.uxtweak.uxmobile.SessionExceptionHandler
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import sk.uxtweak.uxmobile.ForegroundScope
 import sk.uxtweak.uxmobile.core.EventRecorder
 import sk.uxtweak.uxmobile.model.event.Event
 import sk.uxtweak.uxmobile.net.WebSocketClient
@@ -17,19 +19,19 @@ class SessionAgent(
 
     init {
         webSocket.setConnectListener(::onConnectionSuccessful)
-        eventRecorder.addListener(::onEventCaptured, ::onSessionStarted, ::onSessionEnded)
+        eventRecorder.addListener(::onEventCaptured, ::onSessionStart, ::onSessionEnd)
     }
 
     private fun onConnectionSuccessful() {
-        sendAllLocalEvents()
+        ForegroundScope.launch { sendAllLocalEvents() }
     }
 
-    private fun sendAllLocalEvents() {
+    private suspend fun sendAllLocalEvents() {
         while (events.isNotEmpty()) {
             val event = events.element()
             Log.d(TAG, "Sending event in memory: $event")
-            if (!webSocket.sendEvent(event)) {
-                Log.d(TAG, "Cannot send all events (remaining: ${events.size}")
+            if (!webSocket.emitEvent(event)) {
+                Log.d(TAG, "Cannot send all events (remaining: ${events.size})")
                 break
             }
             events.remove()
@@ -41,26 +43,30 @@ class SessionAgent(
         }
     }
 
-    private fun onSessionStarted() {
+    private fun onSessionStart() {
         events.clear()
     }
 
-    private fun onSessionEnded() {
-        eventRecorder.removeListener(::onEventCaptured, ::onSessionStarted, ::onSessionEnded)
+    private fun onSessionEnd() {
         Log.d(TAG, "Session ended, storing all in memory events to database (count: ${events.size})")
-        eventStore.storeEvents(events.toList())
-    }
-
-    private fun onEventCaptured(event: Event) {
-        if (!webSocket.sendEvent(event)) {
-            Log.d(TAG, "Cannot send event to server, storing locally: $event")
-            storeEventLocally(event)
-        } else {
-            Log.d(TAG, "Sending event to server: $event")
+        ForegroundScope.launch {
+            eventStore.storeEvents(events.toList())
         }
     }
 
-    private fun storeEventLocally(event: Event) {
+    private fun onEventCaptured(event: Event) {
+        Log.d(TAG, "onEventCaptured: ${event.toJson()}")
+        GlobalScope.launch {
+            if (!webSocket.emitEvent(event)) {
+                Log.d(TAG, "Cannot send event to server, storing locally: $event")
+                storeEventLocally(event)
+            } else {
+                Log.d(TAG, "Sending event to server: $event")
+            }
+        }
+    }
+
+    private suspend fun storeEventLocally(event: Event) {
         if (events.size >= MAX_EVENTS_IN_MEMORY) {
             Log.d(TAG, "Flushing events to database")
             eventStore.storeEvents(events.toList())
@@ -71,12 +77,12 @@ class SessionAgent(
         events += event
     }
 
-    private fun sendLocalEvents() {
+    private suspend fun sendLocalEvents() {
         val sentEvents = mutableListOf<Event>()
         val localEvents = eventStore.getAllLocalEvents()
         for (event in localEvents) {
             Log.d(TAG, "Sending locally stored event: $event")
-            if (!webSocket.sendEvent(event)) {
+            if (!webSocket.emitEvent(event)) {
                 Log.d(TAG, "Cannot send all local events (remaining: ${events.size}")
                 break
             }

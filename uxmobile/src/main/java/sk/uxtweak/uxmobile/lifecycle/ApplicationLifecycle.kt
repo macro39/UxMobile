@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.util.Log
 import sk.uxtweak.uxmobile.core.LifecycleObserver
 import java.lang.ref.WeakReference
-import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 object ApplicationLifecycle : Application.ActivityLifecycleCallbacks, ComponentCallbacks2 {
