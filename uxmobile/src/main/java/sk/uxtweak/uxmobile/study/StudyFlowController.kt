@@ -8,10 +8,11 @@ import android.util.Log
 import sk.uxtweak.uxmobile.core.LifecycleObserver
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENABLED
+import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetService
 import sk.uxtweak.uxmobile.study.shared_preferences_utility.SharedPreferencesChangeListener
-import sk.uxtweak.uxmobile.study.study_flow.StudyFlowAcceptedObserver
+import sk.uxtweak.uxmobile.study.study_flow.StudyFlowAcceptObserver
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragment
 
 /**
@@ -19,12 +20,15 @@ import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragment
  */
 class StudyFlowController(
     val context: Context
-) : LifecycleObserver, FloatWidgetClickObserver, StudyFlowAcceptedObserver {
+) : LifecycleObserver, FloatWidgetClickObserver, StudyFlowAcceptObserver {
 
     private val TAG = this::class.java.simpleName
 
     private var isInStudy = false
     private var isOnlyInstructionDisplayed = false
+
+    // TODO should replace this true value with value from server
+    private var isStudySet = true
 
     private lateinit var floatWidgetService: FloatWidgetService
     private lateinit var sharedPreferencesChangeListener: SharedPreferencesChangeListener
@@ -49,10 +53,6 @@ class StudyFlowController(
     override fun studyAccepted(accepted: Boolean) {
         if (accepted) {
             Log.d(TAG, "Accepted taking a part in study")
-//            if (permissionChecker.canDrawOverlay()) {
-//                floatWidgetService.onCreate()
-//            }
-
             if (!isInStudy) {
                 isInStudy = true
                 floatWidgetService.onCreate()
@@ -66,9 +66,10 @@ class StudyFlowController(
     override fun studyStateChanged(studyInProgress: Boolean) {
         isInStudy = studyInProgress
 
-        //TODO disable video recording and remove float widget
+        //TODO disable video recording, remove float widget and delete listener
         if (!isInStudy) {
             floatWidgetService.onDestroy()
+            sharedPreferencesChangeListener.removeListener()
             sharedPreferencesChangeListener.changeInStudyState(false)
         }
     }
@@ -81,35 +82,23 @@ class StudyFlowController(
         val intent = Intent(context, StudyFlowFragment::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.putExtra(EXTRA_INSTRUCTIONS_ONLY_ENABLED, true)
+        intent.putExtra(EXTRA_IS_STUDY_SET, isStudySet)
         context.startActivity(intent)
     }
 
     // ked sa spusti app
     override fun onFirstActivityStarted(activity: Activity) {
-//        permissionChecker = PermissionChecker(context)
-
-        // when starting as context
-//        val intent = Intent(context, GlobalMessageActivity::class.java)
-//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//        context.startActivity(intent)
         sharedPreferencesChangeListener.addListener()
 
         if (!isInStudy) {
-            // when starting as fragment
             val intent = Intent(context, StudyFlowFragment::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.putExtra(EXTRA_INSTRUCTIONS_ONLY_ENABLED, false)
+            intent.putExtra(EXTRA_IS_STUDY_SET, isStudySet)
             context.startActivity(intent)
         } else {
             floatWidgetService.onCreate()
         }
-
-//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//        context.startActivity(intent)
-
-//        if (permissionChecker.canDrawOverlay()) {
-//            floatWidgetService.onCreate()
-//        }
     }
 
     // kazda aktivita vratane prvej

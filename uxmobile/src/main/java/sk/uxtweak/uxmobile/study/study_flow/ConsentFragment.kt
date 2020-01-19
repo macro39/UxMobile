@@ -6,13 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_global_message.*
+import kotlinx.android.synthetic.main.fragment_consent.*
 import sk.uxtweak.uxmobile.R
 
 /**
- * Created by Kamil Macek on 13. 12. 2019.
+ * Created by Kamil Macek on 15. 12. 2019.
  */
-class GlobalMessageFragment : Fragment() {
+class ConsentFragment : Fragment() {
 
     private val TAG = this::class.java.simpleName
 
@@ -21,26 +21,19 @@ class GlobalMessageFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_global_message, container, false)
+        return inflater.inflate(R.layout.fragment_consent, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        button_global_message_yes.setOnClickListener {
-            Log.d(TAG, "Going to next step in flow study")
+        button_consent_yes.setOnClickListener {
             (activity as StudyFlowFragment).showNextFragment(this)
         }
 
-        button_global_message_no.setOnClickListener {
+        button_consent_no.setOnClickListener {
             Log.d(TAG, "User rejected study")
             (activity as StudyFlowFragment).studyAccepted(false)
         }
-
-        button_global_message_later.setOnClickListener {
-            Log.d(TAG, "Ask later for study participating")
-            (activity as StudyFlowFragment).askLater(false)
-        }
-
     }
 }

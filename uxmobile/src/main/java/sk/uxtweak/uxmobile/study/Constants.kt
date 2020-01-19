@@ -6,5 +6,6 @@ package sk.uxtweak.uxmobile.study
 open class Constants {
     companion object Constants {
         const val EXTRA_INSTRUCTIONS_ONLY_ENABLED = "ONLY_INSTRUCTIONS"
+        const val EXTRA_IS_STUDY_SET = "STUDY_IS_SET"
     }
 }

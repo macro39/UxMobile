@@ -12,7 +12,7 @@ import kotlin.math.abs
  * Created by Kamil Macek on 24. 11. 2019.
  */
 class FloatWidgetMoveController(
-    private val context: Context,
+    context: Context,
     listener: FloatWidgetClickObserver,
     private val mWindowManager: WindowManager,
     private val mFloatView: View,

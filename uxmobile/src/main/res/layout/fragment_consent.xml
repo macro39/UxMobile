@@ -6,53 +6,43 @@
     android:background="@color/lightGreen">
 
     <TextView
-        android:id="@+id/textView_global_message"
+        android:id="@+id/textView_consent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Chceli by ste sa zucastnit studie?"
-        android:textAlignment="center"
-        android:textAllCaps="true"
+        android:text="Súhlasite s podmienkami používania?"
         android:textColor="@color/black"
+        android:textSize="14dp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/button_global_message_no"
+        app:layout_constraintBottom_toTopOf="@id/button_consent_no"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.9" />
 
     <Button
-        android:id="@+id/button_global_message_yes"
+        android:id="@+id/button_consent_yes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/white"
         android:text="Áno"
         android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/button_global_message_no"
+        app:layout_constraintEnd_toStartOf="@+id/button_consent_no"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button_global_message_no"
+        android:id="@+id/button_consent_no"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/white"
         android:text="Nie"
         android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/button_global_message_later"
-        app:layout_constraintStart_toEndOf="@+id/button_global_message_yes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/button_consent_yes"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/button_global_message_later"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:text="Neskôr"
-        android:textColor="@color/black"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button_global_message_no"
-        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

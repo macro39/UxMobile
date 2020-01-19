@@ -15,7 +15,6 @@ open class SharedPreferencesController(
         const val IN_STUDY_KEY = "IN_STUDY"
     }
 
-    private val TAG = this::class.java.simpleName
     private val SHARED_PREFERENCES_NAME = "STUDY"
 
     var sharedPreferences : SharedPreferences? = null
