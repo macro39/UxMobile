@@ -97,16 +97,16 @@ class StudyFlowFragment : AppCompatActivity() {
      * Controlling study flow based on specific requirements set by user
      */
     fun showNextFragment(actualFragment : Fragment) {
-        if (actualFragment is GlobalMessageFragment) {
-            showFragment(ConsentFragment())
-        }
-        if (actualFragment is ConsentFragment) {
-            // if only recording is enabled
-            if (!isStudySet) {
-                studyAccepted(true)
-            } else {
-                studyAccepted(true)
+        when (actualFragment) {
+            is GlobalMessageFragment -> showFragment(ConsentFragment())
+            is ConsentFragment -> {
+                if (!isStudySet) {
+                    studyAccepted(true)
+                } else {
+                    showFragment(ScreeningQuestionnaireFragment())
+                }
             }
+            is ScreeningQuestionnaireFragment -> showFragment(WelcomeMessageFragment())
         }
     }
 

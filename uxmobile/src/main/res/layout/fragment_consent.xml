@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:text="Súhlasite s podmienkami používania?"
         android:textColor="@color/black"
-        android:textSize="14dp"
+        android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/button_consent_no"
         app:layout_constraintEnd_toEndOf="parent"
