@@ -33,6 +33,7 @@ class StudyFlowFragment : AppCompatActivity() {
             isStudySet = true
             // check if fragments are only for purpose of instructions displayed - when doing task
             if (intent.getBooleanExtra(EXTRA_INSTRUCTIONS_ONLY_ENABLED, true)) {
+                isOnlyInstructionsDisplayed = true
                 showInstructions()
             } else {
                 showGlobalMessage()
@@ -54,9 +55,8 @@ class StudyFlowFragment : AppCompatActivity() {
         }
     }
 
-    fun enableBackButton(enable: Boolean) {
-        isOnlyInstructionsDisplayed = enable
-        supportActionBar?.setDisplayHomeAsUpEnabled(enable)
+    fun enableBackButton() {
+        supportActionBar?.setDisplayHomeAsUpEnabled(isOnlyInstructionsDisplayed)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -71,7 +71,7 @@ class StudyFlowFragment : AppCompatActivity() {
     }
 
     /**
-     * When only instructions has to be shown in case of performing task
+     * Show instructions, enable/disable back button
      */
     private fun showInstructions() {
         showFragment(InstructionFragment())
@@ -96,7 +96,8 @@ class StudyFlowFragment : AppCompatActivity() {
     /**
      * Controlling study flow based on specific requirements set by user
      */
-    fun showNextFragment(actualFragment : Fragment) {
+    fun showNextFragment(actualFragment: Fragment) {
+        // TODO add if statements, because not every fragment is required
         when (actualFragment) {
             is GlobalMessageFragment -> showFragment(ConsentFragment())
             is ConsentFragment -> {
@@ -107,6 +108,14 @@ class StudyFlowFragment : AppCompatActivity() {
                 }
             }
             is ScreeningQuestionnaireFragment -> showFragment(WelcomeMessageFragment())
+            is WelcomeMessageFragment -> showInstructions()
+            is InstructionFragment -> {
+                if (isOnlyInstructionsDisplayed) {
+                    onBackPressed()
+                } else {
+                    studyAccepted(true)
+                }
+            }
         }
     }
 

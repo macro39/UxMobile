@@ -26,11 +26,10 @@ class InstructionFragment : Fragment() {
 
         // TODO set instructions dynamically
 
-        (activity as StudyFlowFragment).enableBackButton(true)
+        (activity as StudyFlowFragment).enableBackButton()
 
         button_instruction_next.setOnClickListener {
-            //            (activity as StudyFlowFragment).enableBackButton(false)
-            (activity as StudyFlowFragment).onBackPressed()
+            (activity as StudyFlowFragment).showNextFragment(this)
         }
     }
 }

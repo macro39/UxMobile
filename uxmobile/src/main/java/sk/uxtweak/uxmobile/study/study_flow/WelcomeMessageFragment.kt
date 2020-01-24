@@ -25,8 +25,7 @@ class WelcomeMessageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         Handler().postDelayed({
-            (activity as StudyFlowFragment).studyAccepted(true)
-        }, 3000)
-    }
+            (activity as StudyFlowFragment).showNextFragment(this)
+        }, 3000) }
 
 }
