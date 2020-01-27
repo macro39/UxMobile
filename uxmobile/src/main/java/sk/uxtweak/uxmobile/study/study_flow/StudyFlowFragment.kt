@@ -97,7 +97,7 @@ class StudyFlowFragment : AppCompatActivity() {
      * Controlling study flow based on specific requirements set by user
      */
     fun showNextFragment(actualFragment: Fragment) {
-        // TODO add if statements, because not every fragment is required
+        // TODO add if statements, because not every fragment is required (345689 are optional)
         when (actualFragment) {
             is GlobalMessageFragment -> showFragment(ConsentFragment())
             is ConsentFragment -> {
@@ -113,9 +113,10 @@ class StudyFlowFragment : AppCompatActivity() {
                 if (isOnlyInstructionsDisplayed) {
                     onBackPressed()
                 } else {
-                    studyAccepted(true)
+                    showFragment(PreStudyQuestionnaire())
                 }
             }
+            is PreStudyQuestionnaire -> showFragment(TaskFragment())
         }
     }
 
