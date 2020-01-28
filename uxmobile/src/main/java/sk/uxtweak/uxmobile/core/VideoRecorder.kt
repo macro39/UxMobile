@@ -8,7 +8,9 @@ import sk.uxtweak.uxmobile.NativeEncoder
 import sk.uxtweak.uxmobile.ScreenBuffer
 import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
 import sk.uxtweak.uxmobile.atFixedRate
-import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle.currentActivity
+import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
+import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
+import sk.uxtweak.uxmobile.lifecycle.withForegroundActivity
 import java.io.IOException
 import java.nio.ByteBuffer
 
@@ -71,9 +73,9 @@ class VideoRecorder(
         }
     }
 
-    private suspend fun captureFrame() {
-        val rootLayout = currentActivity?.get()?.window?.decorView
-        if (rootLayout == null || (rootLayout.width == 0 && rootLayout.height == 0)) {
+    private suspend fun captureFrame() = ForegroundActivityHolder.withForegroundActivity {
+        val rootLayout = it.window.decorView
+        if (rootLayout.width == 0 && rootLayout.height == 0) {
             return
         }
         screenBuffer.drawToBuffer(rootLayout)

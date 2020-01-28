@@ -2,96 +2,52 @@ package sk.uxtweak.uxmobile.core
 
 import android.app.Activity
 import android.content.res.Configuration
-import android.os.SystemClock
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
-import android.view.View
-import sk.uxtweak.uxmobile.SessionExceptionHandler
+import sk.uxtweak.uxmobile.ExceptionHandler
 import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
 import sk.uxtweak.uxmobile.adapter.WindowCallbackAdapter
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
-import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle.currentActivity
-import sk.uxtweak.uxmobile.model.ViewEnum
-import sk.uxtweak.uxmobile.model.event.*
-import sk.uxtweak.uxmobile.util.ViewUtils
+import sk.uxtweak.uxmobile.model.events.Event
 
-class EventRecorder : LifecycleObserverAdapter(), GestureDetector.OnGestureListener {
-    private var isRecording = false
-    private var startTime = 0L
+typealias EventListener = (Event) -> Unit
+
+class EventRecorder : LifecycleObserverAdapter() {
     private var orientation = 0
     private var configurationRecentlyChanged = false
 
+    private val motionEventConverter = MotionEventConverter(::onMotionEvent)
     private lateinit var gestureDetector: GestureDetector
 
-    private val eventListeners = mutableListOf<(Event) -> Unit>()
-    private val sessionStartedListeners = mutableListOf<() -> Unit>()
-    private val sessionEndedListeners = mutableListOf<() -> Unit>()
-
-    private val elapsedTime: Long
-        get() = SystemClock.elapsedRealtime() - startTime
-
-    private val rootView: View
-        get() = currentActivity?.get()!!.window.decorView.rootView
+    private val eventListeners = mutableListOf<EventListener>()
 
     init {
         ApplicationLifecycle.addObserver(this)
         registerExceptionHandler()
     }
 
-    fun addListener(
-        eventListener: (Event) -> Unit = {},
-        sessionStartListener: () -> Unit = {},
-        sessionEndListener: () -> Unit = {}
-    ) {
+    fun addOnEventListener(eventListener: EventListener) {
         eventListeners += eventListener
-        sessionStartedListeners += sessionStartListener
-        sessionEndedListeners += sessionEndListener
-    }
-
-    fun removeListener(
-        eventListener: (Event) -> Unit = {},
-        sessionStartListener: () -> Unit = {},
-        sessionEndListener: () -> Unit = {}
-    ) {
-        eventListeners -= eventListener
-        sessionStartedListeners -= sessionStartListener
-        sessionEndedListeners -= sessionEndListener
-    }
-
-    private fun startRecording() {
-        if (isRecording) {
-            Log.w(TAG, "Recording is already running. First call stopRecording() to start again")
-            return
-        }
-        isRecording = true
-        startTime = SystemClock.elapsedRealtime()
-    }
-
-    private fun stopRecording() {
-        if (!isRecording) {
-            Log.w(TAG, "Recording is not running. First call startRecording()")
-            return
-        }
-        notifyListeners(SessionEndEvent(elapsedTime))
-        isRecording = false
     }
 
     override fun onFirstActivityStarted(activity: Activity) {
+        dispatchEvent(Event.SessionStartEvent)
         orientation = activity.resources.configuration.orientation
-        gestureDetector = GestureDetector(activity.applicationContext, this)
-        startRecording()
-        sessionStartedListeners.forEach { it() }
+        gestureDetector = GestureDetector(activity.applicationContext, motionEventConverter)
     }
 
-    override fun onEveryActivityStarted(activity: Activity) {
+    override fun onLastActivityStopped(activity: Activity) {
+        dispatchEvent(Event.SessionEndEvent)
+    }
+
+    override fun onAnyActivityStarted(activity: Activity) {
         handleConfigurationChange(activity)
         updateActivityCallback(activity)
     }
 
     private fun handleConfigurationChange(activity: Activity) {
         if (!configurationRecentlyChanged) {
-            notifyListeners(ActivityStartedEvent(elapsedTime, activity.localClassName))
+            dispatchEvent(Event.ActivityStartedEvent(activity.localClassName))
         }
         configurationRecentlyChanged = false
     }
@@ -110,109 +66,26 @@ class EventRecorder : LifecycleObserverAdapter(), GestureDetector.OnGestureListe
         }
     }
 
-    override fun onLastActivityStopped(activity: Activity) {
-        stopRecording()
-        sessionEndedListeners.forEach { it() }
-    }
-
     override fun onConfigurationChanged(configuration: Configuration) {
         configurationRecentlyChanged = true
-
         if (orientation != configuration.orientation) {
             orientation = configuration.orientation
-            notifyListeners(OrientationEvent(elapsedTime, orientation))
+            dispatchEvent(Event.OrientationEvent(orientation))
         }
     }
 
-    override fun onSingleTapUp(e: MotionEvent): Boolean {
-        val touchedView = ViewUtils.getTouchedView(e, rootView)
-        Log.d(TAG, "Touched view: $touchedView")
+    private fun onMotionEvent(event: Event) = dispatchEvent(event)
 
-        notifyListeners(
-            ClickEvent(
-                elapsedTime,
-                e.x / rootView.width,
-                e.y / rootView.height,
-                ViewEnum.fromView(touchedView),
-                ViewUtils.getViewText(touchedView),
-                ViewUtils.getViewValue(touchedView)
-            )
-        )
-
-        return false
-    }
-
-    override fun onLongPress(e: MotionEvent) {
-        val touchedView = ViewUtils.getTouchedView(e, rootView)
-
-        notifyListeners(
-            LongPressEvent(
-                elapsedTime,
-                e.x / rootView.width,
-                e.y / rootView.height,
-                ViewEnum.fromView(touchedView),
-                ViewUtils.getViewText(touchedView),
-                ViewUtils.getViewValue(touchedView)
-            )
-        )
-    }
-
-    override fun onScroll(
-        e1: MotionEvent,
-        e2: MotionEvent,
-        distanceX: Float,
-        distanceY: Float
-    ): Boolean {
-        notifyListeners(
-            ScrollEvent(
-                elapsedTime,
-                e2.x / rootView.width,
-                e2.y / rootView.height,
-                distanceX / rootView.width,
-                distanceY / rootView.height
-            )
-        )
-
-        return false
-    }
-
-    override fun onFling(
-        e1: MotionEvent,
-        e2: MotionEvent,
-        velocityX: Float,
-        velocityY: Float
-    ): Boolean {
-        notifyListeners(
-            FlingEvent(
-                elapsedTime,
-                e2.x / rootView.width,
-                e2.y / rootView.height,
-                velocityX / rootView.width,
-                velocityY / rootView.height
-            )
-        )
-
-        return false
-    }
-
-    override fun onDown(e: MotionEvent) = false
-    override fun onShowPress(e: MotionEvent) {}
+    private fun dispatchEvent(event: Event) = notifyListeners(event)
 
     private fun registerExceptionHandler() {
-        SessionExceptionHandler.register()
-        SessionExceptionHandler.handler?.let {
-            it.setListener { _, throwable ->
-                notifyListeners(ExceptionEvent(elapsedTime, throwable))
-            }
+        ExceptionHandler.register()
+        ExceptionHandler.setHandlerListener { _, throwable ->
+            dispatchEvent(Event.ExceptionEvent(throwable))
         }
     }
 
-    private fun notifyListeners(event: Event) {
-        if (isRecording) {
-            Log.d(TAG, "Event recorded: ${event.toJson()}")
-            eventListeners.forEach { it(event) }
-        }
-    }
+    private fun notifyListeners(event: Event) = eventListeners.forEach { it(event) }
 
     companion object {
         private const val TAG = "UxMobile"

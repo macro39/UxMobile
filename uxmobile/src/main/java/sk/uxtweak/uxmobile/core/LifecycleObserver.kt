@@ -5,8 +5,8 @@ import android.content.res.Configuration
 
 interface LifecycleObserver {
     fun onFirstActivityStarted(activity: Activity)
-    fun onEveryActivityStarted(activity: Activity)
-    fun onEveryActivityStopped(activity: Activity)
+    fun onAnyActivityStarted(activity: Activity)
+    fun onAnyActivityStopped(activity: Activity)
     fun onLastActivityStopped(activity: Activity)
     fun onConfigurationChanged(configuration: Configuration)
 }

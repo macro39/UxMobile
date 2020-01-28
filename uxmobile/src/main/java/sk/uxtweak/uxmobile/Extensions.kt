@@ -5,7 +5,11 @@ import android.os.SystemClock
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import java.nio.ByteBuffer
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -38,4 +42,10 @@ fun CoroutineScope.atFixedRate(
         block()
         delay((start + rate) - SystemClock.elapsedRealtime())
     }
+}
+
+fun ByteBuffer.copy(): ByteBuffer {
+    val copy = ByteBuffer.allocate(limit())
+    copy.put(this)
+    return copy
 }

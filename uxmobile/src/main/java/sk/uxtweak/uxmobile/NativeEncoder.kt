@@ -83,7 +83,6 @@ class NativeEncoder(
         }
     }
 
-    @Throws(IOException::class)
     fun encodeFrame(bitmap: Bitmap) {
         drainEncoder(false)
         if (renderingSurface.isValid) {
@@ -94,7 +93,6 @@ class NativeEncoder(
         }
     }
 
-    @Throws(IOException::class)
     private fun drainEncoder(endOfStream: Boolean) {
         if (endOfStream) {
             encoder.signalEndOfInputStream()
@@ -128,7 +126,6 @@ class NativeEncoder(
         }
     }
 
-    @Throws(IOException::class)
     fun finish() {
         if (!running) {
             return

@@ -7,7 +7,6 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import sk.uxtweak.uxmobile.core.LifecycleObserver
-import java.lang.ref.WeakReference
 import java.util.concurrent.CopyOnWriteArrayList
 
 object ApplicationLifecycle : Application.ActivityLifecycleCallbacks, ComponentCallbacks2 {
@@ -21,9 +20,6 @@ object ApplicationLifecycle : Application.ActivityLifecycleCallbacks, ComponentC
     private var anyActivityStarted = false
     private var pausedWithConfig = false
     private var latestConfiguration: Configuration? = null
-
-    var currentActivity: WeakReference<Activity>? = null
-        private set
 
     private val isFirstActivity: Boolean
         get() = activityCounter == 1
@@ -49,22 +45,20 @@ object ApplicationLifecycle : Application.ActivityLifecycleCallbacks, ComponentC
         latestConfiguration = null
         activityCounter++
 
-        currentActivity = WeakReference(activity)
         if (isFirstActivity && !anyActivityStarted) {
             observers.forEach { it.onFirstActivityStarted(activity) }
             anyActivityStarted = true
         }
-        observers.forEach { it.onEveryActivityStarted(activity) }
+        observers.forEach { it.onAnyActivityStarted(activity) }
     }
 
     override fun onActivityStopped(activity: Activity) {
         Log.d(TAG, "onActivityStopped: " + activity.localClassName)
         activityCounter--
 
-        observers.forEach { it.onEveryActivityStopped(activity) }
+        observers.forEach { it.onAnyActivityStopped(activity) }
         if (isLastActivity && !pausedWithConfig) {
             observers.forEach { it.onLastActivityStopped(activity) }
-            currentActivity = null
             latestConfiguration = null
             anyActivityStarted = false
         }

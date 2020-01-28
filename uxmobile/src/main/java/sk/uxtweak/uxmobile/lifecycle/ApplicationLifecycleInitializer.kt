@@ -5,13 +5,12 @@ import android.content.ContentProvider
 import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
-import android.util.Log
 import sk.uxtweak.uxmobile.UxMobile
 
 class ApplicationLifecycleInitializer : ContentProvider() {
     override fun onCreate(): Boolean {
-        UxMobile.initialize(context?.applicationContext as Application)
         ApplicationLifecycle.initialize(context?.applicationContext as Application)
+        UxMobile.initialize(context?.applicationContext as Application)
         return true
     }
 

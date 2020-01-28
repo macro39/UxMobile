@@ -2,8 +2,7 @@ package sk.uxtweak.uxmobile
 
 import android.util.Log
 
-// TODO: Test this class
-class SessionExceptionHandler(
+class ExceptionHandler(
     private val exceptionHandler: Thread.UncaughtExceptionHandler
 ) : Thread.UncaughtExceptionHandler {
     private var listener: (Thread, Throwable) -> Unit = { _, _ -> }
@@ -27,20 +26,22 @@ class SessionExceptionHandler(
         @JvmStatic
         fun register() {
             val currentHandler = Thread.getDefaultUncaughtExceptionHandler()
-            if (currentHandler != null && currentHandler !is SessionExceptionHandler) {
+            if (currentHandler != null && currentHandler !is ExceptionHandler) {
                 Thread.setDefaultUncaughtExceptionHandler(
-                    SessionExceptionHandler(currentHandler)
+                    ExceptionHandler(currentHandler)
                 )
             }
         }
 
-        val handler: SessionExceptionHandler?
+        val handler: ExceptionHandler?
             get() {
                 val currentHandler = Thread.getDefaultUncaughtExceptionHandler()
-                if (currentHandler != null && currentHandler is SessionExceptionHandler) {
+                if (currentHandler != null && currentHandler is ExceptionHandler) {
                     return currentHandler
                 }
                 return null
             }
+
+        fun setHandlerListener(listener: (Thread, Throwable) -> Unit) = handler?.setListener(listener)
     }
 }

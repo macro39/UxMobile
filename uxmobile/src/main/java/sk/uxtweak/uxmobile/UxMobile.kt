@@ -2,25 +2,24 @@ package sk.uxtweak.uxmobile
 
 import android.app.Application
 import android.content.pm.PackageManager
-import android.util.Base64
 import android.util.Log
-import androidx.room.Room
+import androidx.annotation.MainThread
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import sk.uxtweak.uxmobile.UxMobile.start
 import sk.uxtweak.uxmobile.core.EventRecorder
 import sk.uxtweak.uxmobile.core.VideoRecorder
-import sk.uxtweak.uxmobile.lifecycle.SessionAgent
+import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.net.WebSocketClient
-import sk.uxtweak.uxmobile.repository.EventsDatabase
-import sk.uxtweak.uxmobile.repository.LocalEventStore
-import java.nio.ByteBuffer
+import sk.uxtweak.uxmobile.rpc.RpcManager
+import java.io.IOException
 
 /**
  * Main class that initializes agent for tracking events. To start tracking events call [start].
  */
 object UxMobile {
     private const val TAG = "UxMobile"
-    private const val API_KEY = "ApiKey"
+    private const val API_KEY = "UxMobileApiKey"
 
     /**
      * Application Context. Initialized by
@@ -28,12 +27,12 @@ object UxMobile {
      */
     private lateinit var application: Application
 
-    private lateinit var agent: SessionAgent
-
+    private lateinit var sessionAgent: SessionAgent
     private lateinit var eventRecorder: EventRecorder
     private lateinit var videoRecorder: VideoRecorder
-    private lateinit var webSocketClient: WebSocketClient
-    private lateinit var localEventStore: LocalEventStore
+    private lateinit var eventsSocket: WebSocketClient
+    private lateinit var eventsServer: EventServer
+    private lateinit var rpcManager: RpcManager
 
     /**
      * Called by [sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycleInitializer] to attach
@@ -51,52 +50,34 @@ object UxMobile {
      *
      * You can add your API key inside your *application* tag in your Android manifest like this
      *
-     *     <meta-data android:name="ApiKey" android:value="your-api-key" />
+     *     <meta-data android:name="UxMobileApiKey" android:value="your-api-key" />
      */
     @JvmStatic
+    @MainThread
     fun start() {
         try {
             startInternal(loadApiKeyFromManifest())
         } catch (exception: IllegalStateException) {
-            Log.e(TAG, "Cannot load API key! Check if you have API key in Android Manifest")
+            Log.e(TAG, "Cannot load API key! Check if you have your API key declared in Android Manifest")
         }
     }
 
     /**
      * Should be called in [Application.onCreate] before any activity, service or receiver
      * is created. This method must be called from the main thread. If the API key is not valid,
-     * the session will be recorded but not send to server.
+     * the session will be recorded but not sent to the server.
      * @param apiKey UxMobile API key
      */
     @JvmStatic
+    @MainThread
     fun start(apiKey: String) = startInternal(apiKey)
 
     private fun startInternal(apiKey: String) {
+        ForegroundActivityHolder.register()
         eventRecorder = EventRecorder()
-//        videoRecorder = VideoRecorder(1440, 2960, NativeEncoder.VARIABLE_BIT_RATE, 60)
-        videoRecorder = VideoRecorder(1440, 2960, 6 * 1000 * 1000, 2)
-        videoRecorder.setBufferReadyListener {
-            Log.d(TAG, "Buffer ready (${it.limit()})")
-            val copy = ByteBuffer.allocate(it.limit())
-            copy.put(it)
-            ForegroundScope.launch {
-                webSocketClient.emit("video", Base64.encodeToString(copy.array(), Base64.DEFAULT))
-            }
-        }
-        webSocketClient = WebSocketClient("ws://vlado5678.ynet.sk:8000/asyngular/")
-
-        ForegroundScope.launch {
-            webSocketClient.connect()
-        }
-
-        val database = Room.databaseBuilder(
-            application,
-            EventsDatabase::class.java,
-            "events-database"
-        ).build()
-        localEventStore = LocalEventStore(database)
-
-        agent = SessionAgent(eventRecorder, webSocketClient, localEventStore)
+        eventsSocket = WebSocketClient(BuildConfig.EVENTS_SERVER_URL)
+        eventsServer = EventServer(eventsSocket)
+        sessionAgent = SessionAgent(eventsServer, eventRecorder)
     }
 
     /**
@@ -112,15 +93,5 @@ object UxMobile {
         val apiKey = applicationInfo.metaData[API_KEY]
             ?: throw IllegalStateException("API key not specified!")
         return apiKey.toString()
-    }
-
-    /**
-     * Sets if sessions should be recorded even without session config when there is no access
-     * to config server.
-     * @param shouldRecord whether sessions should be recorded even when device is offline
-     */
-    @JvmStatic
-    fun setRecordWhenOffline(shouldRecord: Boolean) {
-
     }
 }
