@@ -4,10 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightGreen"
+    android:id="@+id/constraintsLayout_task"
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textView_task_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Zoznam dostupnych uloh"
@@ -18,10 +19,10 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <RadioGroup
-        android:id="@+id/radioGroup_screening_questionnaire_sex"
+        android:id="@+id/radioGroup_tasks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textView_screening_questionnaire"
+        android:layout_below="@+id/textView_task_title"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/button_task_admit"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,25 +30,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.75">
-
-        <RadioButton
-            android:id="@+id/radio_screening_questionnaire_male"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/black"
-            android:checked="true"
-            android:text="TASK 1"
-            android:textColor="@color/black"
-            android:textSize="14sp" />
-
-        <RadioButton
-            android:id="@+id/radio_screening_questionnaire_female"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/black"
-            android:text="TASK 2"
-            android:textColor="@color/black"
-            android:textSize="14sp" />
     </RadioGroup>
 
     <Button
@@ -61,5 +43,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_task_refuse_executing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:text="Skoncit s vykonavanim uloh"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_task_admit"
+        app:layout_constraintVertical_bias="0.078" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

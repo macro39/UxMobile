@@ -39,11 +39,11 @@ class FloatWidgetClickListener(
 
         expandedView.findViewById<Button>(R.id.button_float_widget_instructions)
             .setOnClickListener {
-                listener.instructionClicked(true)
+                listener.instructionClicked()
             }
 
-        expandedView.findViewById<Button>(R.id.button_float_widget_end_study).setOnClickListener {
-            listener.studyStateChanged(false)
+        expandedView.findViewById<Button>(R.id.button_float_widget_end_task).setOnClickListener {
+            listener.taskExecutionEnded()
         }
     }
 
@@ -52,13 +52,13 @@ class FloatWidgetClickListener(
     }
 
     fun onClick(isOnRightSide: Boolean) {
-        this.isOnRightSide = isOnRightSide
-
         if (isExpanded) {
-            isExpanded = false
+//            isExpanded = false
+//
+//            collapsedView.visibility = View.VISIBLE
+//            expandedView.visibility = View.GONE
 
-            collapsedView.visibility = View.VISIBLE
-            expandedView.visibility = View.GONE
+            makeViewCollapsed(isOnRightSide)
 
             //TODO https://stackoverflow.com/questions/18147840/slide-right-to-left-android-animations
 
@@ -86,20 +86,51 @@ class FloatWidgetClickListener(
 
             return
         } else {
-            isExpanded = true
+//            isExpanded = true
+//
+//            if (this.isOnRightSide) {
+//                backButtonRight.visibility = View.VISIBLE
+//                backButtonLeft.visibility = View.GONE
+//            } else {
+//                backButtonRight.visibility = View.GONE
+//                backButtonLeft.visibility = View.VISIBLE
+//            }
+//
+//            collapsedView.visibility = View.GONE
+//            expandedView.visibility = View.VISIBLE
 
-            if (this.isOnRightSide) {
-                backButtonRight.visibility = View.VISIBLE
-                backButtonLeft.visibility = View.GONE
-            } else {
-                backButtonRight.visibility = View.GONE
-                backButtonLeft.visibility = View.VISIBLE
-            }
-
-            collapsedView.visibility = View.GONE
-            expandedView.visibility = View.VISIBLE
+            makeViewExpanded(isOnRightSide)
 
             return
         }
     }
+
+    fun makeViewCollapsed(isOnRightSide: Boolean) {
+        this.isOnRightSide = isOnRightSide
+        isExpanded = false
+
+        collapsedView.visibility = View.VISIBLE
+        expandedView.visibility = View.GONE
+
+        return
+    }
+
+    fun makeViewExpanded(isOnRightSide: Boolean) {
+        this.isOnRightSide = isOnRightSide
+        isExpanded = true
+
+        if (this.isOnRightSide) {
+            backButtonRight.visibility = View.VISIBLE
+            backButtonLeft.visibility = View.GONE
+        } else {
+            backButtonRight.visibility = View.GONE
+            backButtonLeft.visibility = View.VISIBLE
+        }
+
+        collapsedView.visibility = View.GONE
+        expandedView.visibility = View.VISIBLE
+
+        return
+    }
+
 }

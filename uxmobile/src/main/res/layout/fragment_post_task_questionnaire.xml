@@ -6,7 +6,7 @@
     android:background="@color/lightGreen">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintsLayout_pre_study_questionnaire"
+        android:id="@+id/constraintsLayout_post_task_questionnaire"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -18,7 +18,7 @@
             android:id="@+id/textView_screening_questionnaire"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="MAS SKUSENOSTI S TESTOVANIM APLIKACII POMOCOU STUDII?"
+            android:text="BOLA ULOHA NAROCNA?"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="14sp"
@@ -36,7 +36,7 @@
             android:layout_below="@+id/textView_screening_questionnaire"
             android:layout_marginTop="20dp"
             android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@+id/button_pre_study_questionnaire_next"
+            app:layout_constraintBottom_toTopOf="@+id/button_post_task_questionnaire_next"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -63,7 +63,7 @@
         </RadioGroup>
 
         <Button
-            android:id="@+id/button_pre_study_questionnaire_next"
+            android:id="@+id/button_post_task_questionnaire_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -78,11 +78,11 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
-        android:id="@+id/textView_pre_study_questionnaire_title"
+        android:id="@+id/textView_post_task_questionnaire_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="DOTAZNIK PRED STUDIOU"
+        android:text="DOTAZNIK PO ULOHE"
         android:textColor="@color/black"
         android:textSize="14sp"
         android:textStyle="bold"

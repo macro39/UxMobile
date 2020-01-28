@@ -63,7 +63,7 @@
                     android:text="Inštrukcie" />
 
                 <Button
-                    android:id="@+id/button_float_widget_end_study"
+                    android:id="@+id/button_float_widget_end_task"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

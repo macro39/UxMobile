@@ -147,6 +147,14 @@ class FloatWidgetMoveController(
         })
     }
 
+    fun changeFloatButtonState(expandView : Boolean) {
+        if (expandView) {
+            floatWidgetClickListener.makeViewExpanded(isOnRightSide)
+        } else {
+            floatWidgetClickListener.makeViewCollapsed(isOnRightSide)
+        }
+    }
+
     fun changePosition(currentX: Int) {
         if (currentX > (mDisplaySize.x / 2)) {
             isOnRightSide = true

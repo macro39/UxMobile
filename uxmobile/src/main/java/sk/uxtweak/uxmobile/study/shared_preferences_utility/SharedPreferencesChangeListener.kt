@@ -24,7 +24,7 @@ class SharedPreferencesChangeListener(
         if (!isListenerAttached) {
             isListenerAttached = true
             sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
-            checkInStudyState()
+//            checkInStudyState()
         }
     }
 
@@ -35,7 +35,7 @@ class SharedPreferencesChangeListener(
         }
     }
 
-    private fun checkInStudyState() {
+    fun checkInStudyState() {
         if (sharedPreferences?.getBoolean(IN_STUDY_KEY, true)!!) {
             studyFlowAcceptObserver.studyAccepted(true)
         } else {

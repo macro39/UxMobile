@@ -1,14 +1,20 @@
 package sk.uxtweak.uxmobile.study.study_flow
 
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import sk.uxtweak.uxmobile.R
+import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENABLED
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
+import sk.uxtweak.uxmobile.study.StudyFlowController
 import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
 import sk.uxtweak.uxmobile.study.shared_preferences_utility.SharedPreferencesController
+import java.util.*
+import kotlin.reflect.full.companionObject
+import kotlin.reflect.full.memberProperties
 
 class StudyFlowFragment : AppCompatActivity() {
 
@@ -18,6 +24,8 @@ class StudyFlowFragment : AppCompatActivity() {
 
     private var isOnlyInstructionsDisplayed = false
 
+    private var numberOfAvailableTasks = 0
+
     // TODO should change this def value for study set
     private var isStudySet = true
 
@@ -26,11 +34,23 @@ class StudyFlowFragment : AppCompatActivity() {
         title = "UXMobile"
         setContentView(R.layout.activity_study_flow_base_fragment)
 
+//        numberOfAvailableTasks = StudyFlowController::class.companionObject?.memberProperties?.find {
+//            it.name == "numberOfTasks"
+//        }
+        numberOfAvailableTasks = StudyFlowController.numberOfTasks
+        Log.d("HAHA", "NUMBER OF TASKS: " + numberOfAvailableTasks)
+
         sharedPreferencesController = SharedPreferencesController(this)
         permissionChecker = PermissionChecker(this)
 
         if (intent.getBooleanExtra(EXTRA_IS_STUDY_SET, true)) {
             isStudySet = true
+
+            if (intent.getBooleanExtra(EXTRA_END_OF_TASK, true)) {
+                onTaskCompletion()
+                return
+            }
+
             // check if fragments are only for purpose of instructions displayed - when doing task
             if (intent.getBooleanExtra(EXTRA_INSTRUCTIONS_ONLY_ENABLED, true)) {
                 isOnlyInstructionsDisplayed = true
@@ -42,7 +62,6 @@ class StudyFlowFragment : AppCompatActivity() {
             isStudySet = false
             // TODO only recording - global message, consent, recording without float button
         }
-
     }
 
     /**
@@ -75,6 +94,13 @@ class StudyFlowFragment : AppCompatActivity() {
      */
     private fun showInstructions() {
         showFragment(InstructionFragment())
+    }
+
+    /**
+     * Show another task (task fragment), check if there is some task to be executed, otherwise show post study questionnaire
+     */
+    private fun onTaskCompletion() {
+        showFragment(PostTaskQuestionnaire())
     }
 
     /**
@@ -117,6 +143,17 @@ class StudyFlowFragment : AppCompatActivity() {
                 }
             }
             is PreStudyQuestionnaire -> showFragment(TaskFragment())
+            is TaskFragment -> showFragment(PostStudyQuestionnaire())
+            is PostTaskQuestionnaire -> {
+                // last task
+                if (numberOfAvailableTasks == 0) {
+                    showFragment(PostStudyQuestionnaire())
+                } else {
+                    showFragment(TaskFragment())
+                }
+            }
+            is PostStudyQuestionnaire -> showFragment(ThankYouMessageFragment())
+            is ThankYouMessageFragment -> studyAccepted(false)
         }
     }
 
@@ -125,7 +162,6 @@ class StudyFlowFragment : AppCompatActivity() {
             permissionChecker.canDrawOverlay()
             sharedPreferencesController?.changeInStudyState(true)
 
-            // should call another fragment
             finish()
         } else {
             sharedPreferencesController?.changeInStudyState(false)

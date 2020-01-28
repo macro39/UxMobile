@@ -35,14 +35,10 @@ class FloatWidgetService(
     private var positionY = 100
 
     fun onInit() {
-        listener.studyStateChanged(true)
-
         mFloatView = mLayoutInflater.inflate(R.layout.float_widget, null)
     }
 
     fun onCreate() {
-        listener.studyStateChanged(true)
-
         initializeDisplaySize()
 
         // TODO WindowManager Bad token exe... need to fix
@@ -64,8 +60,6 @@ class FloatWidgetService(
                 mWindowManager.removeView(mFloatView)
             }
         }
-
-
     }
 
     fun setVisibility(visible : Boolean) {
@@ -75,6 +69,10 @@ class FloatWidgetService(
             mFloatView.visibility = View.GONE
 
         }
+    }
+
+    fun changeFloatButtonState(expandView : Boolean) {
+        mFloatWidgetMoveController?.changeFloatButtonState(expandView)
     }
 
     private fun initializeDisplaySize() {
