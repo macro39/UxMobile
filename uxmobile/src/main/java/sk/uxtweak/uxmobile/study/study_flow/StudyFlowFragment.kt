@@ -1,7 +1,6 @@
 package sk.uxtweak.uxmobile.study.study_flow
 
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -12,9 +11,6 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.StudyFlowController
 import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
 import sk.uxtweak.uxmobile.study.shared_preferences_utility.SharedPreferencesController
-import java.util.*
-import kotlin.reflect.full.companionObject
-import kotlin.reflect.full.memberProperties
 
 class StudyFlowFragment : AppCompatActivity() {
 
@@ -34,11 +30,7 @@ class StudyFlowFragment : AppCompatActivity() {
         title = "UXMobile"
         setContentView(R.layout.activity_study_flow_base_fragment)
 
-//        numberOfAvailableTasks = StudyFlowController::class.companionObject?.memberProperties?.find {
-//            it.name == "numberOfTasks"
-//        }
         numberOfAvailableTasks = StudyFlowController.numberOfTasks
-        Log.d("HAHA", "NUMBER OF TASKS: " + numberOfAvailableTasks)
 
         sharedPreferencesController = SharedPreferencesController(this)
         permissionChecker = PermissionChecker(this)
@@ -171,5 +163,14 @@ class StudyFlowFragment : AppCompatActivity() {
 
     fun askLater(later: Boolean) {
         // TODO add funcionality if user clicked later button
+    }
+
+    fun getData(actualFragment: Fragment): Any {
+        when (actualFragment) {
+            is TaskFragment -> {
+                return StudyFlowController.tasks
+            }
+        }
+        return ""
     }
 }

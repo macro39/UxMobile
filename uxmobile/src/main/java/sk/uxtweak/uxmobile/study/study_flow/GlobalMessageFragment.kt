@@ -41,6 +41,5 @@ class GlobalMessageFragment : Fragment() {
             Log.d(TAG, "Ask later for study participating")
             (activity as StudyFlowFragment).askLater(false)
         }
-
     }
 }

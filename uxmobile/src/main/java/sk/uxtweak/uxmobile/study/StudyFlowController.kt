@@ -12,6 +12,7 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENA
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetService
+import sk.uxtweak.uxmobile.study.model.Task
 import sk.uxtweak.uxmobile.study.shared_preferences_utility.SharedPreferencesChangeListener
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowAcceptObserver
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragment
@@ -26,6 +27,7 @@ class StudyFlowController(
     companion object TaskExecutionDataHolder {
         var numberOfTasks = 0
         var doingTaskWithId = -1
+        lateinit var tasks: List<Task>
     }
 
     private val TAG = this::class.java.simpleName
@@ -38,8 +40,6 @@ class StudyFlowController(
 
     private var minimizedWhenInStudyFlow = false
 
-    private var numberOfTasks = 2
-
     private lateinit var floatWidgetService: FloatWidgetService
     private lateinit var sharedPreferencesChangeListener: SharedPreferencesChangeListener
 
@@ -47,15 +47,32 @@ class StudyFlowController(
         ApplicationLifecycle.addObserver(this)
         configure()
 
-        // dummy
-        TaskExecutionDataHolder.numberOfTasks = numberOfTasks
+        // dummy data
+        tasks = listOf(
+            Task(
+                1,
+                "CREATE NEW APPOINTMENT ON 27.05.2022",
+                "NAVIGATE AND FIND 27.05.2022 AND CREATE SOME APPOINTMENT",
+                false
+            ),
+            Task(
+                2,
+                "MARK WHEN YOU HAVE BIRTHDAY",
+                "FIND DATE OF YOUR BIRTHDAY AND ADD IT TO FAVORITES",
+                false
+            )
+        )
+
+        numberOfTasks = tasks.size
     }
 
     private fun configure() {
         sharedPreferencesChangeListener = SharedPreferencesChangeListener(context, this)
 
+//         in case of running after crash (clear in study)
 //        val shared = SharedPreferencesController(context)
 //        shared.changeInStudyState(false)
+//        return
 
         floatWidgetService = FloatWidgetService(context, this)
         floatWidgetService.onInit()
@@ -89,9 +106,12 @@ class StudyFlowController(
     override fun taskExecutionEnded() {
         floatWidgetService.setVisibility(false)
 
+        // set executed task as accomplished
+        val selectedTask: Task = tasks.filter { s -> s.taskId == doingTaskWithId.toLong() }.single()
+        selectedTask.accomplished = true
+
         // decrement number of available tasks
         numberOfTasks--
-        TaskExecutionDataHolder.numberOfTasks = numberOfTasks
 
         // show fragments with flag end of task
         val intent = Intent(context, StudyFlowFragment::class.java)
