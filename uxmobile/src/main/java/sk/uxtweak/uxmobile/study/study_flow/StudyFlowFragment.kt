@@ -1,7 +1,10 @@
 package sk.uxtweak.uxmobile.study.study_flow
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import sk.uxtweak.uxmobile.R
@@ -31,7 +34,6 @@ class StudyFlowFragment : AppCompatActivity() {
         setContentView(R.layout.activity_study_flow_base_fragment)
 
         numberOfAvailableTasks = StudyFlowController.numberOfTasks
-
         sharedPreferencesController = SharedPreferencesController(this)
         permissionChecker = PermissionChecker(this)
 
@@ -70,7 +72,37 @@ class StudyFlowFragment : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(isOnlyInstructionsDisplayed)
     }
 
+    @SuppressLint("ResourceType")
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        if (!isOnlyInstructionsDisplayed) {
+            menuInflater.inflate(R.layout.menu_study_flow, menu)
+        }
+        return super.onCreateOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+
+        when (id) {
+            R.id.button_reject_study_flow_action_bar -> {
+                val builder = AlertDialog.Builder(this, R.style.MyDialogTheme)
+                builder.setTitle("UXMOBILE")
+                builder.setMessage("PRAJETE SI UKONCIT STUDIU?")
+
+                builder.setNegativeButton("NIE") { dialog, which ->
+                    dialog.cancel()
+                }
+
+                builder.setPositiveButton("ANO") { dialog, which ->
+                    studyAccepted(false)
+                    finish()
+                }
+
+                builder.show()
+
+                return true
+            }
+        }
 
         if (isOnlyInstructionsDisplayed) {
             super.onBackPressed()
@@ -103,7 +135,7 @@ class StudyFlowFragment : AppCompatActivity() {
     }
 
     /**
-     * Show specific fragment by replacing base fragment holder
+     * Show specific fragment by replacing old one
      */
     private fun showFragment(fragment: Fragment) {
         val transaction = manager.beginTransaction()

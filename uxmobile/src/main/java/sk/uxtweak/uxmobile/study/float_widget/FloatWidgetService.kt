@@ -62,7 +62,7 @@ class FloatWidgetService(
         }
     }
 
-    fun setVisibility(visible : Boolean) {
+    fun setVisibility(visible: Boolean) {
         if (visible) {
             mFloatView.visibility = View.VISIBLE
         } else {
@@ -71,7 +71,7 @@ class FloatWidgetService(
         }
     }
 
-    fun changeFloatButtonState(expandView : Boolean) {
+    fun changeFloatButtonState(expandView: Boolean) {
         mFloatWidgetMoveController?.changeFloatButtonState(expandView)
     }
 

@@ -12,12 +12,8 @@
         android:allowBackup="true"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true">
-        <activity android:name=".study.study_flow.StudyFlowFragment"></activity>
-        <activity android:name=".study.study_flow.InstructionActivity" />
+        <activity android:name=".study.study_flow.StudyFlowFragment" />
         <activity android:name=".study.float_widget.FloatWidgetService" />
-        <activity android:name=".study.study_flow.GlobalMessageActivity" />
-        <activity android:name=".study.study_flow.StudyFlowFragmentController$StudyFlowFragment" />
-
         <provider
             android:name=".lifecycle.ApplicationLifecycleInitializer"
             android:authorities="sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycleInitializer"

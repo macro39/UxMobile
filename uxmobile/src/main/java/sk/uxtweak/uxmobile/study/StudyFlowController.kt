@@ -83,6 +83,7 @@ class StudyFlowController(
      * when user admit some task to execute
      */
     override fun studyAccepted(accepted: Boolean) {
+        Log.d(TAG, "STUDY ACCEPTED - $accepted")
         if (accepted) {
             Log.d(TAG, "Accepted taking a part in study")
             // for first time
@@ -104,6 +105,7 @@ class StudyFlowController(
     }
 
     override fun taskExecutionEnded() {
+        Log.d(TAG, "TASK EXECUTION ENDED")
         floatWidgetService.setVisibility(false)
 
         // set executed task as accomplished
@@ -114,47 +116,43 @@ class StudyFlowController(
         numberOfTasks--
 
         // show fragments with flag end of task
-        val intent = Intent(context, StudyFlowFragment::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putExtra(EXTRA_INSTRUCTIONS_ONLY_ENABLED, false)
-        intent.putExtra(EXTRA_END_OF_TASK, true)
-        intent.putExtra(EXTRA_IS_STUDY_SET, isStudySet)
-        context.startActivity(intent)
+        showStudyFlow(onlyInstructions = false, endOfTask = true)
     }
 
     override fun instructionClicked() {
+        Log.d(TAG, "INSTRUCTION CLICKED")
         floatWidgetService.setVisibility(false)
 
         isOnlyInstructionDisplayed = true
 
+        showStudyFlow(onlyInstructions = true, endOfTask = false)
+    }
+
+    private fun showStudyFlow(onlyInstructions: Boolean, endOfTask: Boolean) {
         val intent = Intent(context, StudyFlowFragment::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         intent.putExtra(EXTRA_INSTRUCTIONS_ONLY_ENABLED, true)
         intent.putExtra(EXTRA_END_OF_TASK, false)
         intent.putExtra(EXTRA_IS_STUDY_SET, isStudySet)
+        intent.putExtra(EXTRA_INSTRUCTIONS_ONLY_ENABLED, onlyInstructions)
+        intent.putExtra(EXTRA_END_OF_TASK, endOfTask)
         context.startActivity(intent)
     }
 
     // ked sa spusti app
     override fun onFirstActivityStarted(activity: Activity) {
         // TODO should change this, when leaving app when in study flow - it will crash
-//        if (minimizedWhenInStudyFlow) {
-//            minimizedWhenInStudyFlow = false
-//            return
-//        }
-
         sharedPreferencesChangeListener.addListener()
 
-        if (!isInStudy) {
-            val intent = Intent(context, StudyFlowFragment::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.putExtra(EXTRA_INSTRUCTIONS_ONLY_ENABLED, false)
-            intent.putExtra(EXTRA_END_OF_TASK, false)
-            intent.putExtra(EXTRA_IS_STUDY_SET, isStudySet)
-            context.startActivity(intent)
+        if (minimizedWhenInStudyFlow) {
+            minimizedWhenInStudyFlow = false
         } else {
-            floatWidgetService.onCreate()
-            sharedPreferencesChangeListener.addListener()
+            if (!isInStudy) {
+                showStudyFlow(onlyInstructions = false, endOfTask = false)
+            } else {
+                floatWidgetService.onCreate()
+                sharedPreferencesChangeListener.addListener()
+            }
         }
     }
 
