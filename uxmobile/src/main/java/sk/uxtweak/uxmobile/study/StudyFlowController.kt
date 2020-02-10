@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.util.Log
+import com.google.gson.GsonBuilder
+import okhttp3.*
 import sk.uxtweak.uxmobile.core.LifecycleObserver
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
@@ -12,10 +14,13 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENA
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetService
+import sk.uxtweak.uxmobile.study.model.Study
 import sk.uxtweak.uxmobile.study.model.Task
-import sk.uxtweak.uxmobile.study.shared_preferences_utility.SharedPreferencesChangeListener
+import sk.uxtweak.uxmobile.study.network.RestCommunicator
+import sk.uxtweak.uxmobile.study.utility.SharedPreferencesChangeListener
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowAcceptObserver
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragment
+import java.io.IOException
 
 /**
  * Created by Kamil Macek on 12. 11. 2019.
@@ -40,12 +45,26 @@ class StudyFlowController(
 
     private var minimizedWhenInStudyFlow = false
 
-    private lateinit var floatWidgetService: FloatWidgetService
-    private lateinit var sharedPreferencesChangeListener: SharedPreferencesChangeListener
+    private val floatWidgetService: FloatWidgetService
+    private val sharedPreferencesChangeListener: SharedPreferencesChangeListener
+    private val restCommunicator: RestCommunicator
 
     init {
         ApplicationLifecycle.addObserver(this)
-        configure()
+
+        sharedPreferencesChangeListener = SharedPreferencesChangeListener(context, this)
+
+//         in case of running after crash (clear in study)
+//        val shared = SharedPreferencesController(context)
+//        shared.changeInStudyState(false)
+//        return
+
+        floatWidgetService = FloatWidgetService(context, this)
+        floatWidgetService.onInit()
+        Log.d(TAG, "Configured")
+
+        restCommunicator = RestCommunicator(context)
+
 
         // dummy data
         tasks = listOf(
@@ -63,20 +82,15 @@ class StudyFlowController(
             )
         )
 
+        restCommunicator.getStudy { res: Study? ->
+            if (res != null) {
+                Log.d(TAG, res.studyId.toString())
+            } else {
+                Log.e(TAG, "NO RESPONSE")
+            }
+        }
+
         numberOfTasks = tasks.size
-    }
-
-    private fun configure() {
-        sharedPreferencesChangeListener = SharedPreferencesChangeListener(context, this)
-
-//         in case of running after crash (clear in study)
-//        val shared = SharedPreferencesController(context)
-//        shared.changeInStudyState(false)
-//        return
-
-        floatWidgetService = FloatWidgetService(context, this)
-        floatWidgetService.onInit()
-        Log.d(TAG, "Configured")
     }
 
     /**
@@ -141,7 +155,6 @@ class StudyFlowController(
 
     // ked sa spusti app
     override fun onFirstActivityStarted(activity: Activity) {
-        // TODO should change this, when leaving app when in study flow - it will crash
         sharedPreferencesChangeListener.addListener()
 
         if (minimizedWhenInStudyFlow) {

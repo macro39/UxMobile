@@ -13,7 +13,7 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENA
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.StudyFlowController
 import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
-import sk.uxtweak.uxmobile.study.shared_preferences_utility.SharedPreferencesController
+import sk.uxtweak.uxmobile.study.utility.SharedPreferencesController
 
 class StudyFlowFragment : AppCompatActivity() {
 

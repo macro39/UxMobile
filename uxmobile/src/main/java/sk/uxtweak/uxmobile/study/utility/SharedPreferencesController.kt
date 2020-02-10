@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.study.shared_preferences_utility
+package sk.uxtweak.uxmobile.study.utility
 
 
 import android.content.Context

@@ -64,6 +64,7 @@ dependencies {
     }
     implementation "com.neovisionaries:nv-websocket-client:2.9"
     implementation "com.squareup.okhttp3:okhttp:3.12.1"
+    implementation "com.google.code.gson:gson:2.8.6"
 
     testImplementation "junit:junit:4.12"
     testImplementation "org.json:json:20180813"
