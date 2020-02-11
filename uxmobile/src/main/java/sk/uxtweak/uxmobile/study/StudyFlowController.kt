@@ -5,8 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.util.Log
-import com.google.gson.GsonBuilder
-import okhttp3.*
 import sk.uxtweak.uxmobile.core.LifecycleObserver
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
@@ -15,12 +13,11 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetService
 import sk.uxtweak.uxmobile.study.model.Study
-import sk.uxtweak.uxmobile.study.model.Task
+import sk.uxtweak.uxmobile.study.model.StudyTask
 import sk.uxtweak.uxmobile.study.network.RestCommunicator
 import sk.uxtweak.uxmobile.study.utility.SharedPreferencesChangeListener
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowAcceptObserver
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragment
-import java.io.IOException
 
 /**
  * Created by Kamil Macek on 12. 11. 2019.
@@ -32,7 +29,7 @@ class StudyFlowController(
     companion object TaskExecutionDataHolder {
         var numberOfTasks = 0
         var doingTaskWithId = -1
-        lateinit var tasks: List<Task>
+        lateinit var tasks: List<StudyTask>
     }
 
     private val TAG = this::class.java.simpleName
@@ -68,16 +65,14 @@ class StudyFlowController(
 
         // dummy data
         tasks = listOf(
-            Task(
+            StudyTask(
                 1,
                 "CREATE NEW APPOINTMENT ON 27.05.2022",
-                "NAVIGATE AND FIND 27.05.2022 AND CREATE SOME APPOINTMENT",
                 false
             ),
-            Task(
+            StudyTask(
                 2,
                 "MARK WHEN YOU HAVE BIRTHDAY",
-                "FIND DATE OF YOUR BIRTHDAY AND ADD IT TO FAVORITES",
                 false
             )
         )
@@ -85,6 +80,8 @@ class StudyFlowController(
         restCommunicator.getStudy { res: Study? ->
             if (res != null) {
                 Log.d(TAG, res.studyId.toString())
+
+                tasks = res.studyTasks
             } else {
                 Log.e(TAG, "NO RESPONSE")
             }
@@ -123,8 +120,8 @@ class StudyFlowController(
         floatWidgetService.setVisibility(false)
 
         // set executed task as accomplished
-        val selectedTask: Task = tasks.filter { s -> s.taskId == doingTaskWithId.toLong() }.single()
-        selectedTask.accomplished = true
+        val selectedStudyTask: StudyTask = tasks.filter { s -> s.taskId == doingTaskWithId.toLong() }.single()
+        selectedStudyTask.accomplished = true
 
         // decrement number of available tasks
         numberOfTasks--

@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_task.*
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.StudyFlowController
-import sk.uxtweak.uxmobile.study.model.Task
+import sk.uxtweak.uxmobile.study.model.StudyTask
 
 /**
  * Created by Kamil Macek on 24. 1. 2020.
@@ -32,13 +32,13 @@ class TaskFragment : Fragment() {
 
         val radioGroup = getView()?.findViewById<RadioGroup>(R.id.radioGroup_tasks)
 
-        val tasks = (activity as StudyFlowFragment).getData(this) as List<Task>
+        val tasks = (activity as StudyFlowFragment).getData(this) as List<StudyTask>
 
 
         var marked = false
-        for (task : Task in tasks) {
+        for (studyTask : StudyTask in tasks) {
 
-            if (task.accomplished) {
+            if (studyTask.accomplished) {
                 continue
             }
 
@@ -47,10 +47,10 @@ class TaskFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            radioButton.text = task.description
+            radioButton.text = studyTask.title
             radioButton.setTextColor(Color.BLACK)
             radioButton.text
-            radioButton.id = task.taskId.toInt()
+            radioButton.id = studyTask.taskId.toInt()
 
             if (!marked) {
                 radioButton.isChecked = true
