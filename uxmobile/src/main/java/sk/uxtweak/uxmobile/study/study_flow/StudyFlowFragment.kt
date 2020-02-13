@@ -13,6 +13,7 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENA
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.StudyFlowController
 import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
+import sk.uxtweak.uxmobile.study.model.StudyMessage
 import sk.uxtweak.uxmobile.study.utility.SharedPreferencesController
 
 class StudyFlowFragment : AppCompatActivity() {
@@ -22,6 +23,7 @@ class StudyFlowFragment : AppCompatActivity() {
     private lateinit var permissionChecker: PermissionChecker
 
     private var isOnlyInstructionsDisplayed = false
+    private var backNavEnabled = true
 
     private var numberOfAvailableTasks = 0
 
@@ -48,6 +50,7 @@ class StudyFlowFragment : AppCompatActivity() {
             // check if fragments are only for purpose of instructions displayed - when doing task
             if (intent.getBooleanExtra(EXTRA_INSTRUCTIONS_ONLY_ENABLED, true)) {
                 isOnlyInstructionsDisplayed = true
+                enableBackButton()
                 showInstructions()
             } else {
                 showGlobalMessage()
@@ -69,12 +72,16 @@ class StudyFlowFragment : AppCompatActivity() {
     }
 
     fun enableBackButton() {
-        supportActionBar?.setDisplayHomeAsUpEnabled(isOnlyInstructionsDisplayed)
+        if (isOnlyInstructionsDisplayed || backNavEnabled) {
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        } else {
+            supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        }
     }
 
     @SuppressLint("ResourceType")
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        if (!isOnlyInstructionsDisplayed) {
+        if (!isOnlyInstructionsDisplayed && backNavEnabled) {
             menuInflater.inflate(R.layout.menu_study_flow, menu)
         }
         return super.onCreateOptionsMenu(menu)
@@ -94,8 +101,9 @@ class StudyFlowFragment : AppCompatActivity() {
                 }
 
                 builder.setPositiveButton("ANO") { dialog, which ->
-                    studyAccepted(false)
-                    finish()
+//                    studyAccepted(false)
+//                    finish()
+                    showRejectedFragment()
                 }
 
                 builder.show()
@@ -135,12 +143,26 @@ class StudyFlowFragment : AppCompatActivity() {
     }
 
     /**
+     * When user reject taking part in study in whichever part of study flow
+     */
+    fun showRejectedFragment() {
+        this.disableEveryBackAction()
+        showFragment(RejectedMessageFragment())
+    }
+
+    /**
      * Show specific fragment by replacing old one
      */
     private fun showFragment(fragment: Fragment) {
         val transaction = manager.beginTransaction()
         transaction.replace(R.id.fragment_base_holder, fragment)
         transaction.commit()
+    }
+
+    fun disableEveryBackAction() {
+        this.backNavEnabled = false
+        this.invalidateOptionsMenu()
+        this.enableBackButton()
     }
 
     /**
@@ -176,7 +198,10 @@ class StudyFlowFragment : AppCompatActivity() {
                     showFragment(TaskFragment())
                 }
             }
-            is PostStudyQuestionnaire -> showFragment(ThankYouMessageFragment())
+            is PostStudyQuestionnaire -> {
+                disableEveryBackAction()
+                showFragment(ThankYouMessageFragment())
+            }
             is ThankYouMessageFragment -> studyAccepted(false)
         }
     }
@@ -199,10 +224,26 @@ class StudyFlowFragment : AppCompatActivity() {
 
     fun getData(actualFragment: Fragment): Any {
         when (actualFragment) {
+            is RejectedMessageFragment -> {
+                return getMessageData("rejected")
+            }
+            is WelcomeMessageFragment -> {
+                return getMessageData("welcome")
+            }
+            is InstructionFragment -> {
+                return getMessageData("instructions")
+            }
             is TaskFragment -> {
                 return StudyFlowController.tasks
             }
+            is ThankYouMessageFragment -> {
+                return getMessageData("completed")
+            }
         }
         return ""
+    }
+
+    private fun getMessageData(type: String): StudyMessage {
+        return StudyFlowController.study?.studyMessages?.first { p: StudyMessage -> p.type == type }!!
     }
 }

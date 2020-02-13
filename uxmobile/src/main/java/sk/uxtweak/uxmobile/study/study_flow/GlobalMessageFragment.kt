@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_global_message.*
 import sk.uxtweak.uxmobile.R
+import sk.uxtweak.uxmobile.study.model.Study
 
 /**
  * Created by Kamil Macek on 13. 12. 2019.
@@ -34,7 +35,7 @@ class GlobalMessageFragment : Fragment() {
 
         button_global_message_no.setOnClickListener {
             Log.d(TAG, "User rejected study")
-            (activity as StudyFlowFragment).studyAccepted(false)
+            (activity as StudyFlowFragment).showRejectedFragment()
         }
 
         button_global_message_later.setOnClickListener {

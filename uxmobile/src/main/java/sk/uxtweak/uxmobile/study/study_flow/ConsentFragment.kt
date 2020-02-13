@@ -33,7 +33,7 @@ class ConsentFragment : Fragment() {
 
         button_consent_no.setOnClickListener {
             Log.d(TAG, "User rejected study")
-            (activity as StudyFlowFragment).studyAccepted(false)
+            (activity as StudyFlowFragment).showRejectedFragment()
         }
     }
 }

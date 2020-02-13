@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.util.Log
+import com.google.gson.GsonBuilder
 import sk.uxtweak.uxmobile.core.LifecycleObserver
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
@@ -13,11 +14,12 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetService
 import sk.uxtweak.uxmobile.study.model.Study
+import sk.uxtweak.uxmobile.study.model.StudyMessage
 import sk.uxtweak.uxmobile.study.model.StudyTask
 import sk.uxtweak.uxmobile.study.network.RestCommunicator
-import sk.uxtweak.uxmobile.study.utility.SharedPreferencesChangeListener
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowAcceptObserver
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragment
+import sk.uxtweak.uxmobile.study.utility.SharedPreferencesChangeListener
 
 /**
  * Created by Kamil Macek on 12. 11. 2019.
@@ -30,6 +32,7 @@ class StudyFlowController(
         var numberOfTasks = 0
         var doingTaskWithId = -1
         lateinit var tasks: List<StudyTask>
+        var study: Study? = null
     }
 
     private val TAG = this::class.java.simpleName
@@ -82,12 +85,28 @@ class StudyFlowController(
                 Log.d(TAG, res.studyId.toString())
 
                 tasks = res.studyTasks
+
+                for (sm: StudyMessage in res.studyMessages) {
+                    Log.d(TAG, sm.type)
+                }
+
+                study = res
             } else {
-                Log.e(TAG, "NO RESPONSE")
+                Log.e(TAG, "NO RESPONSE, WORKING WITH DUMMY DATA")
+
+                val gson = GsonBuilder().create()
+                val dummyStudyResponse: Study =
+                    gson.fromJson(dummyResponseData(), Study::class.java)
+
+                study = dummyStudyResponse
             }
         }
 
         numberOfTasks = tasks.size
+    }
+
+    fun dummyResponseData(): String {
+        return "{\"studyId\":1,\"name\":\"STUDIA C. 1 POSTGRES\",\"studyBrandings\":{\"primaryColor\":\"#008577\",\"secondaryColor\":\"#EF9D41\",\"hibernateLazyInitializer\":{}},\"studyTasks\":[{\"taskId\":1,\"title\":\"MARK WHEN YOU HAVE BIRTHDAY\"},{\"taskId\":2,\"title\":\"CREATE NEW APPOINTMENT ON 27.05.2022\"}],\"studyMessages\":[{\"type\":\"completed\",\"title\":\"Thank you, that's all!\",\"content\":\"All done, awesome! Thanks again for your participation. Your feedback is incredibly useful in helping us understand how people interact with our app, so that we can make our application easier to use.\\r\\n\\r\\nYou may now going back to your work!\"},{\"type\":\"welcome\",\"title\":\"Welcome!\",\"content\":\"Welcome to this study, and thank you for agreeing to participate! The activity shouldn't take longer than 30 to 60 minutes to complete. Your response will help us to better understand how people behave in our app.\"},{\"type\":\"closed\",\"title\":\"Sorry, this study has concluded\",\"content\":\"Sorry, this study has concluded\\r\\nThis study has been closed and so it's no longer possible to participate. If you think that this is a mistake and you should still be able to participate, please contact the conductor of the study. We hope to see you again.\"},{\"type\":\"rejected\",\"title\":\"Thank you and hope we see you next time!\",\"content\":\"We are a little sad, but also next day is there a opportunity to change your favorite application by participating in study!\"},{\"type\":\"instructions\",\"title\":\"Instructions\",\"content\":\"<b>Here's how it works:</b><ol><li>You will be presented with a task.</li><li>After reading the task, you will be redirected to a website.</li><li>Click through the website as you naturally would in order to fulfill the task.</li><li>Once you arrive at the intended destination, click <b>Task done</b> and the task will end.</li><li>Repeat the previous steps for all the tasks to complete the RePlay study.</li></ol><em>This is not a test of your ability, there are no right or wrong answers.</em><br><b>That's it, let's get started!</b></div>\"}],\"studyQuestions\":[{\"type\":\"screening_qst\",\"atTask\":1,\"title\":\"DOTAZNIK PARTICIPANTA\",\"description\":\"Vyplne prosim dotaznik, aby sme mohli zistit, ci ste vhodnym respondentom\",\"order\":1,\"answerType\":\"input\",\"answerOptions\":\"{\\\"id\\\":123,\\\"title\\\":\\\"AKE MAS POHLAVIE?\\\",\\\"options\\\":[\\\"MUZ\\\", \\\"ZENA\\\"] }\",\"required\":true,\"randomizeOptions\":true}],\"hibernateLazyInitializer\":{}}"
     }
 
     /**
@@ -120,7 +139,8 @@ class StudyFlowController(
         floatWidgetService.setVisibility(false)
 
         // set executed task as accomplished
-        val selectedStudyTask: StudyTask = tasks.filter { s -> s.taskId == doingTaskWithId.toLong() }.single()
+        val selectedStudyTask: StudyTask =
+            tasks.filter { s -> s.taskId == doingTaskWithId.toLong() }.single()
         selectedStudyTask.accomplished = true
 
         // decrement number of available tasks
