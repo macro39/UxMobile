@@ -11,8 +11,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_task.*
 import sk.uxtweak.uxmobile.R
-import sk.uxtweak.uxmobile.study.StudyFlowController
 import sk.uxtweak.uxmobile.study.model.StudyTask
+import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 
 /**
  * Created by Kamil Macek on 24. 1. 2020.
@@ -61,7 +61,7 @@ class TaskFragment : Fragment() {
         }
 
         button_task_admit.setOnClickListener {
-            StudyFlowController.doingTaskWithId = radioGroup?.checkedRadioButtonId!!
+            StudyDataHolder.doingTaskWithId = radioGroup?.checkedRadioButtonId!!
             (activity as StudyFlowFragment).studyAccepted(true)
         }
 

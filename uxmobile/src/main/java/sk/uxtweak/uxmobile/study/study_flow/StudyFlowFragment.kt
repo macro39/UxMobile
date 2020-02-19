@@ -8,13 +8,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import sk.uxtweak.uxmobile.R
+import sk.uxtweak.uxmobile.study.Constants
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENABLED
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
-import sk.uxtweak.uxmobile.study.StudyFlowController
 import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
-import sk.uxtweak.uxmobile.study.model.StudyMessage
 import sk.uxtweak.uxmobile.study.utility.SharedPreferencesController
+import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 
 class StudyFlowFragment : AppCompatActivity() {
 
@@ -35,7 +35,7 @@ class StudyFlowFragment : AppCompatActivity() {
         title = "UXMobile"
         setContentView(R.layout.activity_study_flow_base_fragment)
 
-        numberOfAvailableTasks = StudyFlowController.numberOfTasks
+        numberOfAvailableTasks = StudyDataHolder.numberOfTasks
         sharedPreferencesController = SharedPreferencesController(this)
         permissionChecker = PermissionChecker(this)
 
@@ -101,7 +101,7 @@ class StudyFlowFragment : AppCompatActivity() {
                 }
 
                 builder.setPositiveButton("ANO") { dialog, which ->
-//                    studyAccepted(false)
+                    //                    studyAccepted(false)
 //                    finish()
                     showRejectedFragment()
                 }
@@ -225,25 +225,21 @@ class StudyFlowFragment : AppCompatActivity() {
     fun getData(actualFragment: Fragment): Any {
         when (actualFragment) {
             is RejectedMessageFragment -> {
-                return getMessageData("rejected")
+                return StudyDataHolder.getMessageData(Constants.MESSAGE_REJECT)
             }
             is WelcomeMessageFragment -> {
-                return getMessageData("welcome")
+                return StudyDataHolder.getMessageData(Constants.MESSAGE_WELCOME)
             }
             is InstructionFragment -> {
-                return getMessageData("instructions")
+                return StudyDataHolder.getMessageData(Constants.INSTRUCTIONS)
             }
             is TaskFragment -> {
-                return StudyFlowController.tasks
+                return StudyDataHolder.tasks
             }
             is ThankYouMessageFragment -> {
-                return getMessageData("completed")
+                return StudyDataHolder.getMessageData(Constants.MESSAGE_COMPLETE)
             }
         }
         return ""
-    }
-
-    private fun getMessageData(type: String): StudyMessage {
-        return StudyFlowController.study?.studyMessages?.first { p: StudyMessage -> p.type == type }!!
     }
 }

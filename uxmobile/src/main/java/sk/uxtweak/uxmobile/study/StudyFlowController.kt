@@ -20,6 +20,7 @@ import sk.uxtweak.uxmobile.study.network.RestCommunicator
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowAcceptObserver
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragment
 import sk.uxtweak.uxmobile.study.utility.SharedPreferencesChangeListener
+import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 
 /**
  * Created by Kamil Macek on 12. 11. 2019.
@@ -27,13 +28,6 @@ import sk.uxtweak.uxmobile.study.utility.SharedPreferencesChangeListener
 class StudyFlowController(
     val context: Context
 ) : LifecycleObserver, FloatWidgetClickObserver, StudyFlowAcceptObserver {
-
-    companion object TaskExecutionDataHolder {
-        var numberOfTasks = 0
-        var doingTaskWithId = -1
-        lateinit var tasks: List<StudyTask>
-        var study: Study? = null
-    }
 
     private val TAG = this::class.java.simpleName
 
@@ -67,7 +61,7 @@ class StudyFlowController(
 
 
         // dummy data
-        tasks = listOf(
+        StudyDataHolder.tasks = listOf(
             StudyTask(
                 1,
                 "CREATE NEW APPOINTMENT ON 27.05.2022",
@@ -84,13 +78,13 @@ class StudyFlowController(
             if (res != null) {
                 Log.d(TAG, res.studyId.toString())
 
-                tasks = res.studyTasks
+                StudyDataHolder.tasks = res.studyTasks
 
                 for (sm: StudyMessage in res.studyMessages) {
                     Log.d(TAG, sm.type)
                 }
 
-                study = res
+                StudyDataHolder.study = res
             } else {
                 Log.e(TAG, "NO RESPONSE, WORKING WITH DUMMY DATA")
 
@@ -98,11 +92,11 @@ class StudyFlowController(
                 val dummyStudyResponse: Study =
                     gson.fromJson(dummyResponseData(), Study::class.java)
 
-                study = dummyStudyResponse
+                StudyDataHolder.study = dummyStudyResponse
             }
         }
 
-        numberOfTasks = tasks.size
+        StudyDataHolder.numberOfTasks = StudyDataHolder.tasks.size
     }
 
     fun dummyResponseData(): String {
@@ -140,11 +134,12 @@ class StudyFlowController(
 
         // set executed task as accomplished
         val selectedStudyTask: StudyTask =
-            tasks.filter { s -> s.taskId == doingTaskWithId.toLong() }.single()
+            StudyDataHolder.tasks.filter { s -> s.taskId == StudyDataHolder.doingTaskWithId.toLong() }
+                .single()
         selectedStudyTask.accomplished = true
 
         // decrement number of available tasks
-        numberOfTasks--
+        StudyDataHolder.numberOfTasks--
 
         // show fragments with flag end of task
         showStudyFlow(onlyInstructions = false, endOfTask = true)
