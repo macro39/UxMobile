@@ -5,8 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_pre_study_questionnaire.*
+import kotlinx.android.synthetic.main.fragment_base_questionaire.*
 import sk.uxtweak.uxmobile.R
+import sk.uxtweak.uxmobile.study.model.StudyQuestion
 
 /**
  * Created by Kamil Macek on 24. 1. 2020.
@@ -18,15 +19,19 @@ class PreStudyQuestionnaire : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_pre_study_questionnaire, container, false)
+        return inflater.inflate(R.layout.fragment_base_questionaire, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // dynamically set questions
+        val question: StudyQuestion = (activity as StudyFlowFragment).getData(this) as StudyQuestion
 
-        button_pre_study_questionnaire_next.setOnClickListener {
+        textView_question_title.text = question.title
+        textView_question_description.text = question.description
+
+
+        button_questionnaire_next.setOnClickListener {
             (activity as StudyFlowFragment).showNextFragment(this)
         }
     }

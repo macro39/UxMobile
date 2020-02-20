@@ -1,25 +1,29 @@
 package sk.uxtweak.uxmobile.study.study_flow
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import kotlinx.android.synthetic.main.activity_study_flow.*
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.Constants
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENABLED
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
-import sk.uxtweak.uxmobile.study.utility.SharedPreferencesController
+import sk.uxtweak.uxmobile.study.model.StudyQuestion
+import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionnaireOptionsRadioButton
 import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 
 class StudyFlowFragment : AppCompatActivity() {
 
     private val manager = supportFragmentManager
-    private var sharedPreferencesController: SharedPreferencesController? = null
     private lateinit var permissionChecker: PermissionChecker
 
     private var isOnlyInstructionsDisplayed = false
@@ -33,10 +37,12 @@ class StudyFlowFragment : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         title = "UXMobile"
-        setContentView(R.layout.activity_study_flow_base_fragment)
+        setContentView(R.layout.activity_study_flow)
+
+        fragment_base_holder.setBackgroundColor(Color.parseColor(StudyDataHolder.getBackgroundColorPrimary()))                      // set background color from config
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.parseColor(StudyDataHolder.getBackgroundColorSecondary())))     // set support bar color from config
 
         numberOfAvailableTasks = StudyDataHolder.numberOfTasks
-        sharedPreferencesController = SharedPreferencesController(this)
         permissionChecker = PermissionChecker(this)
 
         if (intent.getBooleanExtra(EXTRA_IS_STUDY_SET, true)) {
@@ -67,11 +73,12 @@ class StudyFlowFragment : AppCompatActivity() {
     override fun onBackPressed() {
         if (isOnlyInstructionsDisplayed) {
             super.onBackPressed()
+            sendBroadcastStudyAccepted(accepted = true, ended = false)
             finish()
         }
     }
 
-    fun enableBackButton() {
+    private fun enableBackButton() {
         if (isOnlyInstructionsDisplayed || backNavEnabled) {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
         } else {
@@ -101,8 +108,6 @@ class StudyFlowFragment : AppCompatActivity() {
                 }
 
                 builder.setPositiveButton("ANO") { dialog, which ->
-                    //                    studyAccepted(false)
-//                    finish()
                     showRejectedFragment()
                 }
 
@@ -114,6 +119,7 @@ class StudyFlowFragment : AppCompatActivity() {
 
         if (isOnlyInstructionsDisplayed) {
             super.onBackPressed()
+            sendBroadcastStudyAccepted(accepted = true, ended = false)
             finish()
             return true
         }
@@ -159,7 +165,7 @@ class StudyFlowFragment : AppCompatActivity() {
         transaction.commit()
     }
 
-    fun disableEveryBackAction() {
+    private fun disableEveryBackAction() {
         this.backNavEnabled = false
         this.invalidateOptionsMenu()
         this.enableBackButton()
@@ -202,20 +208,33 @@ class StudyFlowFragment : AppCompatActivity() {
                 disableEveryBackAction()
                 showFragment(ThankYouMessageFragment())
             }
-            is ThankYouMessageFragment -> studyAccepted(false)
+            is ThankYouMessageFragment -> {
+                sendBroadcastStudyAccepted(accepted = false, ended = true)
+                finish()
+            }
         }
     }
 
     fun studyAccepted(accepted: Boolean) {
         if (accepted) {
             permissionChecker.canDrawOverlay()
-            sharedPreferencesController?.changeInStudyState(true)
-
+            sendBroadcastStudyAccepted(accepted = true, ended = false)
             finish()
         } else {
-            sharedPreferencesController?.changeInStudyState(false)
+            sendBroadcastStudyAccepted(accepted = false, ended = false)
             finish()
         }
+    }
+
+    private fun sendBroadcastStudyAccepted(accepted: Boolean, ended: Boolean) {
+        val intent = Intent(Constants.RECEIVER_IN_STUDY)
+        intent.putExtra(Constants.RECEIVER_IN_STUDY, accepted)
+        intent.putExtra(Constants.RECEIVER_STUDY_ENDED, ended)
+        intent.putExtra(
+            Constants.RECEIVER_STUDY_RESUME_AFTER_ONLY_INSTRUCTIONS_ENABLED,
+            isOnlyInstructionsDisplayed
+        )
+        sendBroadcast(intent)
     }
 
     fun askLater(later: Boolean) {
@@ -224,6 +243,26 @@ class StudyFlowFragment : AppCompatActivity() {
 
     fun getData(actualFragment: Fragment): Any {
         when (actualFragment) {
+            is ScreeningQuestionnaireFragment -> {
+                val data = StudyDataHolder.getQuestionData(Constants.QUESTION_SCREENING)
+                findProperQuestionType(actualFragment, data)
+                return data
+            }
+            is PreStudyQuestionnaire -> {
+                val data = StudyDataHolder.getQuestionData(Constants.QUESTION_PRE_STUDY)
+                findProperQuestionType(actualFragment, data)
+                return data
+            }
+            is PostTaskQuestionnaire -> {
+                val data = StudyDataHolder.getQuestionData(Constants.QUESTION_TASK)
+                findProperQuestionType(actualFragment, data)
+                return data
+            }
+            is PostStudyQuestionnaire -> {
+                val data = StudyDataHolder.getQuestionData(Constants.QUESTION_POST_STUDY)
+                findProperQuestionType(actualFragment, data)
+                return data
+            }
             is RejectedMessageFragment -> {
                 return StudyDataHolder.getMessageData(Constants.MESSAGE_REJECT)
             }
@@ -241,5 +280,52 @@ class StudyFlowFragment : AppCompatActivity() {
             }
         }
         return ""
+    }
+
+    private fun findProperQuestionType(fragment: Fragment, studyQuestion: StudyQuestion) {
+        when (studyQuestion.answerType) {
+            Constants.QUESTION_TYPE_INPUT -> {
+                setQuestionTypeFragment(
+                    fragment,
+                    R.id.frameLayout_question_holder,
+                    FragmentQuestionnaireOptionsRadioButton()
+                )
+            }
+            Constants.QUESTION_TYPE_TEXT_AREA -> {
+                setQuestionTypeFragment(
+                    fragment,
+                    R.id.frameLayout_question_holder,
+                    FragmentQuestionnaireOptionsRadioButton()
+                )
+            }
+            Constants.QUESTION_TYPE_DROPDOWN -> {
+                setQuestionTypeFragment(
+                    fragment,
+                    R.id.frameLayout_question_holder,
+                    FragmentQuestionnaireOptionsRadioButton()
+                )
+            }
+            Constants.QUESTION_TYPE_RADIO_BUTTON -> {
+                setQuestionTypeFragment(
+                    fragment,
+                    R.id.frameLayout_question_holder,
+                    FragmentQuestionnaireOptionsRadioButton()
+                )
+            }
+            Constants.QUESTION_TYPE_CHECKBOX -> {
+                setQuestionTypeFragment(
+                    fragment,
+                    R.id.frameLayout_question_holder,
+                    FragmentQuestionnaireOptionsRadioButton()
+                )
+            }
+
+        }
+    }
+
+    private fun setQuestionTypeFragment(currentFragment: Fragment, id: Int, newFragment: Fragment) {
+        val transaction = currentFragment.childFragmentManager.beginTransaction()
+        transaction.replace(id, newFragment)
+        transaction.commit()
     }
 }

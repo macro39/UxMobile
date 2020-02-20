@@ -4,7 +4,7 @@
     android:id="@+id/fragment_global_message"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/lightGreen">
+    android:background="@android:color/transparent">
 
     <TextView
         android:id="@+id/textView_global_message"

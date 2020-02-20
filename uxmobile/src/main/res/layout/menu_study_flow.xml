@@ -6,6 +6,5 @@
     <item
         android:id="@+id/button_reject_study_flow_action_bar"
         android:icon="@drawable/ic_action_reject"
-        android:title="t"
         app:showAsAction="always|withText" />
 </menu>

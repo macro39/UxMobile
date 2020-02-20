@@ -18,6 +18,8 @@ class FloatWidgetService(
     private val listener: FloatWidgetClickObserver
 ) {
 
+    private var addedToView = false
+
     private val mLayoutInflater: LayoutInflater
         get() = LayoutInflater.from(context)
 
@@ -39,16 +41,23 @@ class FloatWidgetService(
     }
 
     fun onCreate() {
-        initializeDisplaySize()
+        if (!addedToView) {
+            initializeDisplaySize()
 
-        // TODO WindowManager Bad token exe... need to fix
-        mWindowManager.addView(mFloatView, getWindowParams())
+            // TODO WindowManager Bad token exe... need to fix
+            mWindowManager.addView(mFloatView, getWindowParams())
 
-        mFloatWidgetMoveController =
-            FloatWidgetMoveController(context, listener, mWindowManager, mFloatView, mDisplaySize)
+            mFloatWidgetMoveController =
+                FloatWidgetMoveController(context, listener, mWindowManager, mFloatView, mDisplaySize)
+
+            addedToView = true
+        }
     }
 
     fun onDestroy() {
+        if (!addedToView) {
+            return
+        }
         if (mFloatWidgetMoveController != null) {
             val positionParams = mFloatWidgetMoveController?.getPosition()
 
@@ -58,6 +67,7 @@ class FloatWidgetService(
 
             if (mFloatView.parent != null) {
                 mWindowManager.removeView(mFloatView)
+                addedToView = false
             }
         }
     }
