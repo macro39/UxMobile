@@ -19,6 +19,7 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
 import sk.uxtweak.uxmobile.study.model.StudyQuestion
 import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionnaireOptionsRadioButton
+import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionnaireOptionsText
 import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 
 class StudyFlowFragment : AppCompatActivity() {
@@ -28,6 +29,7 @@ class StudyFlowFragment : AppCompatActivity() {
 
     private var isOnlyInstructionsDisplayed = false
     private var backNavEnabled = true
+    private var rejectStudyBtnEnabled = true
 
     private var numberOfAvailableTasks = 0
 
@@ -88,7 +90,7 @@ class StudyFlowFragment : AppCompatActivity() {
 
     @SuppressLint("ResourceType")
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        if (!isOnlyInstructionsDisplayed && backNavEnabled) {
+        if (!isOnlyInstructionsDisplayed && rejectStudyBtnEnabled) {
             menuInflater.inflate(R.layout.menu_study_flow, menu)
         }
         return super.onCreateOptionsMenu(menu)
@@ -167,8 +169,14 @@ class StudyFlowFragment : AppCompatActivity() {
 
     private fun disableEveryBackAction() {
         this.backNavEnabled = false
+        rejectStudyBtnEnabled = false
         this.invalidateOptionsMenu()
         this.enableBackButton()
+    }
+
+    private fun enableEveryBackAction() {
+        rejectStudyBtnEnabled = true
+        this.invalidateOptionsMenu()
     }
 
     /**
@@ -185,8 +193,14 @@ class StudyFlowFragment : AppCompatActivity() {
                     showFragment(ScreeningQuestionnaireFragment())
                 }
             }
-            is ScreeningQuestionnaireFragment -> showFragment(WelcomeMessageFragment())
-            is WelcomeMessageFragment -> showInstructions()
+            is ScreeningQuestionnaireFragment -> {
+                disableEveryBackAction()
+                showFragment(WelcomeMessageFragment())
+            }
+            is WelcomeMessageFragment -> {
+                enableEveryBackAction()
+                showInstructions()
+            }
             is InstructionFragment -> {
                 if (isOnlyInstructionsDisplayed) {
                     onBackPressed()
@@ -285,47 +299,45 @@ class StudyFlowFragment : AppCompatActivity() {
     private fun findProperQuestionType(fragment: Fragment, studyQuestion: StudyQuestion) {
         when (studyQuestion.answerType) {
             Constants.QUESTION_TYPE_INPUT -> {
-                setQuestionTypeFragment(
-                    fragment,
-                    R.id.frameLayout_question_holder,
-                    FragmentQuestionnaireOptionsRadioButton()
-                )
+                setQuestionTypeText(fragment, true)
             }
             Constants.QUESTION_TYPE_TEXT_AREA -> {
-                setQuestionTypeFragment(
-                    fragment,
-                    R.id.frameLayout_question_holder,
-                    FragmentQuestionnaireOptionsRadioButton()
-                )
+                setQuestionTypeText(fragment, false)
             }
             Constants.QUESTION_TYPE_DROPDOWN -> {
                 setQuestionTypeFragment(
                     fragment,
-                    R.id.frameLayout_question_holder,
                     FragmentQuestionnaireOptionsRadioButton()
                 )
             }
             Constants.QUESTION_TYPE_RADIO_BUTTON -> {
                 setQuestionTypeFragment(
                     fragment,
-                    R.id.frameLayout_question_holder,
                     FragmentQuestionnaireOptionsRadioButton()
                 )
             }
             Constants.QUESTION_TYPE_CHECKBOX -> {
                 setQuestionTypeFragment(
                     fragment,
-                    R.id.frameLayout_question_holder,
                     FragmentQuestionnaireOptionsRadioButton()
                 )
             }
-
         }
     }
 
-    private fun setQuestionTypeFragment(currentFragment: Fragment, id: Int, newFragment: Fragment) {
+    private fun setQuestionTypeText(fragment: Fragment, isSingleLine: Boolean) {
+        val bundle = Bundle()
+        bundle.putBoolean(Constants.EXTRA_IS_SINGLE_LINE, isSingleLine)
+
+        val fragmentQuestionnaireOptionsText = FragmentQuestionnaireOptionsText()
+        fragmentQuestionnaireOptionsText.arguments = bundle
+
+        setQuestionTypeFragment(fragment, fragmentQuestionnaireOptionsText)
+    }
+
+    private fun setQuestionTypeFragment(currentFragment: Fragment, newFragment: Fragment) {
         val transaction = currentFragment.childFragmentManager.beginTransaction()
-        transaction.replace(id, newFragment)
+        transaction.replace(R.id.frameLayout_question_holder, newFragment)
         transaction.commit()
     }
 }

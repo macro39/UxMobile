@@ -11,6 +11,7 @@ open class Constants {
         const val EXTRA_INSTRUCTIONS_ONLY_ENABLED = "ONLY_INSTRUCTIONS"
         const val EXTRA_IS_STUDY_SET = "STUDY_IS_SET"
         const val EXTRA_END_OF_TASK = "END_OF_TASK"
+        const val EXTRA_IS_SINGLE_LINE = "isSingleLine"
         const val MESSAGE_REJECT = "rejected"
         const val MESSAGE_WELCOME = "welcome"
         const val INSTRUCTIONS = "instructions"

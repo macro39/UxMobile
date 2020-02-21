@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_rejected_message.*
+import kotlinx.android.synthetic.main.fragment_message.*
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.model.StudyMessage
 
@@ -22,7 +22,7 @@ class RejectedMessageFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_rejected_message, container, false)
+        return inflater.inflate(R.layout.fragment_message, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -31,13 +31,13 @@ class RejectedMessageFragment : Fragment() {
         val rejectedMessage: StudyMessage =
             (activity as StudyFlowFragment).getData(this) as StudyMessage
 
-        textView_rejected_message_title.text = rejectedMessage.title
+        textView_message_title.text = rejectedMessage.title
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            textVIew_rejected_message_consent.text =
+            textVIew_message_content.text =
                 Html.fromHtml(rejectedMessage.content, Html.FROM_HTML_MODE_COMPACT)
         } else {
-            textVIew_rejected_message_consent.text = Html.fromHtml(rejectedMessage.content)
+            textVIew_message_content.text = Html.fromHtml(rejectedMessage.content)
         }
 
         Handler().postDelayed({

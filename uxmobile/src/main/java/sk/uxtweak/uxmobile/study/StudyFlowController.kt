@@ -145,7 +145,7 @@ class StudyFlowController(
             "            \"title\": \"DOTAZNIK PARTICIPANTA\",\n" +
             "            \"description\": \"Vyplne prosim dotaznik, aby sme mohli zistit, ci ste vhodnym respondentom\",\n" +
             "            \"order\": 1,\n" +
-            "            \"answerType\": \"radiobtn\",\n" +
+            "            \"answerType\": \"input\",\n" +
             "            \"answerOptions\": \"{\\\"id\\\":123,\\\"title\\\":\\\"AKE MAS POHLAVIE?\\\",\\\"options\\\":[\\\"MUZ\\\", \\\"ZENA\\\"] }\",\n" +
             "            \"required\": true,\n" +
             "            \"randomizeOptions\": true\n" +
@@ -167,7 +167,7 @@ class StudyFlowController(
             "            \"title\": \"DOTAZNIK PRED STUDIOU\",\n" +
             "            \"description\": \"Vyplne prosim dotaznik, aby sme mohli zistit, ci ste vhodnym respondentom\",\n" +
             "            \"order\": 1,\n" +
-            "            \"answerType\": \"radiobtn\",\n" +
+            "            \"answerType\": \"textarea\",\n" +
             "            \"answerOptions\": \"{\\\"id\\\":123,\\\"title\\\":\\\"AKE MAS POHLAVIE?\\\",\\\"options\\\":[\\\"MUZ\\\", \\\"ZENA\\\"] }\",\n" +
             "            \"required\": true,\n" +
             "            \"randomizeOptions\": true\n" +
