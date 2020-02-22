@@ -43,7 +43,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="UXMobile menu"
+                android:text="@string/plugin_name"
                 android:textAlignment="center"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -60,7 +60,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:padding="10dp"
-                    android:text="Inštrukcie" />
+                    android:text="@string/instructions" />
 
                 <Button
                     android:id="@+id/button_float_widget_end_task"
@@ -68,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:padding="10dp"
-                    android:text="Ukončiť úlohu" />
+                    android:text="@string/task_end" />
             </LinearLayout>
         </LinearLayout>
 

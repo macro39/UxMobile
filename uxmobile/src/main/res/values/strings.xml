@@ -1,1 +1,18 @@
-<resources></resources>
+<resources>
+    <string name="plugin_name" translatable="false">UXMobile</string>
+    <string name="global_message_title">Would you like to take a part in study?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="later">Ask me later</string>
+    <string name="consent_title">Do you agree with terms of use?</string>
+    <string name="next">Next</string>
+    <string name="question">"Question "</string>
+    <string name="instructions">Instructions</string>
+    <string name="task_end">End task</string>
+    <string name="end_study">Would you like end this study?</string>
+    <string name="understand">Understand</string>
+    <string name="answer_here">Your answer here...</string>
+    <string name="task_accept">Accept task</string>
+    <string name="task_list">List of currently available tasks</string>
+    <string name="end_task_performing">End performing tasks</string>
+</resources>

@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:maxHeight="200dp"
         android:inputType="textMultiLine"
-        android:hint="Your answer here..."
+        android:hint="@string/answer_here"
         android:textColorHint="@color/black"
         android:textSize="14sp"
         android:paddingRight="10dp"

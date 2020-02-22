@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="global_message_title">Chceli by ste sa zucastnit studie?</string>
+    <string name="yes">Áno</string>
+    <string name="no">Nie</string>
+    <string name="later">Opytaj sa neskor</string>
+    <string name="consent_title">Súhlasite s podmienkami používania?</string>
+    <string name="next">Ďalej</string>
+    <string name="question">"Otázka "</string>
+    <string name="instructions">Inštrukcie</string>
+    <string name="task_end">Ukončiť úlohu</string>
+    <string name="end_study">Prajete si ukončiť štúdiu?</string>
+    <string name="understand">Rozumiem</string>
+    <string name="answer_here">Tu pridajte odpoveď</string>
+    <string name="task_accept">Prijať úlohu</string>
+    <string name="task_list">Momentálne dostupné úlohy</string>
+    <string name="end_task_performing">Skončiť s vykonávaním úloh</string>
+</resources>

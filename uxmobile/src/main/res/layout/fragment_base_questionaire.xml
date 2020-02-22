@@ -66,7 +66,7 @@
         android:id="@+id/button_questionnaire_next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="NEXT"
+        android:text="@string/next"
         android:textStyle="bold"
         android:textColor="@color/black"
         android:textSize="14sp"
