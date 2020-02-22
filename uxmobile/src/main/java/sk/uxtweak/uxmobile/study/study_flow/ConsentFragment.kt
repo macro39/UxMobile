@@ -28,12 +28,12 @@ class ConsentFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         button_consent_yes.setOnClickListener {
-            (activity as StudyFlowFragment).showNextFragment(this)
+            (activity as StudyFlowFragmentManager).showNextFragment(this)
         }
 
         button_consent_no.setOnClickListener {
             Log.d(TAG, "User rejected study")
-            (activity as StudyFlowFragment).showRejectedFragment()
+            (activity as StudyFlowFragmentManager).showRejectedFragment()
         }
     }
 }

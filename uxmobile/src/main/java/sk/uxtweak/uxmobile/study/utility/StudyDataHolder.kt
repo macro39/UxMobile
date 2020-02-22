@@ -1,15 +1,13 @@
 package sk.uxtweak.uxmobile.study.utility
 
-import sk.uxtweak.uxmobile.study.model.Study
-import sk.uxtweak.uxmobile.study.model.StudyMessage
-import sk.uxtweak.uxmobile.study.model.StudyQuestion
-import sk.uxtweak.uxmobile.study.model.StudyTask
+import sk.uxtweak.uxmobile.study.model.*
 
 object StudyDataHolder {
     var numberOfTasks: Int = 0
     var doingTaskWithId = -1
     lateinit var tasks: List<StudyTask>
     var study: Study? = null
+    var questionnaireRules: QuestionnaireRules? = null
 
 
     fun getBackgroundColorPrimary(): String {

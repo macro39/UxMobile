@@ -25,13 +25,13 @@ class PostTaskQuestionnaire : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val question: StudyQuestion = (activity as StudyFlowFragment).getData(this) as StudyQuestion
+        val question: StudyQuestion = (activity as StudyFlowFragmentManager).getData(this) as StudyQuestion
 
         textView_question_title.text = question.title
         textView_question_description.text = question.description
 
         button_questionnaire_next.setOnClickListener {
-            (activity as StudyFlowFragment).showNextFragment(this)
+            (activity as StudyFlowFragmentManager).showNextFragment(this)
         }
     }
 }

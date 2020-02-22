@@ -11,6 +11,9 @@ data class QuestionnaireRules(
     @SerializedName("description")
     val description: String,
 
+    @SerializedName("title")
+    val title: String,
+
     @SerializedName("rules")
-    val rules: List<Rule>
+    val rules: List<Question>
 )

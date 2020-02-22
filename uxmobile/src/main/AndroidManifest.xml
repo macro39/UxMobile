@@ -12,7 +12,7 @@
         android:allowBackup="true"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true">
-        <activity android:name=".study.study_flow.StudyFlowFragment" />
+        <activity android:name=".study.study_flow.StudyFlowFragmentManager" />
         <activity android:name=".study.float_widget.FloatWidgetService" />
         <provider
             android:name=".lifecycle.ApplicationLifecycleInitializer"

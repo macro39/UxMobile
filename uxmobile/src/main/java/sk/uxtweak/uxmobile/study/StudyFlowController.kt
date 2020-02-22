@@ -15,11 +15,10 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENA
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetService
+import sk.uxtweak.uxmobile.study.model.QuestionnaireRules
 import sk.uxtweak.uxmobile.study.model.Study
-import sk.uxtweak.uxmobile.study.model.StudyMessage
 import sk.uxtweak.uxmobile.study.model.StudyTask
-import sk.uxtweak.uxmobile.study.network.RestCommunicator
-import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragment
+import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
 import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 
 /**
@@ -39,7 +38,6 @@ class StudyFlowController(
     private var isStudySet = true
 
     private val floatWidgetService: FloatWidgetService
-    private val restCommunicator: RestCommunicator
 
     private lateinit var broadcastReceiver: BroadcastReceiver
 
@@ -51,7 +49,7 @@ class StudyFlowController(
         setupBroadcastReceiver()
         Log.d(TAG, "Configured")
 
-        restCommunicator = RestCommunicator(context)
+        setDummyQuestionnaireRules()
 
         val gson = GsonBuilder().create()
         val dummyStudyResponse: Study =
@@ -73,23 +71,52 @@ class StudyFlowController(
 
         StudyDataHolder.study = dummyStudyResponse
 
-        restCommunicator.getStudy { res: Study? ->
-            if (res != null) {
-                Log.d(TAG, res.studyId.toString())
-
-                StudyDataHolder.tasks = res.studyTasks
-
-                for (sm: StudyMessage in res.studyMessages) {
-                    Log.d(TAG, sm.type)
-                }
-
-                StudyDataHolder.study = res
-            } else {
-                Log.e(TAG, "NO RESPONSE, WORKING WITH DUMMY DATA")
-            }
-        }
-
         StudyDataHolder.numberOfTasks = StudyDataHolder.tasks.size
+    }
+
+    private fun setDummyQuestionnaireRules() {
+        val questionnaireRules = "{\n" +
+            "    \"title\": \"SCREENING QUESTIONNAIRE\",\n" +
+            "    \"description\": \"Please answers this question\",\n" +
+            "    \"rules\": [\n" +
+            "        {\n" +
+            "            \"id\": \"1\",\n" +
+            "            \"question_required\": true,\n" +
+            "            \"description\": \"What's your gender?\",\n" +
+            "            \"answer_type\": \"radiobtn\",\n" +
+            "            \"answer_required\": true,\n" +
+            "            \"reason_needed\": false,\n" +
+            "            \"question_options\": [\n" +
+            "                \"man\",\n" +
+            "                \"women\"\n" +
+            "            ],\n" +
+            "            \"rule_values\": [\n" +
+            "                \"man\"\n" +
+            "            ]\n" +
+            "        },\n" +
+            "        {\n" +
+            "            \"id\": \"2\",\n" +
+            "            \"question_required\": true,\n" +
+            "            \"description\": \"How old are you?\",\n" +
+            "            \"answer_type\": \"radiobtn\",\n" +
+            "            \"answer_required\": true,\n" +
+            "            \"reason_needed\": false,\n" +
+            "            \"question_options\": [\n" +
+            "                \"<18\",\n" +
+            "                \">18\"\n" +
+            "            ],\n" +
+            "            \"rule_values\": [\n" +
+            "                \">18\"\n" +
+            "            ]\n" +
+            "        }\n" +
+            "    ]\n" +
+            "}"
+
+        val gson = GsonBuilder().create()
+        val dummyQuestionnaireRules: QuestionnaireRules =
+            gson.fromJson(questionnaireRules, QuestionnaireRules::class.java)
+
+        StudyDataHolder.questionnaireRules = dummyQuestionnaireRules
     }
 
     private fun dummyResponseData(): String {
@@ -145,7 +172,7 @@ class StudyFlowController(
             "            \"title\": \"DOTAZNIK PARTICIPANTA\",\n" +
             "            \"description\": \"Vyplne prosim dotaznik, aby sme mohli zistit, ci ste vhodnym respondentom\",\n" +
             "            \"order\": 1,\n" +
-            "            \"answerType\": \"input\",\n" +
+            "            \"answerType\": \"dropdown\",\n" +
             "            \"answerOptions\": \"{\\\"id\\\":123,\\\"title\\\":\\\"AKE MAS POHLAVIE?\\\",\\\"options\\\":[\\\"MUZ\\\", \\\"ZENA\\\"] }\",\n" +
             "            \"required\": true,\n" +
             "            \"randomizeOptions\": true\n" +
@@ -283,7 +310,7 @@ class StudyFlowController(
 
     private fun showStudyFlow(onlyInstructions: Boolean, endOfTask: Boolean) {
         registerBroadcastReciever(true)
-        val intent = Intent(context, StudyFlowFragment::class.java)
+        val intent = Intent(context, StudyFlowFragmentManager::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         intent.putExtra(EXTRA_IS_STUDY_SET, isStudySet)
         intent.putExtra(EXTRA_INSTRUCTIONS_ONLY_ENABLED, onlyInstructions)
@@ -315,7 +342,7 @@ class StudyFlowController(
 
     override fun onLastActivityStopped(activity: Activity) {
         // if user minimize app when study flow is on
-        if (StudyFlowFragment::class.qualifiedName.equals(activity.localClassName)) {
+        if (StudyFlowFragmentManager::class.qualifiedName.equals(activity.localClassName)) {
             minimizedWhenInStudyFlow = true
             return
         }

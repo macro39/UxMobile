@@ -28,7 +28,7 @@ class PreStudyQuestionnaire : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val question: StudyQuestion = (activity as StudyFlowFragment).getData(this) as StudyQuestion
+        val question: StudyQuestion = (activity as StudyFlowFragmentManager).getData(this) as StudyQuestion
 
         textView_question_title.text = question.title
         textView_question_description.text = question.description
@@ -38,9 +38,9 @@ class PreStudyQuestionnaire : Fragment() {
             // TODO example how to get data from child fragment
             if (question.answerType == Constants.QUESTION_TYPE_TEXT_AREA) {
                 val childFragment = childFragmentManager.fragments.first() as FragmentQuestionnaireOptionsText
-                Log.d("PreStudyQuestionnaire", childFragment.getData())
+                Log.d("PreStudyQuestionnaire", childFragment.getTextFromInput())
             }
-            (activity as StudyFlowFragment).showNextFragment(this)
+            (activity as StudyFlowFragmentManager).showNextFragment(this)
         }
     }
 }

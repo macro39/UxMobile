@@ -6,10 +6,13 @@ import com.google.gson.annotations.SerializedName
 /**
  * Created by Kamil Macek on 21.2.2020.
  */
-data class Rule(
+data class Question(
 
     @SerializedName("id")
     val id: String,
+
+    @SerializedName("name")
+    val name: String,
 
     @SerializedName("question_required")
     val questionRequired: Boolean,

@@ -27,7 +27,7 @@ class InstructionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val instructions : StudyMessage = (activity as StudyFlowFragment).getData(this) as StudyMessage
+        val instructions : StudyMessage = (activity as StudyFlowFragmentManager).getData(this) as StudyMessage
 
         textView_instructions_title.text = instructions.title
 
@@ -38,7 +38,7 @@ class InstructionFragment : Fragment() {
         }
 
         button_instruction_next.setOnClickListener {
-            (activity as StudyFlowFragment).showNextFragment(this)
+            (activity as StudyFlowFragmentManager).showNextFragment(this)
         }
     }
 }

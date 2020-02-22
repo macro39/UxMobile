@@ -18,11 +18,13 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENA
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
 import sk.uxtweak.uxmobile.study.model.StudyQuestion
+import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionnaireOptionsCheckbox
+import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionnaireOptionsDropdown
 import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionnaireOptionsRadioButton
 import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionnaireOptionsText
 import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 
-class StudyFlowFragment : AppCompatActivity() {
+class StudyFlowFragmentManager : AppCompatActivity() {
 
     private val manager = supportFragmentManager
     private lateinit var permissionChecker: PermissionChecker
@@ -258,23 +260,22 @@ class StudyFlowFragment : AppCompatActivity() {
     fun getData(actualFragment: Fragment): Any {
         when (actualFragment) {
             is ScreeningQuestionnaireFragment -> {
-                val data = StudyDataHolder.getQuestionData(Constants.QUESTION_SCREENING)
-                findProperQuestionType(actualFragment, data)
-                return data
+                val data = StudyDataHolder.questionnaireRules
+                return data!!
             }
             is PreStudyQuestionnaire -> {
                 val data = StudyDataHolder.getQuestionData(Constants.QUESTION_PRE_STUDY)
-                findProperQuestionType(actualFragment, data)
+                findProperQuestionType(actualFragment, data.answerType)
                 return data
             }
             is PostTaskQuestionnaire -> {
                 val data = StudyDataHolder.getQuestionData(Constants.QUESTION_TASK)
-                findProperQuestionType(actualFragment, data)
+                findProperQuestionType(actualFragment, data.answerType)
                 return data
             }
             is PostStudyQuestionnaire -> {
                 val data = StudyDataHolder.getQuestionData(Constants.QUESTION_POST_STUDY)
-                findProperQuestionType(actualFragment, data)
+                findProperQuestionType(actualFragment, data.answerType)
                 return data
             }
             is RejectedMessageFragment -> {
@@ -296,8 +297,8 @@ class StudyFlowFragment : AppCompatActivity() {
         return ""
     }
 
-    private fun findProperQuestionType(fragment: Fragment, studyQuestion: StudyQuestion) {
-        when (studyQuestion.answerType) {
+    fun findProperQuestionType(fragment: Fragment, answerType: String) {
+        when (answerType) {
             Constants.QUESTION_TYPE_INPUT -> {
                 setQuestionTypeText(fragment, true)
             }
@@ -307,7 +308,7 @@ class StudyFlowFragment : AppCompatActivity() {
             Constants.QUESTION_TYPE_DROPDOWN -> {
                 setQuestionTypeFragment(
                     fragment,
-                    FragmentQuestionnaireOptionsRadioButton()
+                    FragmentQuestionnaireOptionsDropdown()
                 )
             }
             Constants.QUESTION_TYPE_RADIO_BUTTON -> {
@@ -319,7 +320,7 @@ class StudyFlowFragment : AppCompatActivity() {
             Constants.QUESTION_TYPE_CHECKBOX -> {
                 setQuestionTypeFragment(
                     fragment,
-                    FragmentQuestionnaireOptionsRadioButton()
+                    FragmentQuestionnaireOptionsCheckbox()
                 )
             }
         }

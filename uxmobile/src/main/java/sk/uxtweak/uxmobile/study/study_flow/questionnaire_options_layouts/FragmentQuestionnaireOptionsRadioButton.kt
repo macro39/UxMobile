@@ -9,9 +9,12 @@ import android.widget.RadioButton
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_questionnaire_radio_button.*
 import sk.uxtweak.uxmobile.R
+import sk.uxtweak.uxmobile.study.model.Question
 import sk.uxtweak.uxmobile.study.study_flow.ScreeningQuestionnaireFragment
 
 class FragmentQuestionnaireOptionsRadioButton : Fragment() {
+
+    private var rule: Question? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -24,20 +27,30 @@ class FragmentQuestionnaireOptionsRadioButton : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        for (i in 0..6) {
-            val radioButton = RadioButton(view.context)
-            radioButton.setTextColor(Color.BLACK)
+        when (parentFragment) {
+            is ScreeningQuestionnaireFragment -> {
+                rule = ScreeningQuestionnaireFragment.currentRule
 
-            radioButton.isChecked = i == 0
+                for (i in rule!!.questionOptions.indices) {
+                    val radioButton = RadioButton(view.context)
+                    radioButton.id = i
+                    radioButton.setTextColor(Color.BLACK)
 
+                    if (i == 0) {
+                        radioButton.isChecked = true
+                        ScreeningQuestionnaireFragment.isSuitable = rule!!.questionOptions[0] in rule!!.ruleValues  // check if first - marked button is in rule
+                    }
 
-            if (parentFragment is ScreeningQuestionnaireFragment) {
-                radioButton.text = "screening questionnaire " + i
-            } else {
-                radioButton.text = "INY"
+                    radioButton.text = rule!!.questionOptions[i]
+
+                    radioGroup_questionnaire.addView(radioButton)
+                }
+
+                // if check for suitable respondent is on client side
+                radioGroup_questionnaire.setOnCheckedChangeListener { group, checkedId ->
+                    ScreeningQuestionnaireFragment.isSuitable = rule!!.questionOptions[checkedId] in rule!!.ruleValues
+                }
             }
-
-            radioGroup_questionnaire.addView(radioButton)
         }
     }
 

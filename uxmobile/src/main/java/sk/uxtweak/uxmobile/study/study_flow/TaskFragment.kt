@@ -32,7 +32,7 @@ class TaskFragment : Fragment() {
 
         val radioGroup = getView()?.findViewById<RadioGroup>(R.id.radioGroup_tasks)
 
-        val tasks = (activity as StudyFlowFragment).getData(this) as List<StudyTask>
+        val tasks = (activity as StudyFlowFragmentManager).getData(this) as List<StudyTask>
 
 
         var marked = false
@@ -62,11 +62,11 @@ class TaskFragment : Fragment() {
 
         button_task_admit.setOnClickListener {
             StudyDataHolder.doingTaskWithId = radioGroup?.checkedRadioButtonId!!
-            (activity as StudyFlowFragment).studyAccepted(true)
+            (activity as StudyFlowFragmentManager).studyAccepted(true)
         }
 
         button_task_refuse_executing.setOnClickListener {
-            (activity as StudyFlowFragment).showNextFragment(this)
+            (activity as StudyFlowFragmentManager).showNextFragment(this)
         }
     }
 }

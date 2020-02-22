@@ -29,7 +29,7 @@ class WelcomeMessageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val welcomeMessage: StudyMessage =
-            (activity as StudyFlowFragment).getData(this) as StudyMessage
+            (activity as StudyFlowFragmentManager).getData(this) as StudyMessage
 
         textView_message_title.text = welcomeMessage.title
 
@@ -41,7 +41,7 @@ class WelcomeMessageFragment : Fragment() {
         }
 
         Handler().postDelayed({
-            (activity as StudyFlowFragment).showNextFragment(this)
+            (activity as StudyFlowFragmentManager).showNextFragment(this)
         }, 3000)
     }
 

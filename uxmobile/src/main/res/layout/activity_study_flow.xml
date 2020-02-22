@@ -4,6 +4,6 @@
     android:id="@+id/fragment_base_holder"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".study.study_flow.StudyFlowFragment">
+    tools:context=".study.study_flow.StudyFlowFragmentManager">
 
 </FrameLayout>

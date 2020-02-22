@@ -28,7 +28,7 @@ class ThankYouMessageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val thankYouMessage : StudyMessage = (activity as StudyFlowFragment).getData(this) as StudyMessage
+        val thankYouMessage : StudyMessage = (activity as StudyFlowFragmentManager).getData(this) as StudyMessage
 
         textView_message_title.text = thankYouMessage.title
 
@@ -39,7 +39,7 @@ class ThankYouMessageFragment : Fragment() {
         }
 
         Handler().postDelayed({
-            (activity as StudyFlowFragment).showNextFragment(this)
+            (activity as StudyFlowFragmentManager).showNextFragment(this)
         }, 3000)
     }
 }

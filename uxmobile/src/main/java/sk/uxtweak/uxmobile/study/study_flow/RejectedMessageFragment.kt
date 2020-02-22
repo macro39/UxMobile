@@ -29,7 +29,7 @@ class RejectedMessageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val rejectedMessage: StudyMessage =
-            (activity as StudyFlowFragment).getData(this) as StudyMessage
+            (activity as StudyFlowFragmentManager).getData(this) as StudyMessage
 
         textView_message_title.text = rejectedMessage.title
 
@@ -41,7 +41,7 @@ class RejectedMessageFragment : Fragment() {
         }
 
         Handler().postDelayed({
-            (activity as StudyFlowFragment).studyAccepted(false)
+            (activity as StudyFlowFragmentManager).studyAccepted(false)
         }, 3000)
     }
 }

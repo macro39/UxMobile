@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_global_message.*
 import sk.uxtweak.uxmobile.R
-import sk.uxtweak.uxmobile.study.model.Study
 
 /**
  * Created by Kamil Macek on 13. 12. 2019.
@@ -30,17 +29,17 @@ class GlobalMessageFragment : Fragment() {
 
         button_global_message_yes.setOnClickListener {
             Log.d(TAG, "Going to next step in flow study")
-            (activity as StudyFlowFragment).showNextFragment(this)
+            (activity as StudyFlowFragmentManager).showNextFragment(this)
         }
 
         button_global_message_no.setOnClickListener {
             Log.d(TAG, "User rejected study")
-            (activity as StudyFlowFragment).showRejectedFragment()
+            (activity as StudyFlowFragmentManager).showRejectedFragment()
         }
 
         button_global_message_later.setOnClickListener {
             Log.d(TAG, "Ask later for study participating")
-            (activity as StudyFlowFragment).askLater(false)
+            (activity as StudyFlowFragmentManager).askLater(false)
         }
     }
 }
