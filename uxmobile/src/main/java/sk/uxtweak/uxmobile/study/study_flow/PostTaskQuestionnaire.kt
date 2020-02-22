@@ -7,12 +7,14 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_base_questionaire.*
 import sk.uxtweak.uxmobile.R
-import sk.uxtweak.uxmobile.study.model.StudyQuestion
+import sk.uxtweak.uxmobile.study.model.StudyQuestionnaire
+import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionOption
 
 /**
  * Created by Kamil Macek on 27. 1. 2020.
  */
-class PostTaskQuestionnaire : Fragment() {
+// TODO find out if this will be a part of task
+class PostTaskQuestionnaire : FragmentQuestionOption() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -25,10 +27,11 @@ class PostTaskQuestionnaire : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val question: StudyQuestion = (activity as StudyFlowFragmentManager).getData(this) as StudyQuestion
+        val question: StudyQuestionnaire =
+            (activity as StudyFlowFragmentManager).getData(this) as StudyQuestionnaire
 
-        textView_question_title.text = question.title
-        textView_question_description.text = question.description
+        textView_questionnaire_title.text = question.title
+        textView_questionnaire_description.text = question.description
 
         button_questionnaire_next.setOnClickListener {
             (activity as StudyFlowFragmentManager).showNextFragment(this)

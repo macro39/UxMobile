@@ -17,11 +17,6 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENABLED
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
-import sk.uxtweak.uxmobile.study.model.StudyQuestion
-import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionnaireOptionsCheckbox
-import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionnaireOptionsDropdown
-import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionnaireOptionsRadioButton
-import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionnaireOptionsText
 import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 
 class StudyFlowFragmentManager : AppCompatActivity() {
@@ -40,7 +35,7 @@ class StudyFlowFragmentManager : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        title = "UXMobile"
+        title = getString(R.string.plugin_name)
         setContentView(R.layout.activity_study_flow)
 
         fragment_base_holder.setBackgroundColor(Color.parseColor(StudyDataHolder.getBackgroundColorPrimary()))                      // set background color from config
@@ -104,14 +99,14 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         when (id) {
             R.id.button_reject_study_flow_action_bar -> {
                 val builder = AlertDialog.Builder(this, R.style.MyDialogTheme)
-                builder.setTitle("UXMOBILE")
-                builder.setMessage("PRAJETE SI UKONCIT STUDIU?")
+                builder.setTitle(getString(R.string.plugin_name))
+                builder.setMessage(getString(R.string.end_study))
 
-                builder.setNegativeButton("NIE") { dialog, which ->
+                builder.setNegativeButton(getString(R.string.no)) { dialog, which ->
                     dialog.cancel()
                 }
 
-                builder.setPositiveButton("ANO") { dialog, which ->
+                builder.setPositiveButton(getString(R.string.yes)) { dialog, which ->
                     showRejectedFragment()
                 }
 
@@ -142,7 +137,13 @@ class StudyFlowFragmentManager : AppCompatActivity() {
      * Show another task (task fragment), check if there is some task to be executed, otherwise show post study questionnaire
      */
     private fun onTaskCompletion() {
-        showFragment(PostTaskQuestionnaire())
+//        showFragment(PostTaskQuestionnaire())
+        // last task
+        if (numberOfAvailableTasks == 0) {
+            showFragment(PostStudyQuestionnaire())
+        } else {
+            showFragment(TaskFragment())
+        }
     }
 
     /**
@@ -264,81 +265,27 @@ class StudyFlowFragmentManager : AppCompatActivity() {
                 return data!!
             }
             is PreStudyQuestionnaire -> {
-                val data = StudyDataHolder.getQuestionData(Constants.QUESTION_PRE_STUDY)
-                findProperQuestionType(actualFragment, data.answerType)
-                return data
-            }
-            is PostTaskQuestionnaire -> {
-                val data = StudyDataHolder.getQuestionData(Constants.QUESTION_TASK)
-                findProperQuestionType(actualFragment, data.answerType)
-                return data
+                return StudyDataHolder.study?.preStudyQuestionnaire!!
             }
             is PostStudyQuestionnaire -> {
-                val data = StudyDataHolder.getQuestionData(Constants.QUESTION_POST_STUDY)
-                findProperQuestionType(actualFragment, data.answerType)
-                return data
+                return StudyDataHolder.study?.postStudyQuestionnaire!!
             }
             is RejectedMessageFragment -> {
-                return StudyDataHolder.getMessageData(Constants.MESSAGE_REJECT)
+                return StudyDataHolder.study?.rejectMessage!!
             }
             is WelcomeMessageFragment -> {
-                return StudyDataHolder.getMessageData(Constants.MESSAGE_WELCOME)
+                return StudyDataHolder.study?.welcomeMessage!!
             }
             is InstructionFragment -> {
-                return StudyDataHolder.getMessageData(Constants.INSTRUCTIONS)
+                return StudyDataHolder.study?.instruction!!
             }
             is TaskFragment -> {
                 return StudyDataHolder.tasks
             }
             is ThankYouMessageFragment -> {
-                return StudyDataHolder.getMessageData(Constants.MESSAGE_COMPLETE)
+                return StudyDataHolder.study?.thankYouMessage!!
             }
         }
         return ""
-    }
-
-    fun findProperQuestionType(fragment: Fragment, answerType: String) {
-        when (answerType) {
-            Constants.QUESTION_TYPE_INPUT -> {
-                setQuestionTypeText(fragment, true)
-            }
-            Constants.QUESTION_TYPE_TEXT_AREA -> {
-                setQuestionTypeText(fragment, false)
-            }
-            Constants.QUESTION_TYPE_DROPDOWN -> {
-                setQuestionTypeFragment(
-                    fragment,
-                    FragmentQuestionnaireOptionsDropdown()
-                )
-            }
-            Constants.QUESTION_TYPE_RADIO_BUTTON -> {
-                setQuestionTypeFragment(
-                    fragment,
-                    FragmentQuestionnaireOptionsRadioButton()
-                )
-            }
-            Constants.QUESTION_TYPE_CHECKBOX -> {
-                setQuestionTypeFragment(
-                    fragment,
-                    FragmentQuestionnaireOptionsCheckbox()
-                )
-            }
-        }
-    }
-
-    private fun setQuestionTypeText(fragment: Fragment, isSingleLine: Boolean) {
-        val bundle = Bundle()
-        bundle.putBoolean(Constants.EXTRA_IS_SINGLE_LINE, isSingleLine)
-
-        val fragmentQuestionnaireOptionsText = FragmentQuestionnaireOptionsText()
-        fragmentQuestionnaireOptionsText.arguments = bundle
-
-        setQuestionTypeFragment(fragment, fragmentQuestionnaireOptionsText)
-    }
-
-    private fun setQuestionTypeFragment(currentFragment: Fragment, newFragment: Fragment) {
-        val transaction = currentFragment.childFragmentManager.beginTransaction()
-        transaction.replace(R.id.frameLayout_question_holder, newFragment)
-        transaction.commit()
     }
 }

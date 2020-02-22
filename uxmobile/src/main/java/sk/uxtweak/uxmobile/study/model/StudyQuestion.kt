@@ -2,35 +2,36 @@ package sk.uxtweak.uxmobile.study.model
 
 import com.google.gson.annotations.SerializedName
 
+
 /**
- * Created by Kamil Macek on 11. 2. 2020.
+ * Created by Kamil Macek on 21.2.2020.
  */
 data class StudyQuestion(
 
-    @SerializedName("type")
-    val type: String,
+    @SerializedName("id")
+    val id: String,
 
-    @SerializedName("atTask")
-    val atTask: Int,
+    @SerializedName("name")
+    val name: String,
 
-    @SerializedName("title")
-    val title: String,
+    @SerializedName("question_required")
+    val questionRequired: Boolean,
 
     @SerializedName("description")
     val description: String,
 
-    @SerializedName("order")
-    val order: Int,
-
-    @SerializedName("answerType")
+    @SerializedName("answer_type")
     val answerType: String,
 
-    @SerializedName("answerOptions")
-    val answerOptions: String,
+    @SerializedName("answer_required")
+    val answerRequired: String,
 
-    @SerializedName("required")
-    val required: Boolean,
+    @SerializedName("reason_needed")
+    val reasonNeeded: Boolean,
 
-    @SerializedName("randomizeOptions")
-    val randomizeOptions: Boolean
+    @SerializedName("question_options")
+    val questionOptions: Array<String>,
+
+    @SerializedName("rule_values")
+    val ruleValues: Array<String>
 )

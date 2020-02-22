@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName
 /**
  * Created by Kamil Macek on 21.2.2020.
  */
-data class RuleAnswer(
+data class QuestionAnswer(
 
     @SerializedName("id")
     val id: String,

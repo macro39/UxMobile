@@ -1,18 +1,20 @@
 package sk.uxtweak.uxmobile.study.study_flow
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_base_questionaire.*
 import sk.uxtweak.uxmobile.R
-import sk.uxtweak.uxmobile.study.model.StudyQuestion
+import sk.uxtweak.uxmobile.study.model.QuestionAnswer
+import sk.uxtweak.uxmobile.study.model.StudyQuestionnaire
+import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionOption
 
 /**
  * Created by Kamil Macek on 27. 1. 2020.
  */
-class PostStudyQuestionnaire : Fragment() {
+class PostStudyQuestionnaire : FragmentQuestionOption() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -25,13 +27,29 @@ class PostStudyQuestionnaire : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val question: StudyQuestion = (activity as StudyFlowFragmentManager).getData(this) as StudyQuestion
+        val question: StudyQuestionnaire =
+            (activity as StudyFlowFragmentManager).getData(this) as StudyQuestionnaire
 
-        textView_question_title.text = question.title
-        textView_question_description.text = question.description
+        configure(
+            question.title,
+            question.description,
+            question.questions,
+            this
+        )
 
         button_questionnaire_next.setOnClickListener {
-            (activity as StudyFlowFragmentManager).showNextFragment(this)
+            if (!nextOnClick()) {
+                // TODO call server
+
+                for (questionAnswer: QuestionAnswer in questionAnswers) {
+                    Log.d(
+                        "PostStudyQuestionnaire",
+                        questionAnswer.id + " - " + questionAnswer.answers.asList().toString()
+                    )
+                }
+
+                (activity as StudyFlowFragmentManager).showNextFragment(this)
+            }
         }
     }
 }

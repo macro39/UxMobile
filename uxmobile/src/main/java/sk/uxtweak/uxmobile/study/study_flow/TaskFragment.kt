@@ -36,7 +36,8 @@ class TaskFragment : Fragment() {
 
 
         var marked = false
-        for (studyTask : StudyTask in tasks) {
+        var counter = 0
+        for (studyTask: StudyTask in tasks) {
 
             if (studyTask.accomplished) {
                 continue
@@ -47,10 +48,12 @@ class TaskFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            radioButton.text = studyTask.title
+            radioButton.text = studyTask.name
             radioButton.setTextColor(Color.BLACK)
             radioButton.text
-            radioButton.id = studyTask.taskId.toInt()
+            radioButton.id = counter
+
+            counter++
 
             if (!marked) {
                 radioButton.isChecked = true
@@ -61,7 +64,7 @@ class TaskFragment : Fragment() {
         }
 
         button_task_admit.setOnClickListener {
-            StudyDataHolder.doingTaskWithId = radioGroup?.checkedRadioButtonId!!
+            StudyDataHolder.doingTaskWithName = tasks[radioGroup?.checkedRadioButtonId!!].name
             (activity as StudyFlowFragmentManager).studyAccepted(true)
         }
 

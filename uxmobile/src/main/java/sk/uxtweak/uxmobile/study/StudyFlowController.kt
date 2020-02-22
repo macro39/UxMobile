@@ -55,21 +55,8 @@ class StudyFlowController(
         val dummyStudyResponse: Study =
             gson.fromJson(dummyResponseData(), Study::class.java)
 
-        // dummy data
-        StudyDataHolder.tasks = listOf(
-            StudyTask(
-                1,
-                "CREATE NEW APPOINTMENT ON 27.05.2022",
-                false
-            ),
-            StudyTask(
-                2,
-                "MARK WHEN YOU HAVE BIRTHDAY",
-                false
-            )
-        )
-
         StudyDataHolder.study = dummyStudyResponse
+        StudyDataHolder.tasks = StudyDataHolder.study!!.studyTasks
 
         StudyDataHolder.numberOfTasks = StudyDataHolder.tasks.size
     }
@@ -121,98 +108,87 @@ class StudyFlowController(
 
     private fun dummyResponseData(): String {
         return "{\n" +
-            "    \"studyId\": 1,\n" +
-            "    \"name\": \"STUDIA C. 1 POSTGRES\",\n" +
-            "    \"studyBrandings\": {\n" +
-            "        \"primaryColor\": \"#008577\",\n" +
-            "        \"secondaryColor\": \"#FFF57C00\",\n" +
-            "        \"hibernateLazyInitializer\": {}\n" +
-            "    },\n" +
-            "    \"studyTasks\": [\n" +
-            "        {\n" +
-            "            \"taskId\": 1,\n" +
-            "            \"title\": \"TASK NO. 1\"\n" +
+            "        \"name\": \"Study 1\",\n" +
+            "        \"id\": \"1\",\n" +
+            "\t\"studyBrandings\": {\n" +
+            "        \t\"primaryColor\": \"#008570\",\n" +
+            "        \t\"secondaryColor\": \"#FFF57C00\"\n" +
+            "    \t},\n" +
+            "        \"respondent_id\": \"RESPONDENT_ID\",\n" +
+            "        \"closing_rule\": \"string\",\n" +
+            "        \"closing_date\": 122,\n" +
+            "        \"respondent_limit\": 100,\n" +
+            "        \"welcome_message\": {\n" +
+            "\t\t\"title\": \"Welcome!\",\n" +
+            "            \t\"content\": \"Welcome to this study, and thank you for agreeing to participate! The activity shouldn't take longer than 30 to 60 minutes to complete. Your response will help us to better understand how people behave in our app.\"\n" +
+            "\t},\n" +
+            "        \"introduction\": {\n" +
+            "\t\t\"title\": \"Instructions\",\n" +
+            "            \t\"content\": \"<b>Here's how it works:</b><ol><li>You will be presented with a task.</li><li>After reading the task, you will be redirected to a website.</li><li>Click through the website as you naturally would in order to fulfill the task.</li><li>Once you arrive at the intended destination, click <b>Task done</b> and the task will end.</li><li>Repeat the previous steps for all the studyTasks to complete the RePlay study.</li></ol><em>This is not a test of your ability, there are no right or wrong answers.</em><br><b>That's it, let's get started!</b></div>\"\n" +
+            "\t},\n" +
+            " \t\"reject_message\": {\n" +
+            "\t\t\"title\": \"Thank you and hope we see you next time!\",\n" +
+            "            \t\"content\": \"We are a little sad, but also next day is there a opportunity to change your favorite application by participating in study!\"\n" +
+            "\t},\n" +
+            "        \"pre_study_questionnaire\": {\n" +
+            "\t    \t\"title\": \"PRE STUDY QUESTIONNAIRE\",\n" +
+            "            \t\"description\": \"Please fill this questionnaire\",\n" +
+            "            \t\"questions\": [\n" +
+            "                \t{\n" +
+            "                    \t\"name\": \"StudyQuestion name\",\n" +
+            "                    \t\"question_required\": true,\n" +
+            "                    \t\"description\": \"Have you ever been working on study?\",\n" +
+            "                    \t\"answer_type\": \"radiobtn\",\n" +
+            "                    \t\"answer_required\": true,\n" +
+            "                    \t\"reason_needed\": false,\n" +
+            "                    \t\"question_options\": [\n" +
+            "                        \t\"yes\",\n" +
+            "\t\t\t\t\"no\"\n" +
+            "                    \t\t]\n" +
+            "                \t}\n" +
+            "            \t]\n" +
             "        },\n" +
-            "        {\n" +
-            "            \"taskId\": 2,\n" +
-            "            \"title\": \"TASK NO. 2\"\n" +
-            "        }\n" +
-            "    ],\n" +
-            "    \"studyMessages\": [\n" +
-            "        {\n" +
-            "            \"type\": \"completed\",\n" +
-            "            \"title\": \"Thank you, that's all!\",\n" +
-            "            \"content\": \"All done, awesome! Thanks again for your participation. Your feedback is incredibly useful in helping us understand how people interact with our app, so that we can make our application easier to use.\\n\\nYou may now going back to your work!\"\n" +
+            "        \"task_list\": [\n" +
+            "            {\n" +
+            "                \"name\": \"Task n.1\",\n" +
+            "                \"description\": \"MARK WHEN YOU HAVE BIRTHDAY\",\n" +
+            "                \"starting_screen\": \"FILL\",\n" +
+            "                \"closing_screens\": [\n" +
+            "                    \"FILL\"\n" +
+            "                ]\n" +
+            "            },\n" +
+            "\t    {\n" +
+            "                \"name\": \"Task n.2\",\n" +
+            "                \"description\": \"REATE NEW APPOINTMENT ON 27.05.2022\",\n" +
+            "                \"starting_screen\": \"FILL\",\n" +
+            "                \"closing_screens\": [\n" +
+            "                    \"FILL\"\n" +
+            "                ]\n" +
+            "            }\n" +
+            "        ],\n" +
+            "        \"post_study_questionnaire\": {\n" +
+            "\t\t\"title\": \"POST STUDY QUESTIONNAIRE\",\n" +
+            "            \t\"description\": \"Please fill this questionnaire\",\n" +
+            "            \t\"questions\": [\n" +
+            "                \t{\n" +
+            "                    \t\"name\": \"StudyQuestion name\",\n" +
+            "                    \t\"question_required\": true,\n" +
+            "                    \t\"description\": \"Were tasks hard to complete?\",\n" +
+            "                    \t\"answer_type\": \"radiobtn\",\n" +
+            "                    \t\"answer_required\": true,\n" +
+            "                    \t\"reason_needed\": false,\n" +
+            "                    \t\"question_options\": [\n" +
+            "                        \t\"yes\",\n" +
+            "\t\t\t\t\"no\"\n" +
+            "                    \t\t]\n" +
+            "                \t}\n" +
+            "            \t]\n" +
             "        },\n" +
-            "        {\n" +
-            "            \"type\": \"welcome\",\n" +
-            "            \"title\": \"Welcome!\",\n" +
-            "            \"content\": \"Welcome to this study, and thank you for agreeing to participate! The activity shouldn't take longer than 30 to 60 minutes to complete. Your response will help us to better understand how people behave in our app.\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"type\": \"closed\",\n" +
-            "            \"title\": \"Sorry, this study has concluded\",\n" +
-            "            \"content\": \"Sorry, this study has concluded\\nThis study has been closed and so it's no longer possible to participate. If you think that this is a mistake and you should still be able to participate, please contact the conductor of the study. We hope to see you again.\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"type\": \"rejected\",\n" +
-            "            \"title\": \"Thank you and hope we see you next time!\",\n" +
-            "            \"content\": \"We are a little sad, but also next day is there a opportunity to change your favorite application by participating in study!\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"type\": \"instructions\",\n" +
-            "            \"title\": \"Instructions\",\n" +
-            "            \"content\": \"<b>Here's how it works:</b><ol><li>You will be presented with a task.</li><li>After reading the task, you will be redirected to a website.</li><li>Click through the website as you naturally would in order to fulfill the task.</li><li>Once you arrive at the intended destination, click <b>Task done</b> and the task will end.</li><li>Repeat the previous steps for all the studyTasks to complete the RePlay study.</li></ol><em>This is not a test of your ability, there are no right or wrong answers.</em><br><b>That's it, let's get started!</b></div>\"\n" +
-            "        }\n" +
-            "    ],\n" +
-            "    \"studyQuestions\": [\n" +
-            "        {\n" +
-            "            \"type\": \"screening_qst\",\n" +
-            "            \"atTask\": 1,\n" +
-            "            \"title\": \"DOTAZNIK PARTICIPANTA\",\n" +
-            "            \"description\": \"Vyplne prosim dotaznik, aby sme mohli zistit, ci ste vhodnym respondentom\",\n" +
-            "            \"order\": 1,\n" +
-            "            \"answerType\": \"dropdown\",\n" +
-            "            \"answerOptions\": \"{\\\"id\\\":123,\\\"title\\\":\\\"AKE MAS POHLAVIE?\\\",\\\"options\\\":[\\\"MUZ\\\", \\\"ZENA\\\"] }\",\n" +
-            "            \"required\": true,\n" +
-            "            \"randomizeOptions\": true\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"type\": \"tasks_qst\",\n" +
-            "            \"atTask\": 1,\n" +
-            "            \"title\": \"DOTAZNIK PO ULOHE\",\n" +
-            "            \"description\": \"Vyplne prosim dotaznik, aby sme mohli zistit, ci ste vhodnym respondentom\",\n" +
-            "            \"order\": 1,\n" +
-            "            \"answerType\": \"radiobtn\",\n" +
-            "            \"answerOptions\": \"{\\\"id\\\":123,\\\"title\\\":\\\"AKE MAS POHLAVIE?\\\",\\\"options\\\":[\\\"MUZ\\\", \\\"ZENA\\\"] }\",\n" +
-            "            \"required\": true,\n" +
-            "            \"randomizeOptions\": true\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"type\": \"pre_qst\",\n" +
-            "            \"atTask\": 1,\n" +
-            "            \"title\": \"DOTAZNIK PRED STUDIOU\",\n" +
-            "            \"description\": \"Vyplne prosim dotaznik, aby sme mohli zistit, ci ste vhodnym respondentom\",\n" +
-            "            \"order\": 1,\n" +
-            "            \"answerType\": \"textarea\",\n" +
-            "            \"answerOptions\": \"{\\\"id\\\":123,\\\"title\\\":\\\"AKE MAS POHLAVIE?\\\",\\\"options\\\":[\\\"MUZ\\\", \\\"ZENA\\\"] }\",\n" +
-            "            \"required\": true,\n" +
-            "            \"randomizeOptions\": true\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"type\": \"post_qst\",\n" +
-            "            \"atTask\": 1,\n" +
-            "            \"title\": \"DOTAZNIK PO STUDII\",\n" +
-            "            \"description\": \"Vyplne prosim dotaznik, aby sme mohli zistit, ci ste vhodnym respondentom\",\n" +
-            "            \"order\": 1,\n" +
-            "            \"answerType\": \"radiobtn\",\n" +
-            "            \"answerOptions\": \"{\\\"id\\\":123,\\\"title\\\":\\\"AKE MAS POHLAVIE?\\\",\\\"options\\\":[\\\"MUZ\\\", \\\"ZENA\\\"] }\",\n" +
-            "            \"required\": true,\n" +
-            "            \"randomizeOptions\": true\n" +
-            "        }\n" +
-            "    ],\n" +
-            "    \"hibernateLazyInitializer\": {}\n" +
-            "}"
+            "        \"thank_you_message\": {\n" +
+            "\t\t\"title\": \"Thank you, that's all!\",\n" +
+            "            \t\"content\": \"All done, awesome! Thanks again for your participation. Your feedback is incredibly useful in helping us understand how people interact with our app, so that we can make our application easier to use. You may now going back to your work!\"\t\n" +
+            "\t}\n" +
+            "    }"
     }
 
     private fun setupBroadcastReceiver() {
@@ -291,7 +267,7 @@ class StudyFlowController(
 
         // set executed task as accomplished
         val selectedStudyTask: StudyTask =
-            StudyDataHolder.tasks.single { s -> s.taskId == StudyDataHolder.doingTaskWithId.toLong() }
+            StudyDataHolder.tasks.single { s -> s.name == StudyDataHolder.doingTaskWithName }
         selectedStudyTask.accomplished = true
 
         // decrement number of available tasks

@@ -7,21 +7,45 @@ import com.google.gson.annotations.SerializedName
  */
 data class Study(
 
-    @SerializedName("studyId")
-    val studyId: Long,
-
     @SerializedName("name")
     val name: String,
+
+    @SerializedName("id")
+    val studyId: String,
 
     @SerializedName("studyBrandings")
     val studyBrandings: StudyBrandings,
 
-    @SerializedName("studyTasks")
+    @SerializedName("respondent_id")
+    val respondentId: String,
+
+    @SerializedName("closing_rule")
+    val closingRule: String,
+
+    @SerializedName("closing_date")
+    val closingDate: Int,
+
+    @SerializedName("respondent_limit")
+    val respondentLimit: Int,
+
+    @SerializedName("welcome_message")
+    val welcomeMessage: StudyMessage,
+
+    @SerializedName("introduction")
+    val instruction: StudyMessage,
+
+    @SerializedName("reject_message")
+    val rejectMessage: StudyMessage,
+
+    @SerializedName("pre_study_questionnaire")
+    val preStudyQuestionnaire: StudyQuestionnaire,
+
+    @SerializedName("task_list")
     val studyTasks: List<StudyTask>,
 
-    @SerializedName("studyMessages")
-    val studyMessages: List<StudyMessage>,
+    @SerializedName("post_study_questionnaire")
+    val postStudyQuestionnaire: StudyQuestionnaire,
 
-    @SerializedName("studyQuestions")
-    val studyQuestions: List<StudyQuestion>
+    @SerializedName("thank_you_message")
+    val thankYouMessage: StudyMessage
 )

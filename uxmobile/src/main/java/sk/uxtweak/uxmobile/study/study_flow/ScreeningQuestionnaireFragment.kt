@@ -1,28 +1,22 @@
 package sk.uxtweak.uxmobile.study.study_flow
 
 import android.os.Bundle
+import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import android.view.WindowManager
 import kotlinx.android.synthetic.main.fragment_base_questionaire.*
 import sk.uxtweak.uxmobile.R
+import sk.uxtweak.uxmobile.study.model.QuestionAnswer
 import sk.uxtweak.uxmobile.study.model.QuestionnaireRules
-import sk.uxtweak.uxmobile.study.model.Question
+import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionOption
 
 /**
  * Created by Kamil Macek on 19. 1. 2020.
  */
-class ScreeningQuestionnaireFragment : Fragment() {
-
-    companion object {
-        lateinit var currentRule: Question
-        var isSuitable = false
-    }
-
-    private lateinit var ruleToAnswers: MutableList<Question>
-    private var ruleAnswering = 0
-    private var totalRules = 0
+class ScreeningQuestionnaireFragment : FragmentQuestionOption() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,38 +32,36 @@ class ScreeningQuestionnaireFragment : Fragment() {
         val questionnaireRules: QuestionnaireRules =
             (activity as StudyFlowFragmentManager).getData(this) as QuestionnaireRules
 
-        textView_question_title.text = questionnaireRules.title
-        textView_question_description.text = questionnaireRules.description
-
-        ruleToAnswers = questionnaireRules.rules.toMutableList()
-        totalRules = questionnaireRules.rules.size
-
-        showNextRule()
-
+        configure(
+            questionnaireRules.title,
+            questionnaireRules.description,
+            questionnaireRules.rules,
+            this
+        )
 
         button_questionnaire_next.setOnClickListener {
-            if (!isSuitable) {
-                (activity as StudyFlowFragmentManager).showRejectedFragment()
-            } else {
-                if (ruleToAnswers.size != 0) {
-                    showNextRule()
-                } else {
-                    (activity as StudyFlowFragmentManager).showNextFragment(this)
+            if (!nextOnClick()) {
+                // TODO call server to get study/default behaviour
+                progressBar_questionnaire.visibility = View.VISIBLE
+                (activity as StudyFlowFragmentManager).window.addFlags(
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                )
+
+                for (questionAnswer: QuestionAnswer in questionAnswers) {
+                    Log.d(
+                        "ScreeningQuestionnaire",
+                        questionAnswer.id + " - " + questionAnswer.answers.asList().toString()
+                    )
                 }
+
+                Handler().postDelayed({
+                    progressBar_questionnaire.visibility = View.GONE
+                    (activity as StudyFlowFragmentManager).window.clearFlags(
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                    )
+                    (activity as StudyFlowFragmentManager).showNextFragment(this)
+                }, 3000)
             }
         }
-    }
-
-    private fun showNextRule() {
-        ruleAnswering++
-        updateQuestionIndicator()
-        val rule = ruleToAnswers.first()
-        ruleToAnswers.removeAt(0)
-        currentRule = rule
-        (activity as StudyFlowFragmentManager).findProperQuestionType(this, rule.answerType)
-    }
-
-    private fun updateQuestionIndicator() {
-        textView_question_indicator.text = "Question " + ruleAnswering + "/" + totalRules
     }
 }

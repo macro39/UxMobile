@@ -4,9 +4,9 @@ import com.google.gson.annotations.SerializedName
 
 
 /**
- * Created by Kamil Macek on 21.2.2020.
+ * Created by Kamil Macek on 22.2.2020.
  */
-data class QuestionnaireRules(
+data class StudyQuestionnaire(
 
     @SerializedName("title")
     val title: String,
@@ -14,6 +14,6 @@ data class QuestionnaireRules(
     @SerializedName("description")
     val description: String,
 
-    @SerializedName("rules")
-    val rules: List<StudyQuestion>
+    @SerializedName("questions")
+    val questions: List<StudyQuestion>
 )

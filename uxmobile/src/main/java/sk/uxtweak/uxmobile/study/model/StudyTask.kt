@@ -7,11 +7,17 @@ import com.google.gson.annotations.SerializedName
  */
 data class StudyTask(
 
-    @SerializedName("taskId")
-    val taskId: Long,
+    @SerializedName("name")
+    val name: String,
 
-    @SerializedName("title")
-    val title: String,
+    @SerializedName("description")
+    val description: String,
+
+    @SerializedName("starting_screen")
+    val startingScreen: String,
+
+    @SerializedName("closing_screens")
+    val closingScreens: List<String>,
 
     var accomplished: Boolean = false
 )
