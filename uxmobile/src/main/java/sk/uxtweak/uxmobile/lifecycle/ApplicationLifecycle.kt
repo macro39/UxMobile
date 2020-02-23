@@ -34,7 +34,7 @@ object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
         application.registerComponentCallbacks(this)
     }
 
-    fun setForegroundScopeObserver(observer: LifecycleObserver) {
+    internal fun setForegroundScopeObserver(observer: LifecycleObserver) {
         foregroundScopeObserver = observer
     }
 
