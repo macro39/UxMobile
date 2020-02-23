@@ -3,21 +3,17 @@ package sk.uxtweak.uxmobile.core
 import android.app.Activity
 import android.os.SystemClock
 import android.util.Base64
-import android.util.DisplayMetrics
 import android.util.Log
 import kotlinx.coroutines.*
 import sk.uxtweak.uxmobile.ForegroundScope
 import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
-import sk.uxtweak.uxmobile.displaySize
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
-import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.model.SessionEvent
 import sk.uxtweak.uxmobile.model.events.Event
-import sk.uxtweak.uxmobile.server.SessionService
 import java.nio.ByteBuffer
 
 class EventsController(
-    uiEventRecorder: UiEventRecorder,
+    eventRecorder: EventRecorder,
     private val serverManager: ServerManager
 ) : LifecycleObserverAdapter() {
     private var sessionId: String? = null
@@ -26,18 +22,18 @@ class EventsController(
 
     init {
         ApplicationLifecycle.addObserver(this)
-        uiEventRecorder.addOnEventListener(::onEvent)
+        eventRecorder.addOnEventListener(::onEvent)
     }
 
     override fun onFirstActivityStarted(activity: Activity) {
         generateSessionId()
-        sendEvent(SessionEvent(sessionId, SystemClock.elapsedRealtime(), Event.SessionStartEvent))
+        sendEvent(SessionEvent(sessionId, SystemClock.elapsedRealtime(), Event.StartEvent))
         registerVideoChunkListener()
     }
 
     override fun onLastActivityStopped(activity: Activity) {
         unregisterVideoChunkListener()
-        sendEvent(SessionEvent(sessionId, SystemClock.elapsedRealtime(), Event.SessionEndEvent))
+        sendEvent(SessionEvent(sessionId, SystemClock.elapsedRealtime(), Event.EndEvent))
     }
 
     private fun onEvent(event: Event) {

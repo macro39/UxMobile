@@ -33,11 +33,6 @@ class WindowCallbackConnector(activity: Activity? = null) {
     operator fun plusAssign(listener: (MotionEvent) -> Unit) = addListener(listener)
     operator fun minusAssign(listener: (MotionEvent) -> Unit) = removeListener(listener)
 
-    private fun destroy() {
-        unregisterWindowCallback()
-        currentActivity = null
-    }
-
     private fun registerWindowCallback() {
         val previousCallback = currentActivity?.window?.callback
         if (previousCallback is WindowCallbackAdapter) {

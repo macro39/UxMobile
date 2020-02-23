@@ -7,12 +7,11 @@ import android.os.Environment
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import sk.uxtweak.uxmobile.UxMobile.start
+import sk.uxtweak.uxmobile.core.EventRecorder
 import sk.uxtweak.uxmobile.core.EventsController
 import sk.uxtweak.uxmobile.core.ServerManager
-import sk.uxtweak.uxmobile.core.UiEventRecorder
+import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.net.WebSocketClient
 import java.io.File
@@ -22,10 +21,6 @@ import java.io.FileNotFoundException
  * Main class that initializes agent for tracking events. To start the module, call [start].
  */
 object UxMobile {
-    private const val TAG = "UxMobile"
-    private const val API_KEY = "UxMobileApiKey"
-    private const val API_KEY_FILE = "UxMobile/api.key"
-
     private var started = false
 
     /**
@@ -34,7 +29,7 @@ object UxMobile {
      */
     private lateinit var application: Application
 
-    private lateinit var uiEventRecorder: UiEventRecorder
+    private lateinit var eventRecorder: EventRecorder
     private lateinit var eventsSocket: WebSocketClient
     private lateinit var serverManager: ServerManager
     private lateinit var eventsController: EventsController
@@ -86,12 +81,14 @@ object UxMobile {
         ForegroundActivityHolder.registerObserver()
 
         eventsSocket = WebSocketClient(BuildConfig.COLLECTOR_URL)
-        eventsSocket.autoReconnect = true
-        GlobalScope.launch { eventsSocket.connect() }
-
         serverManager = ServerManager(eventsSocket)
-        uiEventRecorder = UiEventRecorder(application)
-        eventsController = EventsController(uiEventRecorder, serverManager)
+        serverManager.startLoop()
+
+        eventRecorder = EventRecorder(application)
+        eventRecorder.registerObserver(ApplicationLifecycle)
+
+        eventsController = EventsController(eventRecorder, serverManager)
+        eventsController.registerObserver(ApplicationLifecycle)
     }
 
     /**
@@ -130,4 +127,8 @@ object UxMobile {
         }
         return apiKeyFile.readText()
     }
+
+    private const val TAG = "UxMobile"
+    private const val API_KEY = "UxMobileApiKey"
+    private const val API_KEY_FILE = "UxMobile/api.key"
 }

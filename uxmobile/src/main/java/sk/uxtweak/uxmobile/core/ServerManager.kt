@@ -15,8 +15,9 @@ class ServerManager(private val socket: WebSocketClient) {
     private val rpcManager = RpcManager(socket)
     private val sessionService = rpcManager.create(SessionService::class.java)
 
-    init {
+    fun startLoop() {
         GlobalScope.launch(Dispatchers.IO) {
+            socket.autoReconnect = true
             socket.setOnConnected(::onSocketConnected)
             socket.connect()
             loopSendingAllMessages()

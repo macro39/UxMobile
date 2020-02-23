@@ -11,7 +11,7 @@ abstract class BasicListenerAdapter : BasicListener {
     override fun onSetAuthToken(token: String?, socket: Socket?) {}
     override fun onConnected(socket: Socket, headers: MutableMap<String, MutableList<String>>?) {}
     override fun onDisconnected(
-        socket: Socket?,
+        socket: Socket,
         serverCloseFrame: WebSocketFrame?,
         clientCloseFrame: WebSocketFrame?,
         closedByServer: Boolean

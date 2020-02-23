@@ -13,7 +13,7 @@ import sk.uxtweak.uxmobile.model.events.Event
 
 typealias EventListener = (Event) -> Unit
 
-class UiEventRecorder(context: Context) : LifecycleObserverAdapter() {
+class EventRecorder(context: Context) : LifecycleObserverAdapter() {
     private var orientation = 0
     private var configurationRecentlyChanged = false
 
@@ -24,7 +24,6 @@ class UiEventRecorder(context: Context) : LifecycleObserverAdapter() {
     private val eventListeners = mutableListOf<EventListener>()
 
     init {
-        ApplicationLifecycle.addObserver(this)
         registerExceptionHandler()
         connector += ::onTouchEvent
     }

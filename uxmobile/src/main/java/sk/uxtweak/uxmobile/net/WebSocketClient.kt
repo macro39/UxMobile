@@ -1,5 +1,6 @@
 package sk.uxtweak.uxmobile.net
 
+import com.neovisionaries.ws.client.WebSocketFrame
 import io.github.sac.ReconnectStrategy
 import io.github.sac.Socket
 import kotlinx.coroutines.*
@@ -22,6 +23,7 @@ class WebSocketClient(url: String) : BasicListenerAdapter() {
     private val socket = Socket(url)
 
     private var onConnectedListener: () -> Unit = {}
+    private var onDisconnectedListener: () -> Unit = {}
 
     init {
         socket.setListener(object : BasicListenerAdapter() {
@@ -29,11 +31,22 @@ class WebSocketClient(url: String) : BasicListenerAdapter() {
                 socket: Socket,
                 headers: MutableMap<String, MutableList<String>>?
             ) = onConnectedListener()
+
+            override fun onDisconnected(
+                socket: Socket,
+                serverCloseFrame: WebSocketFrame?,
+                clientCloseFrame: WebSocketFrame?,
+                closedByServer: Boolean
+            ) = onDisconnectedListener()
         })
     }
 
     fun setOnConnected(onConnected: () -> Unit) {
         this.onConnectedListener = onConnected
+    }
+
+    fun setOnDisconnected(onDisconnected: () -> Unit) {
+        this.onDisconnectedListener = onDisconnected
     }
 
     suspend fun connect() = withContext(Dispatchers.IO) { socket.connect() }

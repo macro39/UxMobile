@@ -9,7 +9,8 @@ import android.util.Log
 import sk.uxtweak.uxmobile.core.LifecycleObserver
 import java.util.concurrent.CopyOnWriteArrayList
 
-object ApplicationLifecycle : Application.ActivityLifecycleCallbacks, ComponentCallbacks2 {
+object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
+    ComponentCallbacks2 {
     private const val TAG = "UxMobile"
 
     private val observers = CopyOnWriteArrayList<LifecycleObserver>()
@@ -32,11 +33,11 @@ object ApplicationLifecycle : Application.ActivityLifecycleCallbacks, ComponentC
         application.registerComponentCallbacks(this)
     }
 
-    fun addObserver(observer: LifecycleObserver) {
+    override fun addObserver(observer: LifecycleObserver) {
         observers += observer
     }
 
-    fun removeObserver(observer: LifecycleObserver) {
+    override fun removeObserver(observer: LifecycleObserver) {
         observers -= observer
     }
 

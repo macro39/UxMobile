@@ -3,8 +3,8 @@ package sk.uxtweak.uxmobile.model.events
 import com.fasterxml.jackson.annotation.JsonProperty
 
 sealed class Event(val type: Int) {
-    object SessionStartEvent : Event(1)
-    object SessionEndEvent : Event(2)
+    object StartEvent : Event(1)
+    object EndEvent : Event(2)
 
     data class TapEvent(
         val x: Float,
