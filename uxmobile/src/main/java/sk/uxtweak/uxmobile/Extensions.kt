@@ -1,7 +1,9 @@
 package sk.uxtweak.uxmobile
 
+import android.app.Activity
 import android.graphics.Rect
 import android.os.SystemClock
+import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
@@ -12,6 +14,10 @@ import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+
+data class Size(val width: Int, val height: Int)
+
+infix fun Int.with(other: Int) = Size(this, other)
 
 fun View.findViewAt(x: Int, y: Int): View? {
     if (this is ViewGroup) {
@@ -49,3 +55,11 @@ fun ByteBuffer.copy(): ByteBuffer {
     copy.put(this)
     return copy
 }
+
+private val displayMetrics = DisplayMetrics()
+
+val Activity.displaySize: Size
+    get() {
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        return displayMetrics.widthPixels with displayMetrics.heightPixels
+    }

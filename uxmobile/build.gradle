@@ -28,21 +28,25 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            buildConfigField("String", "MAIN_SERVER_URL", "\"ws://vlado5678.ynet.sk:8000/socketcluster/\"")
-            buildConfigField("String", "EVENTS_SERVER_URL", "\"ws://vlado5678.ynet.sk:8000/socketcluster/\"")
+            buildConfigField("String", "COLLECTOR_URL", "\"ws://vlado5678.ynet.sk:8000/socketcluster/\"")
         }
         debug {
-            buildConfigField("String", "MAIN_SERVER_URL", "\"ws://vlado5678.ynet.sk:8000/socketcluster/\"")
-            buildConfigField("String", "EVENTS_SERVER_URL", "\"ws://vlado5678.ynet.sk:8000/socketcluster/\"")
+            buildConfigField("String", "COLLECTOR_URL", "\"ws://vlado5678.ynet.sk:8000/socketcluster/\"")
         }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+        }
+    }
     kotlinOptions {
         jvmTarget = "1.8"
         freeCompilerArgs += "-java-parameters"
+        freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
     }
 }
 
@@ -57,7 +61,8 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.0"
 
-    implementation "androidx.core:core-ktx:1.1.0"
+    implementation "androidx.core:core-ktx:1.2.0"
+    implementation "androidx.appcompat:appcompat:1.1.0"
 
     implementation("io.github.sac:SocketclusterClientJava:1.7.5") {
         exclude group: "org.json", module: "json"
@@ -69,5 +74,8 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:2.10.2"
     implementation "com.fasterxml.jackson.core:jackson-databind:2.10.2"
 
-    testImplementation "junit:junit:4.12"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:1.3.61"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit5:1.3.61"
+    testImplementation "io.mockk:mockk:1.9.3"
+    androidTestImplementation "io.mockk:mockk-android:1.9.3"
 }

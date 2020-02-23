@@ -4,6 +4,10 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import sk.uxtweak.uxmobile.model.events.Event
 
+/**
+ * When registered with [GestureDetector], this class receives motion events, then converts them to
+ * [Event] and dispatches them to registered listeners.
+ */
 class MotionEventConverter(
     private val eventListener: (Event) -> Unit
 ) : GestureDetector.SimpleOnGestureListener() {

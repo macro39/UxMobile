@@ -46,4 +46,8 @@ sealed class Event(val type: Int) {
     data class ExceptionEvent(
         val throwable: Throwable
     ) : Event(10)
+
+    data class VideoChunkEvent(
+        val data: String
+    ) : Event(11)
 }

@@ -9,7 +9,7 @@ object ForegroundActivityHolder : LifecycleObserverAdapter() {
     val foregroundActivity: Activity?
         get() = foregroundActivityReference?.get()
 
-    fun register() {
+    fun registerObserver() {
         ApplicationLifecycle.addObserver(this)
     }
 
@@ -23,8 +23,5 @@ object ForegroundActivityHolder : LifecycleObserverAdapter() {
 }
 
 inline fun ForegroundActivityHolder.withForegroundActivity(action: (Activity) -> Unit) {
-    val activity = foregroundActivity
-    if (activity != null) {
-        action(activity)
-    }
+    foregroundActivity?.let { action(it) }
 }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import sk.uxtweak.uxmobile.model.events.Event
 
 data class SessionEvent(
-    @get:JsonProperty("session_id") val sessionId: String?,
+    @get:JsonProperty("session_id") var sessionId: String?,
     val at: Long,
     val event: Event
 )

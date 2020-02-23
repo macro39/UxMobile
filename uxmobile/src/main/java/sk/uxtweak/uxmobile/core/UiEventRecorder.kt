@@ -1,29 +1,32 @@
 package sk.uxtweak.uxmobile.core
 
 import android.app.Activity
+import android.content.Context
 import android.content.res.Configuration
 import android.view.GestureDetector
 import android.view.MotionEvent
 import sk.uxtweak.uxmobile.ExceptionHandler
 import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
-import sk.uxtweak.uxmobile.adapter.WindowCallbackAdapter
+import sk.uxtweak.uxmobile.adapter.WindowCallbackConnector
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.model.events.Event
 
 typealias EventListener = (Event) -> Unit
 
-class EventRecorder : LifecycleObserverAdapter() {
+class UiEventRecorder(context: Context) : LifecycleObserverAdapter() {
     private var orientation = 0
     private var configurationRecentlyChanged = false
 
-    private val motionEventConverter = MotionEventConverter(::onMotionEvent)
-    private lateinit var gestureDetector: GestureDetector
+    private val motionEventConverter = MotionEventConverter(::onEvent)
+    private val gestureDetector = GestureDetector(context, motionEventConverter)
+    private val connector = WindowCallbackConnector()
 
     private val eventListeners = mutableListOf<EventListener>()
 
     init {
         ApplicationLifecycle.addObserver(this)
         registerExceptionHandler()
+        connector += ::onTouchEvent
     }
 
     fun addOnEventListener(eventListener: EventListener) {
@@ -31,18 +34,12 @@ class EventRecorder : LifecycleObserverAdapter() {
     }
 
     override fun onFirstActivityStarted(activity: Activity) {
-        dispatchEvent(Event.SessionStartEvent)
         orientation = activity.resources.configuration.orientation
-        gestureDetector = GestureDetector(activity.applicationContext, motionEventConverter)
-    }
-
-    override fun onLastActivityStopped(activity: Activity) {
-        dispatchEvent(Event.SessionEndEvent)
     }
 
     override fun onAnyActivityStarted(activity: Activity) {
         handleConfigurationChange(activity)
-        updateActivityCallback(activity)
+        connector.currentActivity = activity
     }
 
     private fun handleConfigurationChange(activity: Activity) {
@@ -50,20 +47,6 @@ class EventRecorder : LifecycleObserverAdapter() {
             dispatchEvent(Event.ActivityStartedEvent(activity.localClassName))
         }
         configurationRecentlyChanged = false
-    }
-
-    private fun updateActivityCallback(activity: Activity) {
-        val previousCallback = activity.window.callback
-        if (previousCallback is WindowCallbackAdapter) {
-            return
-        }
-
-        activity.window.callback = object : WindowCallbackAdapter(previousCallback) {
-            override fun dispatchTouchEvent(event: MotionEvent): Boolean {
-                gestureDetector.onTouchEvent(event)
-                return super.dispatchTouchEvent(event)
-            }
-        }
     }
 
     override fun onConfigurationChanged(configuration: Configuration) {
@@ -74,7 +57,11 @@ class EventRecorder : LifecycleObserverAdapter() {
         }
     }
 
-    private fun onMotionEvent(event: Event) = dispatchEvent(event)
+    private fun onTouchEvent(event: MotionEvent) {
+        gestureDetector.onTouchEvent(event)
+    }
+
+    private fun onEvent(event: Event) = dispatchEvent(event)
 
     private fun dispatchEvent(event: Event) = notifyListeners(event)
 
@@ -86,8 +73,4 @@ class EventRecorder : LifecycleObserverAdapter() {
     }
 
     private fun notifyListeners(event: Event) = eventListeners.forEach { it(event) }
-
-    companion object {
-        private const val TAG = "UxMobile"
-    }
 }

@@ -1,25 +1,32 @@
 package sk.uxtweak.uxmobile
 
+import android.Manifest
 import android.app.Application
 import android.content.pm.PackageManager
+import android.os.Environment
 import android.util.Log
 import androidx.annotation.MainThread
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import sk.uxtweak.uxmobile.UxMobile.start
-import sk.uxtweak.uxmobile.core.EventRecorder
-import sk.uxtweak.uxmobile.core.VideoRecorder
+import sk.uxtweak.uxmobile.core.EventsController
+import sk.uxtweak.uxmobile.core.ServerManager
+import sk.uxtweak.uxmobile.core.UiEventRecorder
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.net.WebSocketClient
-import sk.uxtweak.uxmobile.rpc.RpcManager
-import java.io.IOException
+import java.io.File
+import java.io.FileNotFoundException
 
 /**
- * Main class that initializes agent for tracking events. To start tracking events call [start].
+ * Main class that initializes agent for tracking events. To start the module, call [start].
  */
 object UxMobile {
     private const val TAG = "UxMobile"
     private const val API_KEY = "UxMobileApiKey"
+    private const val API_KEY_FILE = "UxMobile/api.key"
+
+    private var started = false
 
     /**
      * Application Context. Initialized by
@@ -27,12 +34,10 @@ object UxMobile {
      */
     private lateinit var application: Application
 
-    private lateinit var sessionAgent: SessionAgent
-    private lateinit var eventRecorder: EventRecorder
-    private lateinit var videoRecorder: VideoRecorder
+    private lateinit var uiEventRecorder: UiEventRecorder
     private lateinit var eventsSocket: WebSocketClient
-    private lateinit var eventsServer: EventServer
-    private lateinit var rpcManager: RpcManager
+    private lateinit var serverManager: ServerManager
+    private lateinit var eventsController: EventsController
 
     /**
      * Called by [sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycleInitializer] to attach
@@ -73,11 +78,20 @@ object UxMobile {
     fun start(apiKey: String) = startInternal(apiKey)
 
     private fun startInternal(apiKey: String) {
-        ForegroundActivityHolder.register()
-        eventRecorder = EventRecorder()
-        eventsSocket = WebSocketClient(BuildConfig.EVENTS_SERVER_URL)
-        eventsServer = EventServer(eventsSocket)
-        sessionAgent = SessionAgent(eventsServer, eventRecorder)
+        if (started) {
+            throw IllegalStateException("UxMobile has already started!")
+        }
+        started = true
+
+        ForegroundActivityHolder.registerObserver()
+
+        eventsSocket = WebSocketClient(BuildConfig.COLLECTOR_URL)
+        eventsSocket.autoReconnect = true
+        GlobalScope.launch { eventsSocket.connect() }
+
+        serverManager = ServerManager(eventsSocket)
+        uiEventRecorder = UiEventRecorder(application)
+        eventsController = EventsController(uiEventRecorder, serverManager)
     }
 
     /**
@@ -93,5 +107,27 @@ object UxMobile {
         val apiKey = applicationInfo.metaData[API_KEY]
             ?: throw IllegalStateException("API key not specified!")
         return apiKey.toString()
+    }
+
+    /**
+     * Loads API key from internal storage path. The API key file should be stored in specific
+     * file on internal storage on the device.
+     * @return API key
+     * @throws IllegalStateException if app does not have the permission to read from internal storage
+     * @throws FileNotFoundException if internal storage does not contain file with API key in it
+     */
+    @Deprecated("Should not be used on Android 10 or higher")
+    private fun loadApiKeyFromStorage(): String {
+        if (ContextCompat.checkSelfPermission(
+                application,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED) {
+            throw IllegalStateException("Read storage permission is not granted!")
+        }
+        val apiKeyFile = File(Environment.getExternalStorageDirectory(), API_KEY_FILE)
+        if (!apiKeyFile.exists()) {
+            throw FileNotFoundException("File with API key not found!")
+        }
+        return apiKeyFile.readText()
     }
 }

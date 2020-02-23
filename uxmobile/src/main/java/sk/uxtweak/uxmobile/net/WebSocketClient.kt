@@ -11,6 +11,11 @@ import kotlin.coroutines.resumeWithException
 class EmitException(message: String) : IOException(message)
 
 class WebSocketClient(url: String) : BasicListenerAdapter() {
+    var autoReconnect: Boolean = false
+        set(value) {
+            field = value
+            if (value) enableAutoReconnect() else disableAutoReconnect()
+        }
     val isConnected: Boolean
         get() = socket.isconnected()
 
@@ -19,14 +24,6 @@ class WebSocketClient(url: String) : BasicListenerAdapter() {
     private var onConnectedListener: () -> Unit = {}
 
     init {
-        socket.setReconnection(
-            ReconnectStrategy(
-                RECONNECT_INTERVAL,
-                MAX_RECONNECT_INTERVAL,
-                RECONNECT_DECAY,
-                MAX_ATTEMPTS
-            )
-        )
         socket.setListener(object : BasicListenerAdapter() {
             override fun onConnected(
                 socket: Socket,
@@ -69,6 +66,21 @@ class WebSocketClient(url: String) : BasicListenerAdapter() {
                 }
             }
         } ?: false
+    }
+
+    private fun enableAutoReconnect() {
+        socket.setReconnection(
+            ReconnectStrategy(
+                RECONNECT_INTERVAL,
+                MAX_RECONNECT_INTERVAL,
+                RECONNECT_DECAY,
+                MAX_ATTEMPTS
+            )
+        )
+    }
+
+    private fun disableAutoReconnect() {
+        socket.setReconnection(null)
     }
 
     companion object {

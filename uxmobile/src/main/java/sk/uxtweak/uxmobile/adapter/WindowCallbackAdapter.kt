@@ -4,7 +4,7 @@ import android.os.Build
 import android.view.*
 import android.view.accessibility.AccessibilityEvent
 
-open class WindowCallbackAdapter(private val baseCallback: Window.Callback? = null) : Window.Callback {
+open class WindowCallbackAdapter(val baseCallback: Window.Callback? = null) : Window.Callback {
     override fun dispatchKeyEvent(event: KeyEvent?) = baseCallback?.dispatchKeyEvent(event) ?: false
 
     override fun dispatchKeyShortcutEvent(event: KeyEvent?) =
