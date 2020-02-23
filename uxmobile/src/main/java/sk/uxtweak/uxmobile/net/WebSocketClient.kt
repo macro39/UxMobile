@@ -9,8 +9,6 @@ import java.util.concurrent.TimeoutException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-class EmitException(message: String) : IOException(message)
-
 class WebSocketClient(url: String) : BasicListenerAdapter() {
     var autoReconnect: Boolean = false
         set(value) {
