@@ -11,12 +11,11 @@ import kotlinx.android.synthetic.main.fragment_base_questionaire.*
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.model.QuestionAnswer
 import sk.uxtweak.uxmobile.study.model.QuestionnaireRules
-import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionOption
 
 /**
  * Created by Kamil Macek on 19. 1. 2020.
  */
-class ScreeningQuestionnaireFragment : FragmentQuestionOption() {
+class ScreeningQuestionnaireFragment : QuestionOptionsFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,

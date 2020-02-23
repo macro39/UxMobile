@@ -1,7 +1,6 @@
-package sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts
+package sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_fragments
 
 import android.os.Bundle
-import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,7 @@ import sk.uxtweak.uxmobile.study.Constants
 /**
  * Created by Kamil Macek on 21.2.2020.
  */
-class FragmentQuestionnaireOptionsText: Fragment() {
+class FragmentQuestionnaireOptionsText : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,

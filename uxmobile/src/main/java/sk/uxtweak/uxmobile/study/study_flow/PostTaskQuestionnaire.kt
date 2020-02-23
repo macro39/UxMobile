@@ -4,17 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_base_questionaire.*
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.model.StudyQuestionnaire
-import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_layouts.FragmentQuestionOption
 
 /**
  * Created by Kamil Macek on 27. 1. 2020.
  */
 // TODO find out if this will be a part of task
-class PostTaskQuestionnaire : FragmentQuestionOption() {
+class PostTaskQuestionnaire : QuestionOptionsFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,

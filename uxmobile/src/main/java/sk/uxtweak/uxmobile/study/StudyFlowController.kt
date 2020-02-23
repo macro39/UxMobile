@@ -135,6 +135,7 @@ class StudyFlowController(
             "            \t\"description\": \"Please fill this questionnaire\",\n" +
             "            \t\"questions\": [\n" +
             "                \t{\n" +
+            "                    \t\"id\": \"1\",\n" +
             "                    \t\"name\": \"StudyQuestion name\",\n" +
             "                    \t\"question_required\": true,\n" +
             "                    \t\"description\": \"Have you ever been working on study?\",\n" +
@@ -171,6 +172,7 @@ class StudyFlowController(
             "            \t\"description\": \"Please fill this questionnaire\",\n" +
             "            \t\"questions\": [\n" +
             "                \t{\n" +
+            "                    \t\"id\": \"1\",\n" +
             "                    \t\"name\": \"StudyQuestion name\",\n" +
             "                    \t\"question_required\": true,\n" +
             "                    \t\"description\": \"Were tasks hard to complete?\",\n" +
