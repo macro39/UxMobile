@@ -4,35 +4,37 @@ import android.app.Activity
 import android.os.SystemClock
 import android.util.Base64
 import android.util.Log
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import sk.uxtweak.uxmobile.ForegroundScope
 import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
-import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
+import sk.uxtweak.uxmobile.copy
 import sk.uxtweak.uxmobile.model.SessionEvent
 import sk.uxtweak.uxmobile.model.events.Event
+import sk.uxtweak.uxmobile.toHumanUnit
 import java.nio.ByteBuffer
 
 class EventsController(
     eventRecorder: EventRecorder,
+    videoRecorder: VideoRecorder,
     private val serverManager: ServerManager
 ) : LifecycleObserverAdapter() {
     private var sessionId: String? = null
     private val unsentEvents = mutableListOf<SessionEvent>()
-    private val videoRecorder = VideoRecorder(1080, 1920, 1000, 25)
 
     init {
-        ApplicationLifecycle.addObserver(this)
         eventRecorder.addOnEventListener(::onEvent)
+        videoRecorder.setBufferReadyListener(::onBufferReady)
     }
 
     override fun onFirstActivityStarted(activity: Activity) {
         generateSessionId()
         sendEvent(SessionEvent(sessionId, SystemClock.elapsedRealtime(), Event.StartEvent))
-        registerVideoChunkListener()
     }
 
     override fun onLastActivityStopped(activity: Activity) {
-        unregisterVideoChunkListener()
         sendEvent(SessionEvent(sessionId, SystemClock.elapsedRealtime(), Event.EndEvent))
     }
 
@@ -40,17 +42,10 @@ class EventsController(
         sendEvent(SessionEvent(sessionId, SystemClock.elapsedRealtime(), event))
     }
 
-    private fun registerVideoChunkListener() {
-        videoRecorder.setBufferReadyListener {
-            val copy = ByteBuffer.allocate(it.limit())
-            copy.put(it)
-            val data = Base64.encodeToString(copy.array(), Base64.DEFAULT)
-            sendEvent(SessionEvent(sessionId, SystemClock.elapsedRealtime(), Event.VideoChunkEvent(data)))
-        }
-    }
-
-    private fun unregisterVideoChunkListener() {
-        videoRecorder.setBufferReadyListener {  }
+    private fun onBufferReady(buffer: ByteBuffer) {
+        Log.d(TAG, "Video buffer received: ${buffer.limit().toHumanUnit()}")
+        val data = Base64.encodeToString(buffer.copy().array(), Base64.DEFAULT)
+        sendEvent(SessionEvent(sessionId, SystemClock.elapsedRealtime(), Event.VideoChunkEvent(data)))
     }
 
     private fun generateSessionId() = ForegroundScope.launch(Dispatchers.IO) {

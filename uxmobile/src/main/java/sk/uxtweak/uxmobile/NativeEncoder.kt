@@ -10,41 +10,43 @@ import android.media.MediaFormat
 import android.os.Build
 import android.util.Log
 import android.view.Surface
-import java.io.IOException
 import java.nio.ByteBuffer
-
-/**
- * Modified http://bigflake.com/mediacodec/EncodeAndMuxTest.java.txt
- */
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class NativeEncoder(
     width: Int,
     height: Int,
-    private val frameRate: Int = 1,
-    private val bitRate: Int = 150000
+    private val frameRate: Int,
+    private val bitRate: Int
 ) {
     private val screenWidth = if (width % 2 != 0) width + 1 else width
     private val screenHeight = if (height % 2 != 0) height + 1 else height
     private val mediaFormat = MediaFormat.createVideoFormat(MIME_TYPE, screenWidth, screenHeight)
     private val encoder = MediaCodec.createEncoderByType(MIME_TYPE)
-    private val renderingSurface: Surface
     private val rect = Rect(0, 0, screenWidth, screenHeight)
     private val bufferInfo = MediaCodec.BufferInfo()
+    private var renderingSurface: Surface? = null
 
-    var running = true
+    var running = false
 
     private var bufferListener: (ByteBuffer) -> Unit = {}
 
     init {
-        Log.d("UxMobile", "NativeEncoder: ${screenWidth}x$screenHeight")
-        Log.d("UxMobile", "NativeEncoder: Bitrate $bitRate")
-        Log.d("UxMobile", "NativeEncoder: Framerate $frameRate")
+        Log.d(TAG, "NativeEncoder init()")
         initMediaFormat()
-        initEncoder()
+    }
 
+    fun start() {
+        encoder.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
         renderingSurface = encoder.createInputSurface()
         encoder.start()
+        running = true
+    }
+
+    fun stop() {
+        drainEncoder(true)
+        encoder.stop()
+        running = false
     }
 
     fun setBufferListener(listener: (ByteBuffer) -> Unit) {
@@ -65,11 +67,6 @@ class NativeEncoder(
         mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL)
     }
 
-    private fun initEncoder() {
-        encoder.reset()
-        encoder.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
-    }
-
     private fun Surface.tryLockCanvas(dirtyRect: Rect, body: Canvas.() -> Unit) {
         var canvas: Canvas? = null
         try {
@@ -85,8 +82,9 @@ class NativeEncoder(
 
     fun encodeFrame(bitmap: Bitmap) {
         drainEncoder(false)
-        if (renderingSurface.isValid) {
-            renderingSurface.tryLockCanvas(rect) {
+        // TODO: The not-null assertion operator (!!) is a code smell, do not use it in production code
+        if (renderingSurface!!.isValid) {
+            renderingSurface!!.tryLockCanvas(rect) {
                 drawColor(0xff_00_00_00.toInt())
                 drawBitmap(bitmap, 0f, 0f, null)
             }
@@ -137,14 +135,14 @@ class NativeEncoder(
         encoder.stop()
         encoder.release()
 
-        renderingSurface.release()
+        renderingSurface!!.release()
     }
 
     companion object {
         const val TAG = "UxMobile"
         const val MIME_TYPE = "video/avc"
         const val VARIABLE_BIT_RATE = 0
-        const val IFRAME_INTERVAL = 100
+        const val IFRAME_INTERVAL = 5
         const val TIMEOUT_USEC = 10000L
     }
 }

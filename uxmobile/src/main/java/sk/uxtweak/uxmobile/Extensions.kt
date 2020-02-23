@@ -1,17 +1,20 @@
 package sk.uxtweak.uxmobile
 
-import android.app.Activity
+import android.app.Application
+import android.content.Context
 import android.graphics.Rect
 import android.os.SystemClock
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.core.view.children
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
+import java.text.DecimalFormat
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -40,6 +43,7 @@ fun View.findViewAt(x: Int, y: Int): View? {
 fun CoroutineScope.atFixedRate(
     context: CoroutineContext = EmptyCoroutineContext,
     rate: Long,
+    onCancel: suspend CoroutineScope.() -> Unit = {},
     block: suspend CoroutineScope.() -> Unit
 ) = launch(context) {
     var start: Long
@@ -48,6 +52,7 @@ fun CoroutineScope.atFixedRate(
         block()
         delay((start + rate) - SystemClock.elapsedRealtime())
     }
+    onCancel()
 }
 
 fun ByteBuffer.copy(): ByteBuffer {
@@ -58,8 +63,24 @@ fun ByteBuffer.copy(): ByteBuffer {
 
 private val displayMetrics = DisplayMetrics()
 
-val Activity.displaySize: Size
+val Application.displaySize: Size
     get() {
+        val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         return displayMetrics.widthPixels with displayMetrics.heightPixels
     }
+
+private val humanFormat = DecimalFormat("0.##")
+
+fun Long.toHumanUnit(): String {
+    val units = arrayOf("B", "KB", "MB", "GB", "TB", "PB", "EB")
+    var remaining = this.toFloat()
+    var timesDivided = 0
+    while (remaining >= 1024) {
+        remaining /= 1024
+        timesDivided++
+    }
+    return "${humanFormat.format(remaining)} ${units[timesDivided]}"
+}
+
+fun Int.toHumanUnit() = toLong().toHumanUnit()

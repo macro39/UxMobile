@@ -15,25 +15,15 @@ object ForegroundScope : LifecycleObserverAdapter(), CoroutineScope {
     private val isCancelled: Boolean
         get() = coroutineContext[Job]?.isCancelled ?: false
 
-    private var cancelJob: Job? = null
-
     init {
-        ApplicationLifecycle.addObserver(this)
+        ApplicationLifecycle.setForegroundScopeObserver(this)
     }
 
     override fun onFirstActivityStarted(activity: Activity) {
-        cancelJob?.cancel()
         if (isCancelled) {
             reusableContext = SupervisorJob() + Dispatchers.Main
         }
     }
 
-    override fun onLastActivityStopped(activity: Activity) {
-        cancelJob = GlobalScope.launch {
-            delay(CANCEL_TIMEOUT)
-            cancel()
-        }
-    }
-
-    private const val CANCEL_TIMEOUT = 700L
+    override fun onLastActivityStopped(activity: Activity) = cancel()
 }

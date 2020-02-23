@@ -9,10 +9,6 @@ object ForegroundActivityHolder : LifecycleObserverAdapter() {
     val foregroundActivity: Activity?
         get() = foregroundActivityReference?.get()
 
-    fun registerObserver() {
-        ApplicationLifecycle.addObserver(this)
-    }
-
     override fun onAnyActivityStarted(activity: Activity) {
         foregroundActivityReference = WeakReference(activity)
     }

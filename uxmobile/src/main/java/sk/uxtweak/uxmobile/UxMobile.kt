@@ -11,6 +11,7 @@ import sk.uxtweak.uxmobile.UxMobile.start
 import sk.uxtweak.uxmobile.core.EventRecorder
 import sk.uxtweak.uxmobile.core.EventsController
 import sk.uxtweak.uxmobile.core.ServerManager
+import sk.uxtweak.uxmobile.core.VideoRecorder
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.net.WebSocketClient
@@ -30,6 +31,7 @@ object UxMobile {
     private lateinit var application: Application
 
     private lateinit var eventRecorder: EventRecorder
+    private lateinit var videoRecorder: VideoRecorder
     private lateinit var eventsSocket: WebSocketClient
     private lateinit var serverManager: ServerManager
     private lateinit var eventsController: EventsController
@@ -78,7 +80,7 @@ object UxMobile {
         }
         started = true
 
-        ForegroundActivityHolder.registerObserver()
+        ForegroundActivityHolder.registerObserver(ApplicationLifecycle)
 
         eventsSocket = WebSocketClient(BuildConfig.COLLECTOR_URL)
         serverManager = ServerManager(eventsSocket)
@@ -87,7 +89,11 @@ object UxMobile {
         eventRecorder = EventRecorder(application)
         eventRecorder.registerObserver(ApplicationLifecycle)
 
-        eventsController = EventsController(eventRecorder, serverManager)
+        val displaySize = application.displaySize
+        videoRecorder = VideoRecorder(displaySize.width, displaySize.height)
+        videoRecorder.registerObserver(ApplicationLifecycle)
+
+        eventsController = EventsController(eventRecorder, videoRecorder, serverManager)
         eventsController.registerObserver(ApplicationLifecycle)
     }
 

@@ -14,6 +14,7 @@ object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
     private const val TAG = "UxMobile"
 
     private val observers = CopyOnWriteArrayList<LifecycleObserver>()
+    private var foregroundScopeObserver: LifecycleObserver? = null
 
     private var resumed = false
     private var activityCounter = 0
@@ -33,6 +34,10 @@ object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
         application.registerComponentCallbacks(this)
     }
 
+    fun setForegroundScopeObserver(observer: LifecycleObserver) {
+        foregroundScopeObserver = observer
+    }
+
     override fun addObserver(observer: LifecycleObserver) {
         observers += observer
     }
@@ -47,9 +52,11 @@ object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
         activityCounter++
 
         if (isFirstActivity && !anyActivityStarted) {
+            foregroundScopeObserver?.onFirstActivityStarted(activity)
             observers.forEach { it.onFirstActivityStarted(activity) }
             anyActivityStarted = true
         }
+        foregroundScopeObserver?.onAnyActivityStarted(activity)
         observers.forEach { it.onAnyActivityStarted(activity) }
     }
 
@@ -58,8 +65,10 @@ object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
         activityCounter--
 
         observers.forEach { it.onAnyActivityStopped(activity) }
+        foregroundScopeObserver?.onAnyActivityStopped(activity)
         if (isLastActivity && !pausedWithConfig) {
             observers.forEach { it.onLastActivityStopped(activity) }
+            foregroundScopeObserver?.onLastActivityStopped(activity)
             latestConfiguration = null
             anyActivityStarted = false
         }
@@ -68,6 +77,7 @@ object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
     override fun onConfigurationChanged(newConfig: Configuration) {
         latestConfiguration = newConfig
         if (resumed) {
+            foregroundScopeObserver?.onConfigurationChanged(newConfig)
             observers.forEach { it.onConfigurationChanged(newConfig) }
         }
     }
