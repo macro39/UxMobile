@@ -139,7 +139,7 @@ class StudyFlowController(
             "                    \t\"name\": \"StudyQuestion name\",\n" +
             "                    \t\"question_required\": true,\n" +
             "                    \t\"description\": \"Have you ever been working on study?\",\n" +
-            "                    \t\"answer_type\": \"radiobtn\",\n" +
+            "                    \t\"answer_type\": \"checkbox\",\n" +
             "                    \t\"answer_required\": true,\n" +
             "                    \t\"reason_needed\": false,\n" +
             "                    \t\"question_options\": [\n" +
@@ -176,7 +176,7 @@ class StudyFlowController(
             "                    \t\"name\": \"StudyQuestion name\",\n" +
             "                    \t\"question_required\": true,\n" +
             "                    \t\"description\": \"Were tasks hard to complete?\",\n" +
-            "                    \t\"answer_type\": \"radiobtn\",\n" +
+            "                    \t\"answer_type\": \"dropdown\",\n" +
             "                    \t\"answer_required\": true,\n" +
             "                    \t\"reason_needed\": false,\n" +
             "                    \t\"question_options\": [\n" +

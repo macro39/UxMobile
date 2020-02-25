@@ -43,7 +43,7 @@ class PostStudyQuestionnaire : QuestionOptionsFragment() {
                 for (questionAnswer: QuestionAnswer in questionAnswers) {
                     Log.d(
                         "PostStudyQuestionnaire",
-                        questionAnswer.id + " - " + questionAnswer.answers.asList().toString()
+                        questionAnswer.id + " - " + questionAnswer.answers.toString()
                     )
                 }
 

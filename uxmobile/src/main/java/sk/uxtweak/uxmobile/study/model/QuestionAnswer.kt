@@ -12,5 +12,5 @@ data class QuestionAnswer(
     val id: String,
 
     @SerializedName("answers")
-    var answers: Array<String>
+    var answers: ArrayList<String>
 )

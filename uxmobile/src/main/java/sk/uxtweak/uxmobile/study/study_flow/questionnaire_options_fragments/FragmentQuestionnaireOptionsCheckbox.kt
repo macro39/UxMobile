@@ -1,5 +1,6 @@
 package sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -36,7 +37,7 @@ class FragmentQuestionnaireOptionsCheckbox : FragmentQuestionnaireBase(),
 
     override fun addOptions() {
         for (i in question!!.questionOptions.indices) {
-            val checkBox = CheckBox(activity)
+            val checkBox = CheckBox(activity as Context?)
 
             checkBox.id = i
             checkBox.text = question!!.questionOptions[i]
@@ -58,7 +59,7 @@ class FragmentQuestionnaireOptionsCheckbox : FragmentQuestionnaireBase(),
         }
     }
 
-    fun getData(): List<String> {
+    fun getData(): ArrayList<String> {
         return selectedOptions
     }
 }

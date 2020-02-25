@@ -63,32 +63,34 @@ open class QuestionOptionsFragment : Fragment() {
     }
 
     fun nextOnClick(): Boolean {
+
+        // get data from previous question
+        if (getDataFromEditText) {
+            val childFragment =
+                childFragmentManager.fragments.first() as FragmentQuestionnaireOptionsText
+            addQuestionAnswer(
+                QuestionAnswer(
+                    currentQuestion.id,
+                    arrayListOf(childFragment.getTextFromInput())
+                )
+            )
+        }
+
+        if (getDataFromCheckBoxes) {
+            val childFragment =
+                childFragmentManager.fragments.first() as FragmentQuestionnaireOptionsCheckbox
+            addQuestionAnswer(
+                QuestionAnswer(
+                    currentQuestion.id,
+                    childFragment.getData()
+                )
+            )
+        }
+
         return if (questionsToAnswers.size != 0) {
             showNextQuestion()
             true
         } else {
-            if (getDataFromEditText) {
-                val childFragment =
-                    childFragmentManager.fragments.first() as FragmentQuestionnaireOptionsText
-                addQuestionAnswer(
-                    QuestionAnswer(
-                        currentQuestion.id,
-                        listOf(childFragment.getTextFromInput()).toTypedArray()
-                    )
-                )
-            }
-
-            if (getDataFromCheckBoxes) {
-                val childFragment =
-                    childFragmentManager.fragments.first() as FragmentQuestionnaireOptionsCheckbox
-                addQuestionAnswer(
-                    QuestionAnswer(
-                        currentQuestion.id,
-                        childFragment.getData().toTypedArray()
-                    )
-                )
-            }
-
             false
         }
     }

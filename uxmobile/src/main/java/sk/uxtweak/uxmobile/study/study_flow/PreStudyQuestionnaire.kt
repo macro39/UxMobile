@@ -43,7 +43,7 @@ class PreStudyQuestionnaire : QuestionOptionsFragment() {
                 for (questionAnswer: QuestionAnswer in questionAnswers) {
                     Log.d(
                         "PreStudyQuestionnaire",
-                        questionAnswer.id + " - " + questionAnswer.answers.asList().toString()
+                        questionAnswer.id + " - " + questionAnswer.answers.toString()
                     )
                 }
 

@@ -23,7 +23,7 @@ abstract class FragmentQuestionnaireBase : Fragment() {
         QuestionOptionsFragment.addQuestionAnswer(
             QuestionAnswer(
                 question!!.id,
-                listOf(question!!.questionOptions[checkedId]).toTypedArray()
+                arrayListOf(question!!.questionOptions[checkedId])
             )
         )
     }

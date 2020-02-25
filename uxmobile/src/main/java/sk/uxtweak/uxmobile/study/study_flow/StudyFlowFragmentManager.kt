@@ -1,6 +1,7 @@
 package sk.uxtweak.uxmobile.study.study_flow
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -17,6 +18,7 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENABLED
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
+import sk.uxtweak.uxmobile.study.utility.ApplicationLanguageHelper
 import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 
 class StudyFlowFragmentManager : AppCompatActivity() {
@@ -44,6 +46,10 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         numberOfAvailableTasks = StudyDataHolder.numberOfTasks
         permissionChecker = PermissionChecker(this)
 
+        if (savedInstanceState !== null) {
+            return
+        }
+
         if (intent.getBooleanExtra(EXTRA_IS_STUDY_SET, true)) {
             isStudySet = true
 
@@ -64,6 +70,10 @@ class StudyFlowFragmentManager : AppCompatActivity() {
             isStudySet = false
             // TODO only recording - global message, consent, recording without float button
         }
+    }
+
+    override fun attachBaseContext(newBase: Context?) {
+        super.attachBaseContext(ApplicationLanguageHelper.wrap(newBase!!, "en"))
     }
 
     /**

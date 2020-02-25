@@ -49,7 +49,7 @@ class ScreeningQuestionnaireFragment : QuestionOptionsFragment() {
                 for (questionAnswer: QuestionAnswer in questionAnswers) {
                     Log.d(
                         "ScreeningQuestionnaire",
-                        questionAnswer.id + " - " + questionAnswer.answers.asList().toString()
+                        questionAnswer.id + " - " + questionAnswer.answers.toString()
                     )
                 }
 
@@ -59,7 +59,7 @@ class ScreeningQuestionnaireFragment : QuestionOptionsFragment() {
                         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                     )
                     (activity as StudyFlowFragmentManager).showNextFragment(this)
-                }, 3000)
+                }, 1000)
             }
         }
     }
