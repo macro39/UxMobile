@@ -32,11 +32,11 @@ class FragmentQuestionnaireOptionsDropdown : FragmentQuestionnaireBase() {
         val adapter = activity?.let {
             ArrayAdapter<String>(
                 it,
-                android.R.layout.simple_spinner_item, question?.questionOptions?.asList()!!
+                android.R.layout.simple_spinner_item, question.questionOptions.asList()
             )
         }
 
-        updateQuestionnaireAnswers(0)
+        setAnswer(0)
 
         adapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner_questionnaire.adapter = adapter
@@ -52,7 +52,7 @@ class FragmentQuestionnaireOptionsDropdown : FragmentQuestionnaireBase() {
                 position: Int,
                 id: Long
             ) {
-                updateQuestionnaireAnswers(position)
+                setAnswer(position)
             }
         }
     }

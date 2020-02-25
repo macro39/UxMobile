@@ -25,19 +25,19 @@ class FragmentQuestionnaireOptionsRadioButton : FragmentQuestionnaireBase() {
         configure()
 
         radioGroup_questionnaire.setOnCheckedChangeListener { group, checkedId ->
-            updateQuestionnaireAnswers(checkedId)
+            setAnswer(checkedId)
         }
     }
 
     override fun addOptions() {
-        for (i in question!!.questionOptions.indices) {
+        for (i in question.questionOptions.indices) {
             val radioButton = RadioButton(activity)
             radioButton.id = i
             radioButton.setTextColor(Color.BLACK)
 
             if (i == 0) {
                 radioButton.isChecked = true
-                updateQuestionnaireAnswers(i)
+                setAnswer(i)
             }
 
             radioButton.text = question!!.questionOptions[i]

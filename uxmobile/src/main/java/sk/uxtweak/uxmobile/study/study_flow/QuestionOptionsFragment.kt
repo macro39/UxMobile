@@ -7,10 +7,7 @@ import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.Constants
 import sk.uxtweak.uxmobile.study.model.QuestionAnswer
 import sk.uxtweak.uxmobile.study.model.StudyQuestion
-import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_fragments.FragmentQuestionnaireOptionsCheckbox
-import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_fragments.FragmentQuestionnaireOptionsDropdown
-import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_fragments.FragmentQuestionnaireOptionsRadioButton
-import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_fragments.FragmentQuestionnaireOptionsText
+import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_fragments.*
 
 
 /**
@@ -21,27 +18,13 @@ open class QuestionOptionsFragment : Fragment() {
     companion object {
         lateinit var currentQuestion: StudyQuestion
         lateinit var questionAnswers: ArrayList<QuestionAnswer>
-
-        fun addQuestionAnswer(newQuestionAnswer: QuestionAnswer) {
-            if (questionAnswers.filter {
-                    it.id == newQuestionAnswer.id
-                }.any()) {
-                questionAnswers.find { it.id == newQuestionAnswer.id }?.answers =
-                    newQuestionAnswer.answers
-            } else {
-                questionAnswers.add(newQuestionAnswer)
-            }
-        }
     }
 
-    lateinit var questionsToAnswers: MutableList<StudyQuestion>
-    var answeringQuestionNo = 0
-    var totalQuestions = 0
+    private lateinit var questionsToAnswers: MutableList<StudyQuestion>
+    private var answeringQuestionNo = 0
+    private var totalQuestions = 0
 
     private lateinit var currentFragment: Fragment
-
-    private var getDataFromEditText = false
-    private var getDataFromCheckBoxes = false
 
     fun configure(
         title: String,
@@ -64,28 +47,7 @@ open class QuestionOptionsFragment : Fragment() {
 
     fun nextOnClick(): Boolean {
 
-        // get data from previous question
-        if (getDataFromEditText) {
-            val childFragment =
-                childFragmentManager.fragments.first() as FragmentQuestionnaireOptionsText
-            addQuestionAnswer(
-                QuestionAnswer(
-                    currentQuestion.id,
-                    arrayListOf(childFragment.getTextFromInput())
-                )
-            )
-        }
-
-        if (getDataFromCheckBoxes) {
-            val childFragment =
-                childFragmentManager.fragments.first() as FragmentQuestionnaireOptionsCheckbox
-            addQuestionAnswer(
-                QuestionAnswer(
-                    currentQuestion.id,
-                    childFragment.getData()
-                )
-            )
-        }
+        questionAnswers.add((childFragmentManager.fragments.first() as FragmentQuestionnaireBase).getAnswer())
 
         return if (questionsToAnswers.size != 0) {
             showNextQuestion()
@@ -105,20 +67,15 @@ open class QuestionOptionsFragment : Fragment() {
 
         textView_question_description.text = question.description
 
-        getDataFromEditText = false
-        getDataFromCheckBoxes = false
-
         findProperQuestionType(question.answerType)
     }
 
     private fun findProperQuestionType(answerType: String) {
         when (answerType) {
             Constants.QUESTION_TYPE_INPUT -> {
-                getDataFromEditText = true
                 setQuestionTypeText(true)
             }
             Constants.QUESTION_TYPE_TEXT_AREA -> {
-                getDataFromEditText = true
                 setQuestionTypeText(false)
             }
             Constants.QUESTION_TYPE_DROPDOWN -> {
@@ -132,7 +89,6 @@ open class QuestionOptionsFragment : Fragment() {
                 )
             }
             Constants.QUESTION_TYPE_CHECKBOX -> {
-                getDataFromCheckBoxes = true
                 setQuestionTypeFragment(
                     FragmentQuestionnaireOptionsCheckbox()
                 )

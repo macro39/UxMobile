@@ -17,8 +17,6 @@ import sk.uxtweak.uxmobile.R
 class FragmentQuestionnaireOptionsCheckbox : FragmentQuestionnaireBase(),
     CompoundButton.OnCheckedChangeListener {
 
-    private lateinit var selectedOptions: ArrayList<String>
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -31,16 +29,14 @@ class FragmentQuestionnaireOptionsCheckbox : FragmentQuestionnaireBase(),
         super.onViewCreated(view, savedInstanceState)
 
         configure()
-
-        selectedOptions = arrayListOf()
     }
 
     override fun addOptions() {
-        for (i in question!!.questionOptions.indices) {
+        for (i in question.questionOptions.indices) {
             val checkBox = CheckBox(activity as Context?)
 
             checkBox.id = i
-            checkBox.text = question!!.questionOptions[i]
+            checkBox.text = question.questionOptions[i]
 
             checkBox.setOnCheckedChangeListener(this)
             checkbox_questionnaire_view.addView(checkBox)
@@ -49,17 +45,9 @@ class FragmentQuestionnaireOptionsCheckbox : FragmentQuestionnaireBase(),
 
     override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
         if (isChecked) {
-            if (!selectedOptions.contains(question!!.questionOptions[buttonView?.id!!])) {
-                selectedOptions.add(buttonView.text.toString())
-            }
+            addAnswer(buttonView?.id!!)
         } else {
-            if (selectedOptions.contains(question!!.questionOptions[buttonView?.id!!])) {
-                selectedOptions.remove(buttonView.text.toString())
-            }
+            removeAnswer(buttonView?.id!!)
         }
-    }
-
-    fun getData(): ArrayList<String> {
-        return selectedOptions
     }
 }

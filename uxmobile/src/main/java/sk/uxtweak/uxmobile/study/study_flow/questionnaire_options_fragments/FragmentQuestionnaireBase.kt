@@ -11,21 +11,37 @@ import sk.uxtweak.uxmobile.study.study_flow.QuestionOptionsFragment
  */
 abstract class FragmentQuestionnaireBase : Fragment() {
 
-    var question: StudyQuestion? = null
+    lateinit var question: StudyQuestion
+    lateinit var questionAnswers: ArrayList<String>
 
     fun configure() {
         question = QuestionOptionsFragment.currentQuestion
+        questionAnswers = arrayListOf()
 
         addOptions()
     }
 
-    fun updateQuestionnaireAnswers(checkedId: Int) {
-        QuestionOptionsFragment.addQuestionAnswer(
-            QuestionAnswer(
-                question!!.id,
-                arrayListOf(question!!.questionOptions[checkedId])
-            )
-        )
+    fun setAnswer(checkedId: Int) {
+        questionAnswers = arrayListOf(question.questionOptions[checkedId])
+    }
+
+    fun addAnswer(checkedId: Int) {
+        val answerToAdd = question.questionOptions[checkedId]
+        if (!questionAnswers.contains(answerToAdd)) {
+            questionAnswers.add(answerToAdd)
+        }
+    }
+
+    fun removeAnswer(checkedId: Int) {
+        val answerToAdd = question.questionOptions[checkedId]
+        if (questionAnswers.contains(answerToAdd)) {
+            questionAnswers.remove(answerToAdd)
+        }
+    }
+
+
+    fun getAnswer(): QuestionAnswer {
+        return QuestionAnswer(question.id, questionAnswers)
     }
 
     abstract fun addOptions()
