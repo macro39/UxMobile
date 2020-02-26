@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.study.study_flow
+package sk.uxtweak.uxmobile.study.study_flow.questionnaire
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -7,13 +7,13 @@ import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.Constants
 import sk.uxtweak.uxmobile.study.model.QuestionAnswer
 import sk.uxtweak.uxmobile.study.model.StudyQuestion
-import sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_fragments.*
+import sk.uxtweak.uxmobile.study.study_flow.questionnaire_option.*
 
 
 /**
  * Created by Kamil Macek on 22.2.2020.
  */
-open class QuestionOptionsFragment : Fragment() {
+open class QuestionnaireBaseFragment : Fragment() {
 
     companion object {
         lateinit var currentQuestion: StudyQuestion
@@ -47,7 +47,7 @@ open class QuestionOptionsFragment : Fragment() {
 
     fun nextOnClick(): Boolean {
 
-        questionAnswers.add((childFragmentManager.fragments.first() as FragmentQuestionnaireBase).getAnswer())
+        questionAnswers.add((childFragmentManager.fragments.first() as QuestionnaireOptionsBaseFragment).getAnswer())
 
         return if (questionsToAnswers.size != 0) {
             showNextQuestion()
@@ -80,17 +80,17 @@ open class QuestionOptionsFragment : Fragment() {
             }
             Constants.QUESTION_TYPE_DROPDOWN -> {
                 setQuestionTypeFragment(
-                    FragmentQuestionnaireOptionsDropdown()
+                    QuestionnaireOptionsDropdown()
                 )
             }
             Constants.QUESTION_TYPE_RADIO_BUTTON -> {
                 setQuestionTypeFragment(
-                    FragmentQuestionnaireOptionsRadioButton()
+                    QuestionnaireOptionsRadioButton()
                 )
             }
             Constants.QUESTION_TYPE_CHECKBOX -> {
                 setQuestionTypeFragment(
-                    FragmentQuestionnaireOptionsCheckbox()
+                    QuestionnaireOptionsCheckbox()
                 )
             }
         }
@@ -101,7 +101,7 @@ open class QuestionOptionsFragment : Fragment() {
         bundle.putBoolean(Constants.EXTRA_IS_SINGLE_LINE, isSingleLine)
 
         val fragmentQuestionnaireOptionsText =
-            FragmentQuestionnaireOptionsText()
+            QuestionnaireOptionsText()
         fragmentQuestionnaireOptionsText.arguments = bundle
 
         setQuestionTypeFragment(fragmentQuestionnaireOptionsText)

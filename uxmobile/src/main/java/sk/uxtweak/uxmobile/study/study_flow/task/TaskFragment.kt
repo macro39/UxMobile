@@ -1,17 +1,14 @@
-package sk.uxtweak.uxmobile.study.study_flow
+package sk.uxtweak.uxmobile.study.study_flow.task
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_task.*
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.model.StudyTask
+import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
 import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 
 /**
@@ -30,41 +27,20 @@ class TaskFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val radioGroup = getView()?.findViewById<RadioGroup>(R.id.radioGroup_tasks)
+//        val radioGroup = getView()?.findViewById<RadioGroup>(R.id.radioGroup_tasks)
 
         val tasks = (activity as StudyFlowFragmentManager).getData(this) as List<StudyTask>
 
-
-        var marked = false
-        var counter = 0
-        for (studyTask: StudyTask in tasks) {
-
-            if (studyTask.accomplished) {
-                continue
-            }
-
-            val radioButton = RadioButton(activity)
-            radioButton.layoutParams = ConstraintLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            radioButton.text = studyTask.name
-            radioButton.setTextColor(Color.BLACK)
-            radioButton.text
-            radioButton.id = counter
-
-            counter++
-
-            if (!marked) {
-                radioButton.isChecked = true
-                marked = true
-            }
-
-            radioGroup?.addView(radioButton)
+        val adapter = context?.let { context ->
+            TaskAdapter(
+                context,
+                tasks.filter { !it.accomplished } as ArrayList<StudyTask>)
         }
 
+        listView_task.adapter = adapter
+
         button_task_admit.setOnClickListener {
-            StudyDataHolder.doingTaskWithName = tasks[radioGroup?.checkedRadioButtonId!!].name
+            StudyDataHolder.doingTaskWithName = adapter!!.getSelectedTask()
             (activity as StudyFlowFragmentManager).studyAccepted(true)
         }
 

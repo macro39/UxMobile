@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_fragments
+package sk.uxtweak.uxmobile.study.study_flow.questionnaire_option
 
 import android.content.Context
 import android.os.Bundle
@@ -14,7 +14,7 @@ import sk.uxtweak.uxmobile.R
 /**
  * Created by Kamil Macek on 21.2.2020.
  */
-class FragmentQuestionnaireOptionsCheckbox : FragmentQuestionnaireBase(),
+class QuestionnaireOptionsCheckbox : QuestionnaireOptionsBaseFragment(),
     CompoundButton.OnCheckedChangeListener {
 
     override fun onCreateView(

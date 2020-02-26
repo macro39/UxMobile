@@ -85,7 +85,7 @@ class StudyFlowController(
             "            \"id\": \"2\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"How old are you?\",\n" +
-            "            \"answer_type\": \"radiobtn\",\n" +
+            "            \"answer_type\": \"dropdown\",\n" +
             "            \"answer_required\": true,\n" +
             "            \"reason_needed\": false,\n" +
             "            \"question_options\": [\n" +

@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_fragments
+package sk.uxtweak.uxmobile.study.study_flow.questionnaire_option
 
 import android.graphics.Color
 import android.os.Bundle
@@ -9,7 +9,11 @@ import android.widget.RadioButton
 import kotlinx.android.synthetic.main.fragment_questionnaire_radio_button.*
 import sk.uxtweak.uxmobile.R
 
-class FragmentQuestionnaireOptionsRadioButton : FragmentQuestionnaireBase() {
+
+/**
+ * Created by Kamil Macek on 21.2.2020.
+ */
+class QuestionnaireOptionsRadioButton : QuestionnaireOptionsBaseFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,

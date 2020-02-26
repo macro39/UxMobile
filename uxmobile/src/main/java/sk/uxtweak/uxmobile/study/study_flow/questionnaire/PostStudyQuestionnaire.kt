@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.study.study_flow
+package sk.uxtweak.uxmobile.study.study_flow.questionnaire
 
 import android.os.Bundle
 import android.util.Log
@@ -9,11 +9,12 @@ import kotlinx.android.synthetic.main.fragment_base_questionaire.*
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.model.QuestionAnswer
 import sk.uxtweak.uxmobile.study.model.StudyQuestionnaire
+import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
 
 /**
- * Created by Kamil Macek on 24. 1. 2020.
+ * Created by Kamil Macek on 27. 1. 2020.
  */
-class PreStudyQuestionnaire : QuestionOptionsFragment() {
+class PostStudyQuestionnaire : QuestionnaireBaseFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,7 +43,7 @@ class PreStudyQuestionnaire : QuestionOptionsFragment() {
 
                 for (questionAnswer: QuestionAnswer in questionAnswers) {
                     Log.d(
-                        "PreStudyQuestionnaire",
+                        "PostStudyQuestionnaire",
                         questionAnswer.id + " - " + questionAnswer.answers.toString()
                     )
                 }

@@ -4,6 +4,9 @@ import sk.uxtweak.uxmobile.study.model.QuestionnaireRules
 import sk.uxtweak.uxmobile.study.model.Study
 import sk.uxtweak.uxmobile.study.model.StudyTask
 
+/**
+ * Created by Kamil Macek on 19.2.2020.
+ */
 object StudyDataHolder {
     var numberOfTasks: Int = 0
     var doingTaskWithName = ""

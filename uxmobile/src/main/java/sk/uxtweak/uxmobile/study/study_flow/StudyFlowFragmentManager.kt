@@ -18,9 +18,24 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENABLED
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
+import sk.uxtweak.uxmobile.study.study_flow.base.ConsentFragment
+import sk.uxtweak.uxmobile.study.study_flow.base.GlobalMessageFragment
+import sk.uxtweak.uxmobile.study.study_flow.messages.InstructionFragment
+import sk.uxtweak.uxmobile.study.study_flow.messages.RejectedMessageFragment
+import sk.uxtweak.uxmobile.study.study_flow.messages.ThankYouMessageFragment
+import sk.uxtweak.uxmobile.study.study_flow.messages.WelcomeMessageFragment
+import sk.uxtweak.uxmobile.study.study_flow.questionnaire.PostStudyQuestionnaire
+import sk.uxtweak.uxmobile.study.study_flow.questionnaire.PostTaskQuestionnaire
+import sk.uxtweak.uxmobile.study.study_flow.questionnaire.PreStudyQuestionnaire
+import sk.uxtweak.uxmobile.study.study_flow.questionnaire.ScreeningQuestionnaire
+import sk.uxtweak.uxmobile.study.study_flow.task.TaskFragment
 import sk.uxtweak.uxmobile.study.utility.ApplicationLanguageHelper
 import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 
+
+/**
+ * Created by Kamil Macek on 1.2.2020.
+ */
 class StudyFlowFragmentManager : AppCompatActivity() {
 
     private val manager = supportFragmentManager
@@ -203,10 +218,10 @@ class StudyFlowFragmentManager : AppCompatActivity() {
                 if (!isStudySet) {
                     studyAccepted(true)
                 } else {
-                    showFragment(ScreeningQuestionnaireFragment())
+                    showFragment(ScreeningQuestionnaire())
                 }
             }
-            is ScreeningQuestionnaireFragment -> {
+            is ScreeningQuestionnaire -> {
                 disableEveryBackAction()
                 showFragment(WelcomeMessageFragment())
             }
@@ -270,7 +285,7 @@ class StudyFlowFragmentManager : AppCompatActivity() {
 
     fun getData(actualFragment: Fragment): Any {
         when (actualFragment) {
-            is ScreeningQuestionnaireFragment -> {
+            is ScreeningQuestionnaire -> {
                 val data = StudyDataHolder.questionnaireRules
                 return data!!
             }

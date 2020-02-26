@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_fragments
+package sk.uxtweak.uxmobile.study.study_flow.questionnaire_option
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,7 +13,7 @@ import sk.uxtweak.uxmobile.R
 /**
  * Created by Kamil Macek on 21.2.2020.
  */
-class FragmentQuestionnaireOptionsDropdown : FragmentQuestionnaireBase() {
+class QuestionnaireOptionsDropdown : QuestionnaireOptionsBaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -56,5 +56,4 @@ class FragmentQuestionnaireOptionsDropdown : FragmentQuestionnaireBase() {
             }
         }
     }
-
 }

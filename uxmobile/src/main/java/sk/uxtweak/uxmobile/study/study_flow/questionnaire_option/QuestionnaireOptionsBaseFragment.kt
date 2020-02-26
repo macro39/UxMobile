@@ -1,21 +1,21 @@
-package sk.uxtweak.uxmobile.study.study_flow.questionnaire_options_fragments
+package sk.uxtweak.uxmobile.study.study_flow.questionnaire_option
 
 import androidx.fragment.app.Fragment
 import sk.uxtweak.uxmobile.study.model.QuestionAnswer
 import sk.uxtweak.uxmobile.study.model.StudyQuestion
-import sk.uxtweak.uxmobile.study.study_flow.QuestionOptionsFragment
+import sk.uxtweak.uxmobile.study.study_flow.questionnaire.QuestionnaireBaseFragment
 
 
 /**
  * Created by Kamil Macek on 22.2.2020.
  */
-abstract class FragmentQuestionnaireBase : Fragment() {
+abstract class QuestionnaireOptionsBaseFragment : Fragment() {
 
     lateinit var question: StudyQuestion
     lateinit var questionAnswers: ArrayList<String>
 
     fun configure() {
-        question = QuestionOptionsFragment.currentQuestion
+        question = QuestionnaireBaseFragment.currentQuestion
         questionAnswers = arrayListOf()
 
         addOptions()

@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.study.study_flow
+package sk.uxtweak.uxmobile.study.study_flow.questionnaire
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,12 +7,13 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_base_questionaire.*
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.model.StudyQuestionnaire
+import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
 
 /**
  * Created by Kamil Macek on 27. 1. 2020.
  */
 // TODO find out if this will be a part of task
-class PostTaskQuestionnaire : QuestionOptionsFragment() {
+class PostTaskQuestionnaire : QuestionnaireBaseFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,

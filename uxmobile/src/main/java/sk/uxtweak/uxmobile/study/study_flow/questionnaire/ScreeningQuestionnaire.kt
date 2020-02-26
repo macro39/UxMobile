@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.study.study_flow
+package sk.uxtweak.uxmobile.study.study_flow.questionnaire
 
 import android.os.Bundle
 import android.os.Handler
@@ -11,11 +11,12 @@ import kotlinx.android.synthetic.main.fragment_base_questionaire.*
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.model.QuestionAnswer
 import sk.uxtweak.uxmobile.study.model.QuestionnaireRules
+import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
 
 /**
  * Created by Kamil Macek on 19. 1. 2020.
  */
-class ScreeningQuestionnaireFragment : QuestionOptionsFragment() {
+class ScreeningQuestionnaire : QuestionnaireBaseFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
