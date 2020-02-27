@@ -6,4 +6,5 @@ package sk.uxtweak.uxmobile.study.float_widget
 interface FloatWidgetClickObserver {
     fun taskExecutionEnded()
     fun instructionClicked()
+    fun onClick()
 }

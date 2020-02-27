@@ -10,14 +10,14 @@ import android.view.View
 import sk.uxtweak.uxmobile.SessionExceptionHandler
 import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
 import sk.uxtweak.uxmobile.adapter.WindowCallbackAdapter
-import sk.uxtweak.uxmobile.findViewAt
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle.currentActivity
 import sk.uxtweak.uxmobile.model.ViewEnum
 import sk.uxtweak.uxmobile.model.event.*
+import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
 import sk.uxtweak.uxmobile.util.ViewUtils
 
-class EventRecorder : LifecycleObserverAdapter(), GestureDetector.OnGestureListener {
+class EventRecorder(private val floatWidgetClickObserver: FloatWidgetClickObserver) : LifecycleObserverAdapter(), GestureDetector.OnGestureListener {
     private var isRecording = true
     private var startTime = 0L
     private var orientation = 0
@@ -128,6 +128,7 @@ class EventRecorder : LifecycleObserverAdapter(), GestureDetector.OnGestureListe
     override fun onSingleTapUp(e: MotionEvent): Boolean {
         val touchedView = ViewUtils.getTouchedView(e, rootView)
         Log.d(TAG, "Touched view: $touchedView")
+        floatWidgetClickObserver.onClick()
 
         notifyListeners(
             ClickEvent(
@@ -145,6 +146,7 @@ class EventRecorder : LifecycleObserverAdapter(), GestureDetector.OnGestureListe
 
     override fun onLongPress(e: MotionEvent) {
         val touchedView = ViewUtils.getTouchedView(e, rootView)
+        floatWidgetClickObserver.onClick()
 
         notifyListeners(
             LongPressEvent(

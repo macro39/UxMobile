@@ -21,6 +21,10 @@ abstract class QuestionnaireOptionsBaseFragment : Fragment() {
         addOptions()
     }
 
+    fun setText(text: String) {
+        questionAnswers = arrayListOf(text)
+    }
+
     fun setAnswer(checkedId: Int) {
         questionAnswers = arrayListOf(question.questionOptions[checkedId])
     }

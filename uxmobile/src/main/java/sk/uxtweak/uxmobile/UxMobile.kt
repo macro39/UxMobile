@@ -73,8 +73,8 @@ object UxMobile {
     fun start(apiKey: String) = startInternal(apiKey)
 
     private fun startInternal(apiKey: String) {
-        eventRecorder = EventRecorder()
         studyFlowController = StudyFlowController(application.applicationContext)
+        eventRecorder = EventRecorder(studyFlowController)
         videoRecorder = VideoRecorder(1080, 2280, 100000, 60)
         videoRecorder.setBufferReadyListener {
             Log.d(TAG, "Buffer ready (${it.limit()})")

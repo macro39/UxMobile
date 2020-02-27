@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
 import android.util.Log
+import android.view.View
 import com.google.gson.GsonBuilder
 import sk.uxtweak.uxmobile.core.LifecycleObserver
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
@@ -176,7 +177,7 @@ class StudyFlowController(
             "                    \t\"name\": \"StudyQuestion name\",\n" +
             "                    \t\"question_required\": true,\n" +
             "                    \t\"description\": \"Were tasks hard to complete?\",\n" +
-            "                    \t\"answer_type\": \"dropdown\",\n" +
+            "                    \t\"answer_type\": \"input\",\n" +
             "                    \t\"answer_required\": true,\n" +
             "                    \t\"reason_needed\": false,\n" +
             "                    \t\"question_options\": [\n" +
@@ -208,6 +209,7 @@ class StudyFlowController(
                     ) {
                         floatWidgetService.changeFloatButtonState(true)
                         floatWidgetService.setVisibility(true)
+                        return
                     }
                     if (intent.getBooleanExtra(Constants.RECEIVER_STUDY_ENDED, true)) {
                         // user ended study
@@ -284,6 +286,12 @@ class StudyFlowController(
         floatWidgetService.setVisibility(false)
 
         showStudyFlow(onlyInstructions = true, endOfTask = false)
+    }
+
+    override fun onClick() {
+        if (isInStudy) {
+            floatWidgetService.changeFloatButtonState(false)
+        }
     }
 
     private fun showStudyFlow(onlyInstructions: Boolean, endOfTask: Boolean) {
