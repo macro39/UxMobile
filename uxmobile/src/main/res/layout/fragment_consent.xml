@@ -6,15 +6,14 @@
     android:background="@android:color/transparent">
 
     <TextView
+        style="@style/Base.Widget.AppCompat.TextView.Title"
         android:id="@+id/textView_consent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/consent_title"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/button_consent_no"
+        app:layout_constraintBottom_toTopOf="@+id/button_consent_no"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.9" />
@@ -23,9 +22,7 @@
         android:id="@+id/button_consent_yes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/white"
         android:text="@string/yes"
-        android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button_consent_no"
         app:layout_constraintHorizontal_bias="0.5"
@@ -36,9 +33,7 @@
         android:id="@+id/button_consent_no"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/white"
         android:text="@string/no"
-        android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

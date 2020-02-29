@@ -43,7 +43,11 @@ class FloatWidgetClickListener(
             }
 
         expandedView.findViewById<Button>(R.id.button_float_widget_end_task).setOnClickListener {
-            listener.taskExecutionEnded()
+            listener.taskExecutionEnded(true)
+        }
+
+        expandedView.findViewById<Button>(R.id.button_float_widget_skip).setOnClickListener {
+            listener.taskExecutionEnded(false)
         }
     }
 

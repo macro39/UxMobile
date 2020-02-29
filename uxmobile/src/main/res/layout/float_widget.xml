@@ -21,11 +21,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
+        android:backgroundTint="@color/lightGreen"
         android:gravity="center"
         android:orientation="horizontal"
         android:padding="8dp"
-        android:visibility="gone"
-        android:backgroundTint="@color/lightGreen">
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/imageView_float_widget_back_right"
@@ -45,9 +45,10 @@
                 android:layout_height="match_parent"
                 android:text="@string/plugin_name"
                 android:textAlignment="center"
+                android:textColor="@color/black"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="@color/black"/>
+                android:gravity="center_horizontal" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -63,13 +64,21 @@
                     android:text="@string/instructions" />
 
                 <Button
-                    android:id="@+id/button_float_widget_end_task"
+                    android:id="@+id/button_float_widget_skip"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:padding="10dp"
-                    android:text="@string/task_end" />
+                    android:padding="10sp"
+                    android:text="@string/skip" />
             </LinearLayout>
+
+            <Button
+                android:id="@+id/button_float_widget_end_task"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:padding="10dp"
+                android:text="@string/task_end" />
         </LinearLayout>
 
         <ImageView

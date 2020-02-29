@@ -19,5 +19,6 @@ data class StudyTask(
     @SerializedName("closing_screens")
     val closingScreens: List<String>,
 
-    var accomplished: Boolean = false
+    var accomplished: Boolean = false,
+    var endedSuccessful: Boolean = false
 )

@@ -22,4 +22,10 @@ object StudyDataHolder {
     fun getBackgroundColorSecondary(): String {
         return study?.studyBrandings?.secondaryColor!!
     }
+
+    fun setNewStudy(study: Study) {
+        this.study = study
+        this.tasks = study.studyTasks
+        this.numberOfTasks = tasks.size
+    }
 }

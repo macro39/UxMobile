@@ -16,6 +16,7 @@ import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
  */
 class TaskFragment : Fragment() {
 
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -27,25 +28,19 @@ class TaskFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        val radioGroup = getView()?.findViewById<RadioGroup>(R.id.radioGroup_tasks)
-
         val tasks = (activity as StudyFlowFragmentManager).getData(this) as List<StudyTask>
 
-        val adapter = context?.let { context ->
-            TaskAdapter(
-                context,
-                tasks.filter { !it.accomplished } as ArrayList<StudyTask>)
-        }
+        val currentTask = tasks.first() { !it.accomplished }
+        StudyDataHolder.doingTaskWithName = currentTask.name
 
-        listView_task.adapter = adapter
+        textView_task_name.text = currentTask.name
+        textView_task_number.text =
+            "Task " + (tasks.size - StudyDataHolder.numberOfTasks + 1) + "/" + tasks.size
+        textView_task_description.text = currentTask.description
 
         button_task_admit.setOnClickListener {
-            StudyDataHolder.doingTaskWithName = adapter!!.getSelectedTask()
-            (activity as StudyFlowFragmentManager).studyAccepted(true)
-        }
 
-        button_task_refuse_executing.setOnClickListener {
-            (activity as StudyFlowFragmentManager).showNextFragment(this)
+            (activity as StudyFlowFragmentManager).studyAccepted(true)
         }
     }
 }

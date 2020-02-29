@@ -15,4 +15,5 @@
     <string name="task_accept">Accept task</string>
     <string name="task_list">List of currently available tasks</string>
     <string name="end_task_performing">End performing tasks</string>
+    <string name="skip">Skip</string>
 </resources>

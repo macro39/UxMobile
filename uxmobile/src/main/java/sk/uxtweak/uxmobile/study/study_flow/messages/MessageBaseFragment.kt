@@ -2,7 +2,6 @@ package sk.uxtweak.uxmobile.study.study_flow.messages
 
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
@@ -11,12 +10,12 @@ import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_message.*
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.model.StudyMessage
-import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
+
 
 /**
- * Created by Kamil Macek on 27. 1. 2020.
+ * Created by Kamil Macek on 28.2.2020.
  */
-class ThankYouMessageFragment : Fragment() {
+abstract class MessageBaseFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,18 +28,22 @@ class ThankYouMessageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val thankYouMessage : StudyMessage = (activity as StudyFlowFragmentManager).getData(this) as StudyMessage
+        val thankYouMessage: StudyMessage = getData()
 
         textView_message_title.text = thankYouMessage.title
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            textVIew_message_content.text = Html.fromHtml(thankYouMessage.content, Html.FROM_HTML_MODE_COMPACT)
+            textVIew_message_content.text =
+                Html.fromHtml(thankYouMessage.content, Html.FROM_HTML_MODE_COMPACT)
         } else {
             textVIew_message_content.text = Html.fromHtml(thankYouMessage.content)
         }
 
-        Handler().postDelayed({
-            (activity as StudyFlowFragmentManager).showNextFragment(this)
-        }, 3000)
+        button_message_next.setOnClickListener {
+            buttonOnClick()
+        }
     }
+
+    abstract fun getData(): StudyMessage
+    abstract fun buttonOnClick()
 }

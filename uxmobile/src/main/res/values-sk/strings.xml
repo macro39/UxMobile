@@ -15,4 +15,5 @@
     <string name="task_accept">Prijať úlohu</string>
     <string name="task_list">Momentálne dostupné úlohy</string>
     <string name="end_task_performing">Skončiť s vykonávaním úloh</string>
+    <string name="skip">Preskočiť</string>
 </resources>

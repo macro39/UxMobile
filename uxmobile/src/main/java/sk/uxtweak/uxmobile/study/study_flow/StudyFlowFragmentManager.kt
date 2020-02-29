@@ -21,9 +21,9 @@ import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
 import sk.uxtweak.uxmobile.study.study_flow.base.ConsentFragment
 import sk.uxtweak.uxmobile.study.study_flow.base.GlobalMessageFragment
 import sk.uxtweak.uxmobile.study.study_flow.messages.InstructionFragment
-import sk.uxtweak.uxmobile.study.study_flow.messages.RejectedMessageFragment
-import sk.uxtweak.uxmobile.study.study_flow.messages.ThankYouMessageFragment
-import sk.uxtweak.uxmobile.study.study_flow.messages.WelcomeMessageFragment
+import sk.uxtweak.uxmobile.study.study_flow.messages.RejectedMessage
+import sk.uxtweak.uxmobile.study.study_flow.messages.ThankYouMessage
+import sk.uxtweak.uxmobile.study.study_flow.messages.WelcomeMessage
 import sk.uxtweak.uxmobile.study.study_flow.questionnaire.PostStudyQuestionnaire
 import sk.uxtweak.uxmobile.study.study_flow.questionnaire.PostTaskQuestionnaire
 import sk.uxtweak.uxmobile.study.study_flow.questionnaire.PreStudyQuestionnaire
@@ -37,6 +37,10 @@ import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
  * Created by Kamil Macek on 1.2.2020.
  */
 class StudyFlowFragmentManager : AppCompatActivity() {
+
+    companion object {
+        private var setColorFromStudyConfig = false
+    }
 
     private val manager = supportFragmentManager
     private lateinit var permissionChecker: PermissionChecker
@@ -53,15 +57,22 @@ class StudyFlowFragmentManager : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         title = getString(R.string.plugin_name)
+        setTheme(R.style.Theme_Base)
         setContentView(R.layout.activity_study_flow)
 
-        fragment_base_holder.setBackgroundColor(Color.parseColor(StudyDataHolder.getBackgroundColorPrimary()))                      // set background color from config
-        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.parseColor(StudyDataHolder.getBackgroundColorSecondary())))     // set support bar color from config
 
         numberOfAvailableTasks = StudyDataHolder.numberOfTasks
         permissionChecker = PermissionChecker(this)
 
         if (savedInstanceState !== null) {
+
+            if (setColorFromStudyConfig) {
+//                setTheme(R.style.Theme_AppCompat_DayNight_DarkActionBar)
+//                setContentView(R.layout.activity_study_flow)
+                setColorFromConfig()
+                return
+            }
+
             return
         }
 
@@ -69,24 +80,29 @@ class StudyFlowFragmentManager : AppCompatActivity() {
             isStudySet = true
 
             if (intent.getBooleanExtra(EXTRA_END_OF_TASK, true)) {
+                setColorFromConfig()
                 onTaskCompletion()
                 return
             }
 
             // check if fragments are only for purpose of instructions displayed - when doing task
             if (intent.getBooleanExtra(EXTRA_INSTRUCTIONS_ONLY_ENABLED, true)) {
+                setColorFromConfig()
                 isOnlyInstructionsDisplayed = true
                 enableBackButton()
                 showInstructions()
             } else {
-                showGlobalMessage()
+                showConsent()
             }
         } else {
             isStudySet = false
-            // TODO only recording - global message, consent, recording without float button
+            // TODO only recording - consent, global message, recording without float button
         }
     }
 
+    /**
+     * Default en language set
+     */
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(ApplicationLanguageHelper.wrap(newBase!!, "en"))
     }
@@ -123,7 +139,7 @@ class StudyFlowFragmentManager : AppCompatActivity() {
 
         when (id) {
             R.id.button_reject_study_flow_action_bar -> {
-                val builder = AlertDialog.Builder(this, R.style.MyDialogTheme)
+                val builder = AlertDialog.Builder(this, R.style.DialogTheme)
                 builder.setTitle(getString(R.string.plugin_name))
                 builder.setMessage(getString(R.string.end_study))
 
@@ -151,6 +167,10 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         return false
     }
 
+    private fun showConsent() {
+        showFragment(ConsentFragment())
+    }
+
     /**
      * Show instructions, enable/disable back button
      */
@@ -167,6 +187,7 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         if (numberOfAvailableTasks == 0) {
             showFragment(PostStudyQuestionnaire())
         } else {
+            disableEveryBackAction()
             showFragment(TaskFragment())
         }
     }
@@ -179,11 +200,19 @@ class StudyFlowFragmentManager : AppCompatActivity() {
     }
 
     /**
+     * Change color based on configuration
+     */
+    private fun setColorFromConfig() {
+        fragment_base_holder.setBackgroundColor(Color.parseColor(StudyDataHolder.getBackgroundColorPrimary()))                      // set background color from config
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.parseColor(StudyDataHolder.getBackgroundColorSecondary())))     // set support bar color from config
+    }
+
+    /**
      * When user reject taking part in study in whichever part of study flow
      */
     fun showRejectedFragment() {
         this.disableEveryBackAction()
-        showFragment(RejectedMessageFragment())
+        showFragment(RejectedMessage())
     }
 
     /**
@@ -195,16 +224,14 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         transaction.commit()
     }
 
+    /**
+     * Disable home button in support bar, back button pressed
+     */
     private fun disableEveryBackAction() {
         this.backNavEnabled = false
         rejectStudyBtnEnabled = false
         this.invalidateOptionsMenu()
         this.enableBackButton()
-    }
-
-    private fun enableEveryBackAction() {
-        rejectStudyBtnEnabled = true
-        this.invalidateOptionsMenu()
     }
 
     /**
@@ -213,20 +240,16 @@ class StudyFlowFragmentManager : AppCompatActivity() {
     fun showNextFragment(actualFragment: Fragment) {
         // TODO add if statements, because not every fragment is required (345689 are optional)
         when (actualFragment) {
-            is GlobalMessageFragment -> showFragment(ConsentFragment())
             is ConsentFragment -> {
-                if (!isStudySet) {
-                    studyAccepted(true)
-                } else {
-                    showFragment(ScreeningQuestionnaire())
-                }
+                showGlobalMessage()
             }
+            is GlobalMessageFragment -> showFragment(ScreeningQuestionnaire())
             is ScreeningQuestionnaire -> {
-                disableEveryBackAction()
-                showFragment(WelcomeMessageFragment())
+                setColorFromStudyConfig = true
+                setColorFromConfig()
+                showFragment(WelcomeMessage())
             }
-            is WelcomeMessageFragment -> {
-                enableEveryBackAction()
+            is WelcomeMessage -> {
                 showInstructions()
             }
             is InstructionFragment -> {
@@ -236,8 +259,14 @@ class StudyFlowFragmentManager : AppCompatActivity() {
                     showFragment(PreStudyQuestionnaire())
                 }
             }
-            is PreStudyQuestionnaire -> showFragment(TaskFragment())
-            is TaskFragment -> showFragment(PostStudyQuestionnaire())
+            is PreStudyQuestionnaire -> {
+                disableEveryBackAction()
+                showFragment(TaskFragment())
+            }
+            is TaskFragment -> {
+                enableBackButton()
+                showFragment(PostStudyQuestionnaire())
+            }
             is PostTaskQuestionnaire -> {
                 // last task
                 if (numberOfAvailableTasks == 0) {
@@ -248,9 +277,9 @@ class StudyFlowFragmentManager : AppCompatActivity() {
             }
             is PostStudyQuestionnaire -> {
                 disableEveryBackAction()
-                showFragment(ThankYouMessageFragment())
+                showFragment(ThankYouMessage())
             }
-            is ThankYouMessageFragment -> {
+            is ThankYouMessage -> {
                 sendBroadcastStudyAccepted(accepted = false, ended = true)
                 finish()
             }
@@ -295,10 +324,10 @@ class StudyFlowFragmentManager : AppCompatActivity() {
             is PostStudyQuestionnaire -> {
                 return StudyDataHolder.study?.postStudyQuestionnaire!!
             }
-            is RejectedMessageFragment -> {
+            is RejectedMessage -> {
                 return StudyDataHolder.study?.rejectMessage!!
             }
-            is WelcomeMessageFragment -> {
+            is WelcomeMessage -> {
                 return StudyDataHolder.study?.welcomeMessage!!
             }
             is InstructionFragment -> {
@@ -307,7 +336,7 @@ class StudyFlowFragmentManager : AppCompatActivity() {
             is TaskFragment -> {
                 return StudyDataHolder.tasks
             }
-            is ThankYouMessageFragment -> {
+            is ThankYouMessage -> {
                 return StudyDataHolder.study?.thankYouMessage!!
             }
         }
