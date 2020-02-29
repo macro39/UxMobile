@@ -292,7 +292,7 @@ class StudyFlowFragmentManager : AppCompatActivity() {
             sendBroadcastStudyAccepted(accepted = true, ended = false)
             finish()
         } else {
-            sendBroadcastStudyAccepted(accepted = false, ended = false)
+            sendBroadcastStudyAccepted(accepted = false, ended = true)
             finish()
         }
     }
@@ -325,7 +325,7 @@ class StudyFlowFragmentManager : AppCompatActivity() {
                 return StudyDataHolder.study?.postStudyQuestionnaire!!
             }
             is RejectedMessage -> {
-                return StudyDataHolder.study?.rejectMessage!!
+                return StudyDataHolder.rejectMessage
             }
             is WelcomeMessage -> {
                 return StudyDataHolder.study?.welcomeMessage!!

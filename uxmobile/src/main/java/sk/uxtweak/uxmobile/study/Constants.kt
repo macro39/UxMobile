@@ -17,5 +17,7 @@ open class Constants {
         const val QUESTION_TYPE_DROPDOWN = "dropdown"
         const val QUESTION_TYPE_RADIO_BUTTON = "radiobtn"
         const val QUESTION_TYPE_CHECKBOX = "checkbox"
+        const val REJECT_MESSAGE_TITLE = "DEFAULT REJECT MESSAGE"
+        const val REJECT_MESSAGE_CONTENT = "We are a little sad, but also next day is there a opportunity to change your favorite application by participating in study!"
     }
 }
