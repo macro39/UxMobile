@@ -8,13 +8,12 @@ import android.util.Log
 import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
 import sk.uxtweak.uxmobile.UxMobile.start
-import sk.uxtweak.uxmobile.core.EventRecorder
-import sk.uxtweak.uxmobile.core.EventsController
-import sk.uxtweak.uxmobile.core.ServerManager
-import sk.uxtweak.uxmobile.core.VideoRecorder
+import sk.uxtweak.uxmobile.core.*
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.net.WebSocketClient
+import sk.uxtweak.uxmobile.rpc.RpcManager
+import sk.uxtweak.uxmobile.server.SessionService
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -33,8 +32,11 @@ object UxMobile {
     private lateinit var eventRecorder: EventRecorder
     private lateinit var videoRecorder: VideoRecorder
     private lateinit var eventsSocket: WebSocketClient
-    private lateinit var serverManager: ServerManager
+    private lateinit var connectionManager: ConnectionManager
     private lateinit var eventsController: EventsController
+    private lateinit var looper: EventLooper
+    private lateinit var rpcManager: RpcManager
+    private lateinit var sessionService: SessionService
 
     /**
      * Called by [sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycleInitializer] to attach
@@ -75,6 +77,7 @@ object UxMobile {
     fun start(apiKey: String) = startInternal(apiKey)
 
     private fun startInternal(apiKey: String) {
+        logi(TAG, "Starting UxMobile")
         if (started) {
             throw IllegalStateException("UxMobile has already started!")
         }
@@ -83,8 +86,11 @@ object UxMobile {
         ForegroundActivityHolder.registerObserver(ApplicationLifecycle)
 
         eventsSocket = WebSocketClient(BuildConfig.COLLECTOR_URL)
-        serverManager = ServerManager(eventsSocket)
-        serverManager.startLoop()
+        connectionManager = ConnectionManager(eventsSocket)
+        connectionManager.startAutoConnection()
+
+        rpcManager = RpcManager(eventsSocket)
+        sessionService = rpcManager.create(SessionService::class.java)
 
         eventRecorder = EventRecorder(application)
         eventRecorder.registerObserver(ApplicationLifecycle)
@@ -93,7 +99,10 @@ object UxMobile {
         videoRecorder = VideoRecorder(displaySize.width, displaySize.height)
         videoRecorder.registerObserver(ApplicationLifecycle)
 
-        eventsController = EventsController(eventRecorder, videoRecorder, serverManager)
+        looper = EventLooper(connectionManager)
+        looper.startGlobally()
+
+        eventsController = EventsController(eventRecorder, videoRecorder, sessionService, looper)
         eventsController.registerObserver(ApplicationLifecycle)
     }
 

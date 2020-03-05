@@ -7,6 +7,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import sk.uxtweak.uxmobile.core.LifecycleObserver
+import sk.uxtweak.uxmobile.logd
 import java.util.concurrent.CopyOnWriteArrayList
 
 object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
@@ -47,7 +48,7 @@ object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
     }
 
     override fun onActivityStarted(activity: Activity) {
-        Log.d(TAG, "onActivityStarted: " + activity.localClassName)
+        logd(TAG, "onActivityStarted: " + activity.localClassName)
         latestConfiguration = null
         activityCounter++
 
@@ -61,7 +62,7 @@ object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
     }
 
     override fun onActivityStopped(activity: Activity) {
-        Log.d(TAG, "onActivityStopped: " + activity.localClassName)
+        logd(TAG, "onActivityStopped: " + activity.localClassName)
         activityCounter--
 
         observers.forEach { it.onAnyActivityStopped(activity) }

@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Rect
 import android.os.SystemClock
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -69,6 +70,21 @@ val Application.displaySize: Size
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         return displayMetrics.widthPixels with displayMetrics.heightPixels
     }
+
+fun logd(tag: String, message: String) = Log.d(tag, "[${Thread.currentThread().name}] $message")
+fun logi(tag: String, message: String) = Log.i(tag, "[${Thread.currentThread().name}] $message")
+fun logw(tag: String, message: String, throwable: Throwable? = null) =
+    if (throwable == null) Log.w(tag, "[${Thread.currentThread().name}] $message") else Log.w(
+        tag,
+        "[${Thread.currentThread().name}] $message",
+        throwable
+    )
+fun loge(tag: String, message: String, throwable: Throwable? = null) =
+    if (throwable == null) Log.e(tag, "[${Thread.currentThread().name}] $message") else Log.e(
+        tag,
+        "[${Thread.currentThread().name}] $message",
+        throwable
+    )
 
 private val humanFormat = DecimalFormat("0.##")
 

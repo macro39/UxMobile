@@ -115,6 +115,6 @@ class WebSocketClient(url: String) : BasicListenerAdapter() {
         /**
          * Time until ACK must be received when emitting event
          */
-        private const val EMIT_TIMEOUT = 5000L
+        private const val EMIT_TIMEOUT = 15000L
     }
 }

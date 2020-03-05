@@ -28,10 +28,13 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            buildConfigField("String", "COLLECTOR_URL", "\"ws://vlado5678.ynet.sk:8000/socketcluster/\"")
+            buildConfigField("String", "COLLECTOR_URL", "\"ws://192.168.43.213:8000/socketcluster/\"")
+            buildConfigField("String", "MAIN_URL", "\"wss://dev-backend.mobeux.tk/adonis-ws\"")
         }
         debug {
             buildConfigField("String", "COLLECTOR_URL", "\"ws://vlado5678.ynet.sk:8000/socketcluster/\"")
+//            buildConfigField("String", "COLLECTOR_URL", "\"ws://192.168.43.213:8000/socketcluster/\"")
+            buildConfigField("String", "MAIN_URL", "\"wss://dev-backend.mobeux.tk/adonis-ws\"")
         }
     }
     compileOptions {
@@ -68,7 +71,7 @@ dependencies {
         exclude group: "org.json", module: "json"
     }
     implementation "com.neovisionaries:nv-websocket-client:2.9"
-    implementation "com.squareup.okhttp3:okhttp:3.12.8"
+    implementation "com.squareup.okhttp3:okhttp:3.14.4"
 
     implementation "com.fasterxml.jackson.core:jackson-core:2.10.2"
     implementation "com.fasterxml.jackson.core:jackson-annotations:2.10.2"

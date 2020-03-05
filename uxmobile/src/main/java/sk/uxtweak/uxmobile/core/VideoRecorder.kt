@@ -3,11 +3,8 @@ package sk.uxtweak.uxmobile.core
 import android.app.Activity
 import android.util.Log
 import kotlinx.coroutines.*
-import sk.uxtweak.uxmobile.ForegroundScope
-import sk.uxtweak.uxmobile.NativeEncoder
-import sk.uxtweak.uxmobile.ScreenBuffer
+import sk.uxtweak.uxmobile.*
 import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
-import sk.uxtweak.uxmobile.atFixedRate
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.lifecycle.withForegroundActivity
 import java.io.IOException
@@ -16,13 +13,13 @@ import java.nio.ByteBuffer
 class VideoRecorder(
     screenWidth: Int,
     screenHeight: Int,
-    bitRate: Int = 4000000,  // 4Mbps
-    private val frameRate: Int = 30
+    bitRate: Int = 400000,  // 400Kbps
+    private val frameRate: Int = 60
 ) : LifecycleObserverAdapter() {
     private val encoder = NativeEncoder(screenWidth, screenHeight, frameRate, bitRate)
     private val screenBuffer = ScreenBuffer(screenWidth, screenHeight)
 
-    private val buffer = ByteBuffer.allocate(BUFFER_SIZE)
+    val buffer = ByteBuffer.allocate(BUFFER_SIZE)
 
     private var bufferReadyListener: (ByteBuffer) -> Unit = {}
 
@@ -30,13 +27,13 @@ class VideoRecorder(
         encoder.setBufferListener(::onBufferAvailable)
     }
 
-    fun startRecording() {
-        Log.d(TAG, "Starting video recording")
+    fun record() {
+        logd(TAG, "Starting video recording")
         try {
             encoder.start()
 
-            ForegroundScope.atFixedRate(Dispatchers.Default, 1000L / frameRate, onCancel = {
-                encoder.stop()  // TODO: Maybe finish instead of stopping to release resources
+            ForegroundScope.atFixedRate(Dispatchers.IO, 1000L / frameRate, onCancel = {
+                encoder.stop()  // TODO: Maybe finish instead of stopping to release resources immediately
             }) {
                 captureFrame()
                 encodeFrame()
@@ -46,7 +43,7 @@ class VideoRecorder(
         }
     }
 
-    fun finishRecording() {
+    fun finish() {
         try {
             encoder.finish()
         } catch (exception: IOException) {
@@ -59,13 +56,13 @@ class VideoRecorder(
     }
 
     override fun onFirstActivityStarted(activity: Activity) {
-        Log.d(TAG, "onFirstActivityStarted: starting video recorder")
-        startRecording()
+        logd(TAG, "onFirstActivityStarted")
+        record()
     }
 
     override fun onLastActivityStopped(activity: Activity) {
         super.onLastActivityStopped(activity)
-        Log.d(TAG, "onLastActivityStopped: stopping video recording")
+        logd(TAG, "onLastActivityStopped")
     }
 
     private fun onBufferAvailable(data: ByteBuffer) {

@@ -7,9 +7,12 @@ import android.graphics.Rect
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
+import android.media.MediaMuxer
 import android.os.Build
+import android.os.Environment
 import android.util.Log
 import android.view.Surface
+import java.io.File
 import java.nio.ByteBuffer
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -23,27 +26,35 @@ class NativeEncoder(
     private val screenHeight = if (height % 2 != 0) height + 1 else height
     private val mediaFormat = MediaFormat.createVideoFormat(MIME_TYPE, screenWidth, screenHeight)
     private val encoder = MediaCodec.createEncoderByType(MIME_TYPE)
+    private val muxer = MediaMuxer(File(Environment.getExternalStorageDirectory(), "video.mp4").absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
     private val rect = Rect(0, 0, screenWidth, screenHeight)
     private val bufferInfo = MediaCodec.BufferInfo()
     private var renderingSurface: Surface? = null
+    private var videoTrackIndex = 0
 
     var running = false
 
     private var bufferListener: (ByteBuffer) -> Unit = {}
 
     init {
-        Log.d(TAG, "NativeEncoder init()")
+        logi(TAG, "NativeEncoder init()")
         initMediaFormat()
     }
 
     fun start() {
+        logi(TAG, "Starting encoder")
         encoder.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
+
+        videoTrackIndex = muxer.addTrack(encoder.outputFormat)
+        muxer.start()
+
         renderingSurface = encoder.createInputSurface()
         encoder.start()
         running = true
     }
 
     fun stop() {
+        logi(TAG, "Stopping encoder")
         drainEncoder(true)
         encoder.stop()
         running = false
@@ -74,7 +85,7 @@ class NativeEncoder(
             canvas = lockCanvas(dirtyRect)
             body(canvas)
         } catch (e: Exception) {
-            Log.e("UxMobile", "tryLockCanvas: ", e)
+            loge("UxMobile", "tryLockCanvas: ", e)
         } finally {
             canvas?.let { unlockCanvasAndPost(it) }
         }
@@ -104,14 +115,15 @@ class NativeEncoder(
                     break
                 }
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                Log.d(TAG, "Encoder output format changed")
+                logi(TAG, "Encoder output format changed")
             } else if (encoderStatus < 0) {
-                Log.e(TAG, "Encoder status < 0: $encoderStatus")
+                loge(TAG, "Encoder status < 0: $encoderStatus")
             } else {
                 val encodedData = encoder.getOutputBuffer(encoderStatus)
                     ?: throw RuntimeException("encodedData $encoderStatus is null")
 
                 if (bufferInfo.size != 0) {
+                    muxer.writeSampleData(videoTrackIndex, encodedData, bufferInfo)
                     bufferListener(encodedData)
                 }
 
@@ -125,12 +137,16 @@ class NativeEncoder(
     }
 
     fun finish() {
+        logi(TAG, "Finishing and releasing encoder")
         if (!running) {
             return
         }
 
         running = false
         drainEncoder(true)
+
+        muxer.stop()
+        muxer.release()
 
         encoder.stop()
         encoder.release()
