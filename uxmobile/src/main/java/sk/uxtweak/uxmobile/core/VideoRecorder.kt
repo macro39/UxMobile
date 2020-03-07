@@ -1,25 +1,21 @@
 package sk.uxtweak.uxmobile.core
 
 import android.app.Activity
-import android.util.Log
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
 import sk.uxtweak.uxmobile.*
-import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.lifecycle.withForegroundActivity
-import java.io.IOException
 import java.nio.ByteBuffer
 
 class VideoRecorder(
     screenWidth: Int,
     screenHeight: Int,
-    bitRate: Int = 400000,  // 400Kbps
-    private val frameRate: Int = 60
-) : LifecycleObserverAdapter() {
-    private val encoder = NativeEncoder(screenWidth, screenHeight, frameRate, bitRate)
+    private val frameRate: Int = 25
+) {
+    private val encoder = NativeEncoder(screenWidth, screenHeight, frameRate)
     private val screenBuffer = ScreenBuffer(screenWidth, screenHeight)
 
-    val buffer = ByteBuffer.allocate(BUFFER_SIZE)
+    private val buffer = ByteBuffer.allocate(BUFFER_SIZE)
 
     private var bufferReadyListener: (ByteBuffer) -> Unit = {}
 
@@ -27,42 +23,27 @@ class VideoRecorder(
         encoder.setBufferListener(::onBufferAvailable)
     }
 
-    fun record() {
+    fun start() {
         logd(TAG, "Starting video recording")
-        try {
-            encoder.start()
-
-            ForegroundScope.atFixedRate(Dispatchers.IO, 1000L / frameRate, onCancel = {
-                encoder.stop()  // TODO: Maybe finish instead of stopping to release resources immediately
-            }) {
-                captureFrame()
-                encodeFrame()
-            }
-        } catch (exception: IOException) {
-            Log.e(TAG, "startRecording error: ", exception)
-        }
+        encoder.start()
+        startEncoding()
     }
 
-    fun finish() {
-        try {
-            encoder.finish()
-        } catch (exception: IOException) {
-            Log.e(TAG, "Cannot finish encoder: ", exception)
+    fun stop() {
+        encoder.stop()
+    }
+
+    fun startEncoding() {
+        ForegroundScope.atFixedRate(Dispatchers.IO, 1000L / frameRate) {
+            ForegroundActivityHolder.withForegroundActivity {
+                captureFrame(it)
+                encodeFrame()
+            }
         }
     }
 
     fun setBufferReadyListener(listener: (ByteBuffer) -> Unit) {
         bufferReadyListener = listener
-    }
-
-    override fun onFirstActivityStarted(activity: Activity) {
-        logd(TAG, "onFirstActivityStarted")
-        record()
-    }
-
-    override fun onLastActivityStopped(activity: Activity) {
-        super.onLastActivityStopped(activity)
-        logd(TAG, "onLastActivityStopped")
     }
 
     private fun onBufferAvailable(data: ByteBuffer) {
@@ -77,8 +58,8 @@ class VideoRecorder(
         }
     }
 
-    private suspend fun captureFrame() = ForegroundActivityHolder.withForegroundActivity {
-        val rootLayout = it.window.decorView
+    private suspend fun captureFrame(activity: Activity) {
+        val rootLayout = activity.window.decorView
         if (rootLayout.width == 0 && rootLayout.height == 0) {
             return
         }
@@ -86,12 +67,10 @@ class VideoRecorder(
     }
 
     private fun encodeFrame() {
-        try {
-            if (!screenBuffer.isEmpty()) {
-                encoder.encodeFrame(screenBuffer.getBitmap())
-            }
-        } catch (exception: IOException) {
-            Log.e(TAG, "encodeFrame error: ", exception)
+        if (!screenBuffer.isEmpty()) {
+            encoder.encode(screenBuffer.getBitmap())
+        } else {
+            logw(TAG, "Screen buffer is empty while encoding!")
         }
     }
 

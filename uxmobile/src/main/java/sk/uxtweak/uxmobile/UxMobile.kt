@@ -12,8 +12,6 @@ import sk.uxtweak.uxmobile.core.*
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.net.WebSocketClient
-import sk.uxtweak.uxmobile.rpc.RpcManager
-import sk.uxtweak.uxmobile.server.SessionService
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -35,8 +33,6 @@ object UxMobile {
     private lateinit var connectionManager: ConnectionManager
     private lateinit var eventsController: EventsController
     private lateinit var looper: EventLooper
-    private lateinit var rpcManager: RpcManager
-    private lateinit var sessionService: SessionService
 
     /**
      * Called by [sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycleInitializer] to attach
@@ -62,7 +58,10 @@ object UxMobile {
         try {
             startInternal(loadApiKeyFromManifest())
         } catch (exception: IllegalStateException) {
-            Log.e(TAG, "Cannot load API key! Check if you have your API key declared in Android Manifest")
+            Log.e(
+                TAG,
+                "Cannot load API key! Check if you have your API key declared in Android Manifest"
+            )
         }
     }
 
@@ -89,20 +88,16 @@ object UxMobile {
         connectionManager = ConnectionManager(eventsSocket)
         connectionManager.startAutoConnection()
 
-        rpcManager = RpcManager(eventsSocket)
-        sessionService = rpcManager.create(SessionService::class.java)
-
         eventRecorder = EventRecorder(application)
         eventRecorder.registerObserver(ApplicationLifecycle)
 
         val displaySize = application.displaySize
         videoRecorder = VideoRecorder(displaySize.width, displaySize.height)
-        videoRecorder.registerObserver(ApplicationLifecycle)
 
         looper = EventLooper(connectionManager)
         looper.startGlobally()
 
-        eventsController = EventsController(eventRecorder, videoRecorder, sessionService, looper)
+        eventsController = EventsController(eventRecorder, videoRecorder, eventsSocket, looper)
         eventsController.registerObserver(ApplicationLifecycle)
     }
 
@@ -133,7 +128,8 @@ object UxMobile {
         if (ContextCompat.checkSelfPermission(
                 application,
                 Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED) {
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             throw IllegalStateException("Read storage permission is not granted!")
         }
         val apiKeyFile = File(Environment.getExternalStorageDirectory(), API_KEY_FILE)

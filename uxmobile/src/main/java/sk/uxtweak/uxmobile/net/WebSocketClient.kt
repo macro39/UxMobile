@@ -3,7 +3,10 @@ package sk.uxtweak.uxmobile.net
 import com.neovisionaries.ws.client.WebSocketFrame
 import io.github.sac.ReconnectStrategy
 import io.github.sac.Socket
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.IOException
 import java.util.concurrent.TimeoutException
 import kotlin.coroutines.resume

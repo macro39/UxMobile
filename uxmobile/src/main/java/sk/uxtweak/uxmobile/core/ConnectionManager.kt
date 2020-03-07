@@ -58,6 +58,6 @@ class ConnectionManager(private val socket: WebSocketClient) {
     }
 
     companion object {
-        private val TAG = ConnectionManager::class.java.simpleName
+        private const val TAG = "UxMobile"
     }
 }

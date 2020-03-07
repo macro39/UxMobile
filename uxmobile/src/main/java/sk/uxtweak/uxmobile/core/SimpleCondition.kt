@@ -3,7 +3,7 @@ package sk.uxtweak.uxmobile.core
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class SimpleCondition {
     private var deferred = CompletableDeferred<Unit>()
 

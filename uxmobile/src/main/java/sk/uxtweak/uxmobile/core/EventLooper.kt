@@ -37,20 +37,14 @@ class EventLooper(private val connector: ConnectionManager) {
      * @param event event that will be added to queue
      * @return whether event was added successfully
      */
-    fun offer(event: SessionEvent): Boolean {
-        logd(TAG, "Offering event to queue: $event")
-        return channel.offer(event)
-    }
+    fun offer(event: SessionEvent) = channel.offer(event)
 
     /**
      * Adds event to queue to be sent later. Suspends until event is in queue.
      *
      * @param event event that will be added to queue
      */
-    suspend fun send(event: SessionEvent) {
-        logd(TAG, "Sending event to queue: $event")
-        channel.send(event)
-    }
+    suspend fun send(event: SessionEvent) = channel.send(event)
 
     /**
      * Main looper method. Call to start sending queued events to server. Will suspend until
@@ -66,7 +60,7 @@ class EventLooper(private val connector: ConnectionManager) {
                 // threads
                 launch(dispatcher) {
                     try {
-                        logd(TAG, "Sending event to server: $event")
+                        logd(TAG, "Sending event to server: ${event::class.java.canonicalName}")
                         connector.emit(EVENTS_CHANNEL_NAME, event.toJson())
                     } catch (exception: IOException) {
                         logi(TAG, "Cannot reach WebSocket event server")
@@ -99,9 +93,9 @@ class EventLooper(private val connector: ConnectionManager) {
     }
 
     companion object {
+        private const val TAG = "UxMobile"
         private const val EVENTS_CHANNEL_NAME = "events"
         private val NO_THREADS = Runtime.getRuntime().availableProcessors()
-        private val TAG = EventLooper::class.java.simpleName
     }
 }
 

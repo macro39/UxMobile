@@ -1,5 +1,5 @@
 package sk.uxtweak.uxmobile.server
 
-interface SessionService {
-    suspend fun generateSessionId(): String
+object ServerServices {
+    const val GENERATE_SESSION_ID = "generateSessionId"
 }

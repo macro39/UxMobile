@@ -44,7 +44,6 @@ fun View.findViewAt(x: Int, y: Int): View? {
 fun CoroutineScope.atFixedRate(
     context: CoroutineContext = EmptyCoroutineContext,
     rate: Long,
-    onCancel: suspend CoroutineScope.() -> Unit = {},
     block: suspend CoroutineScope.() -> Unit
 ) = launch(context) {
     var start: Long
@@ -53,7 +52,6 @@ fun CoroutineScope.atFixedRate(
         block()
         delay((start + rate) - SystemClock.elapsedRealtime())
     }
-    onCancel()
 }
 
 fun ByteBuffer.copy(): ByteBuffer {
@@ -79,6 +77,7 @@ fun logw(tag: String, message: String, throwable: Throwable? = null) =
         "[${Thread.currentThread().name}] $message",
         throwable
     )
+
 fun loge(tag: String, message: String, throwable: Throwable? = null) =
     if (throwable == null) Log.e(tag, "[${Thread.currentThread().name}] $message") else Log.e(
         tag,
