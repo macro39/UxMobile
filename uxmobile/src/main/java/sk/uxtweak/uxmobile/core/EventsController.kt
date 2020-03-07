@@ -3,12 +3,10 @@ package sk.uxtweak.uxmobile.core
 import android.app.Activity
 import android.os.SystemClock
 import android.util.Base64
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import sk.uxtweak.uxmobile.*
 import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
+import sk.uxtweak.uxmobile.media.ScreenRecorder
 import sk.uxtweak.uxmobile.model.SessionEvent
 import sk.uxtweak.uxmobile.model.events.Event
 import sk.uxtweak.uxmobile.net.WebSocketClient
@@ -17,26 +15,34 @@ import java.nio.ByteBuffer
 
 class EventsController(
     eventRecorder: EventRecorder,
-    private val videoRecorder: VideoRecorder,
+    private val screenRecorder: ScreenRecorder,
     private val eventsSocket: WebSocketClient,
     private val eventLoop: EventLooper
 ) : LifecycleObserverAdapter() {
     private var sessionId: String? = null
     private val unsentEvents = mutableListOf<SessionEvent>()
 
+    // TODO: Put less control in individual classes and more control here from external API
+    //  classes should be more modular and less self-controlling and provide better API to control
+    //  them, that is also robust and can be used in all common situations.
+
+    // TODO: Design this API for these classes with future usage in mind.
+
     init {
         eventRecorder.addOnEventListener(::onEvent)
-        videoRecorder.setBufferReadyListener(::onBufferReady)
+        screenRecorder.setOnBufferReady(::onBufferReady)
     }
 
     override fun onFirstActivityStarted(activity: Activity) {
         generateSessionId()
         sendEvent(SessionEvent(sessionId, SystemClock.elapsedRealtime(), Event.StartEvent))
-        videoRecorder.start()
+        screenRecorder.start()
     }
 
     override fun onLastActivityStopped(activity: Activity) {
-        videoRecorder.stop()
+        GlobalScope.launch(Dispatchers.IO) {
+            screenRecorder.stop()
+        }
         sendEvent(SessionEvent(sessionId, SystemClock.elapsedRealtime(), Event.EndEvent))
     }
 
@@ -46,7 +52,7 @@ class EventsController(
 
     private fun onBufferReady(buffer: ByteBuffer) {
         logd(TAG, "Video buffer received: ${buffer.limit().toHumanUnit()}")
-        val data = Base64.encodeToString(buffer.copy().array(), Base64.DEFAULT)
+        val data = Base64.encodeToString(buffer.array(), Base64.DEFAULT)
         sendEvent(
             SessionEvent(
                 sessionId,

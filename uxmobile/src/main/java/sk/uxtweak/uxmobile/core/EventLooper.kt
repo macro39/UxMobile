@@ -27,6 +27,11 @@ class EventLooper(private val connector: ConnectionManager) {
     private val channel = Channel<SessionEvent>(Channel.UNLIMITED)
     private val dispatcher = Executors.newFixedThreadPool(NO_THREADS).asCoroutineDispatcher()
 
+    // TODO: Should be limited channel and this class should serve just for sending events and not
+    //  as a store of cached events. This class should be used only when user decides to send events
+    //  through the API (this means another class is needed that will store events temporarily in
+    //  memory until user can decide what to do with it - discard, store permanently or send to
+    //  server
     init {
         logi(TAG, "Initializing EventLooper")
     }

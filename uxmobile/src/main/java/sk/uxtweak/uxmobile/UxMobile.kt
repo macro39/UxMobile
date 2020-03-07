@@ -11,6 +11,8 @@ import sk.uxtweak.uxmobile.UxMobile.start
 import sk.uxtweak.uxmobile.core.*
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
+import sk.uxtweak.uxmobile.media.ScreenRecorder
+import sk.uxtweak.uxmobile.media.VideoFormat
 import sk.uxtweak.uxmobile.net.WebSocketClient
 import java.io.File
 import java.io.FileNotFoundException
@@ -28,7 +30,7 @@ object UxMobile {
     private lateinit var application: Application
 
     private lateinit var eventRecorder: EventRecorder
-    private lateinit var videoRecorder: VideoRecorder
+    private lateinit var screenRecorder: ScreenRecorder
     private lateinit var eventsSocket: WebSocketClient
     private lateinit var connectionManager: ConnectionManager
     private lateinit var eventsController: EventsController
@@ -92,12 +94,17 @@ object UxMobile {
         eventRecorder.registerObserver(ApplicationLifecycle)
 
         val displaySize = application.displaySize
-        videoRecorder = VideoRecorder(displaySize.width, displaySize.height)
+        screenRecorder = ScreenRecorder(
+            VideoFormat(
+                displaySize.width,
+                displaySize.height
+            )
+        )
 
         looper = EventLooper(connectionManager)
         looper.startGlobally()
 
-        eventsController = EventsController(eventRecorder, videoRecorder, eventsSocket, looper)
+        eventsController = EventsController(eventRecorder, screenRecorder, eventsSocket, looper)
         eventsController.registerObserver(ApplicationLifecycle)
     }
 
