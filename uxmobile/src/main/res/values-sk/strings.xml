@@ -19,4 +19,11 @@
     <string name="end">Ukončiť</string>
     <string name="back">Späť</string>
     <string name="terms_of_use">Podmienky používania</string>
+    <string name="disagree">Nesúhlasím</string>
+    <string name="strongly_disagree">Viac \nNesúhlasím</string>
+    <string name="more_or_less_disagree">Viac-menej \Nesúhlasím</string>
+    <string name="neutral">Neutrálny</string>
+    <string name="more_or_less_agree">Viac-menej \Súhlasím</string>
+    <string name="strongly_agree">Viac \nSúhlasím</string>
+    <string name="agree">Súhlasím</string>
 </resources>

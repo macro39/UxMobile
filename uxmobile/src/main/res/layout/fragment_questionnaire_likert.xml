@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+    <RadioGroup
+        android:id="@+id/radioGroup_likert"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/radioButton_disagree"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:button="@null"
+            android:drawableTop="?android:attr/listChoiceIndicatorSingle"
+            android:gravity="center_horizontal|bottom"
+            android:padding="2dp"
+            android:text="@string/strongly_disagree" />
+
+        <RadioButton
+            android:id="@+id/radioButton_strong_disagree"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:button="@null"
+            android:drawableTop="?android:attr/listChoiceIndicatorSingle"
+            android:gravity="center_horizontal|bottom"
+            android:padding="2dp"
+            android:text="@string/disagree" />
+
+        <RadioButton
+            android:id="@+id/radioButton_more_or_less_disagree"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:button="@null"
+            android:drawableTop="?android:attr/listChoiceIndicatorSingle"
+            android:gravity="center_horizontal|bottom"
+            android:padding="2dp"
+            android:text="@string/more_or_less_disagree" />
+
+        <RadioButton
+            android:id="@+id/radioButton_neutral"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:button="@null"
+            android:checked="true"
+            android:drawableTop="?android:attr/listChoiceIndicatorSingle"
+            android:gravity="center_horizontal|bottom"
+            android:padding="2dp"
+            android:text="@string/neutral" />
+
+        <RadioButton
+            android:id="@+id/radioButton_more_or_less_agree"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:button="@null"
+            android:drawableTop="?android:attr/listChoiceIndicatorSingle"
+            android:gravity="center_horizontal|bottom"
+            android:padding="2dp"
+            android:text="@string/more_or_less_agree" />
+
+        <RadioButton
+            android:id="@+id/radioButton_agree"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:button="@null"
+            android:drawableTop="?android:attr/listChoiceIndicatorSingle"
+            android:gravity="center"
+            android:padding="2dp"
+            android:text="@string/strongly_agree" />
+
+        <RadioButton
+            android:id="@+id/radioButton_strong_agree"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:button="@null"
+            android:drawableTop="?android:attr/listChoiceIndicatorSingle"
+            android:gravity="center_horizontal|bottom"
+            android:padding="2dp"
+            android:text="@string/agree" />
+    </RadioGroup>
+</androidx.constraintlayout.widget.ConstraintLayout>

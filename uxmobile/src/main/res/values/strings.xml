@@ -19,4 +19,11 @@
     <string name="end">End</string>
     <string name="back">Back</string>
     <string name="terms_of_use">Terms of use</string>
+    <string name="disagree">Disagree</string>
+    <string name="strongly_disagree">Strongly \nDisagree</string>
+    <string name="more_or_less_disagree">More or less \nDisagree</string>
+    <string name="neutral">Neutral</string>
+    <string name="more_or_less_agree">More or less \nAgree</string>
+    <string name="strongly_agree">Strongly \nAgree</string>
+    <string name="agree">Agree</string>
 </resources>

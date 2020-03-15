@@ -93,6 +93,12 @@ open class QuestionnaireBaseFragment : Fragment() {
                     QuestionnaireOptionsCheckbox()
                 )
             }
+            Constants.QUESTION_TYPE_LIKERT_5 -> {
+                setQuestionTypeLikert7(false)
+            }
+            Constants.QUESTION_TYPE_LIKERT_7 -> {
+                setQuestionTypeLikert7(true)
+            }
         }
     }
 
@@ -105,6 +111,17 @@ open class QuestionnaireBaseFragment : Fragment() {
         fragmentQuestionnaireOptionsText.arguments = bundle
 
         setQuestionTypeFragment(fragmentQuestionnaireOptionsText)
+    }
+
+    private fun setQuestionTypeLikert7(likert7: Boolean) {
+        val bundle = Bundle()
+        bundle.putBoolean(Constants.EXTRA_IS_LIKERT_7, likert7)
+
+        val fragmentQuestionnaireOptionsLikert =
+            QuestionnaireOptionsLikert()
+        fragmentQuestionnaireOptionsLikert.arguments = bundle
+
+        setQuestionTypeFragment(fragmentQuestionnaireOptionsLikert)
     }
 
     private fun setQuestionTypeFragment(newFragment: Fragment) {
