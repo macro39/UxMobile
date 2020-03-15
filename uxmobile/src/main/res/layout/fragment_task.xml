@@ -1,58 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/constraintsLayout_task"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
-    android:orientation="vertical">
+    android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/textView_task_name"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintsLayout_task"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/textView_task_description"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.01" />
+        android:background="@android:color/transparent"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textView_task_number"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10sp"
-        android:textAlignment="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_task_name"
-        android:gravity="center_horizontal" />
+        <TextView
+            android:id="@+id/textView_task_name"
+            style="@style/TextView.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/textView_task_description"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.01" />
 
-    <TextView
-        android:id="@+id/textView_task_description"
-        android:layout_width="match_parent"
-        android:textAlignment="center"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/button_task_admit"
-        app:layout_constraintTop_toBottomOf="@+id/textView_task_name"
-        tools:layout_editor_absoluteX="-16dp"
-        android:gravity="center_horizontal" />
+        <TextView
+            android:id="@+id/textView_task_number"
+            style="@style/TextView.Order"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="0sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_task_name" />
 
-    <Button
-        android:id="@+id/button_task_admit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:text="@string/task_accept"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_task_description"
-        app:layout_constraintVertical_bias="0.05" />
+        <TextView
+            android:id="@+id/textView_task_description"
+            style="@style/TextView.Description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/button_task_admit"
+            app:layout_constraintTop_toBottomOf="@+id/textView_task_name" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <Button
+            android:id="@+id/button_task_admit"
+            style="@style/Button.Base"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/task_accept"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_task_description"
+            app:layout_constraintVertical_bias="0.05" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

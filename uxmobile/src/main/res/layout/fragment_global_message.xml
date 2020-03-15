@@ -6,53 +6,62 @@
     android:layout_height="match_parent"
     android:background="@android:color/transparent">
 
-    <TextView
-        style="@style/Base.Widget.AppCompat.TextView.Title"
-        android:id="@+id/textView_global_message"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:text="@string/global_message_title"
-        android:textAlignment="center"
-        android:textAllCaps="true"
-        app:layout_constraintBottom_toTopOf="@+id/button_global_message_no"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.9" />
-
-    <Button
-        android:id="@+id/button_global_message_yes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/yes"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/button_global_message_later"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="spread"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/button_global_message_no"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/no"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="spread"
-        app:layout_constraintStart_toEndOf="@+id/button_global_message_later"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/button_global_message_later"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/later"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/button_global_message_no"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/button_global_message_yes"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/textView_global_message"
+            style="@style/TextView.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/global_message_title"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0" />
+
+        <Button
+            android:id="@+id/button_global_message_yes"
+            style="@style/Button.Base"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/yes"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/button_global_message_later"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_global_message"
+            app:layout_constraintVertical_bias="0" />
+
+        <Button
+            android:id="@+id/button_global_message_no"
+            style="@style/Button.Base"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toEndOf="@+id/button_global_message_later"
+            app:layout_constraintTop_toBottomOf="@id/textView_global_message"
+            app:layout_constraintVertical_bias="0" />
+
+        <Button
+            android:id="@+id/button_global_message_later"
+            style="@style/Button.Base"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/later"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/button_global_message_no"
+            app:layout_constraintStart_toEndOf="@+id/button_global_message_yes"
+            app:layout_constraintTop_toBottomOf="@id/textView_global_message"
+            app:layout_constraintVertical_bias="0" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

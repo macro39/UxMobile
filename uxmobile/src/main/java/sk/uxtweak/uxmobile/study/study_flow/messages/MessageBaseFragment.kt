@@ -28,15 +28,17 @@ abstract class MessageBaseFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val thankYouMessage: StudyMessage = getData()
+        val message: StudyMessage = getData()
 
-        textView_message_title.text = thankYouMessage.title
+        textView_message_title.text = message.title
+
+//        textVIew_message_content.movementMethod = ScrollingMovementMethod()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            textVIew_message_content.text =
-                Html.fromHtml(thankYouMessage.content, Html.FROM_HTML_MODE_COMPACT)
+            textView_message_text.text =
+                Html.fromHtml(message.content, Html.FROM_HTML_MODE_COMPACT)
         } else {
-            textVIew_message_content.text = Html.fromHtml(thankYouMessage.content)
+            textView_message_text.text = Html.fromHtml(message.content)
         }
 
         button_message_next.setOnClickListener {

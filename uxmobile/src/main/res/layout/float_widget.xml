@@ -11,7 +11,6 @@
         <ImageView
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_marginTop="4dp"
             android:src="@drawable/img_circle" />
     </RelativeLayout>
 
@@ -41,14 +40,12 @@
             android:orientation="vertical">
 
             <TextView
+                style="@style/TextView.Description"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="@string/plugin_name"
-                android:textAlignment="center"
                 android:textColor="@color/black"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:gravity="center_horizontal" />
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="wrap_content"

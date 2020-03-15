@@ -1,5 +1,6 @@
 package sk.uxtweak.uxmobile.study.study_flow.messages
 
+import kotlinx.android.synthetic.main.fragment_message.*
 import sk.uxtweak.uxmobile.study.model.StudyMessage
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
 

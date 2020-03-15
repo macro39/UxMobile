@@ -16,4 +16,7 @@
     <string name="task_list">Momentálne dostupné úlohy</string>
     <string name="end_task_performing">Skončiť s vykonávaním úloh</string>
     <string name="skip">Preskočiť</string>
+    <string name="end">Ukončiť</string>
+    <string name="back">Späť</string>
+    <string name="terms_of_use">Podmienky používania</string>
 </resources>

@@ -16,4 +16,7 @@
     <string name="task_list">List of currently available tasks</string>
     <string name="end_task_performing">End performing tasks</string>
     <string name="skip">Skip</string>
+    <string name="end">End</string>
+    <string name="back">Back</string>
+    <string name="terms_of_use">Terms of use</string>
 </resources>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+
     <style name="Theme.Base" parent="Theme.AppCompat.Light">
         <item name="android:colorBackground">@android:color/white</item>
         <item name="android:textColor">@android:color/black</item>
@@ -11,8 +12,32 @@
         <item name="android:buttonTint" tools:targetApi="lollipop">@color/black</item>
     </style>
 
-    <style name="Base.Widget.AppCompat.TextView.Title" parent="Base.Widget.AppCompat.TextView">
-        <item name="android:textSize">28sp</item>
+    <style name="TextView.Base" parent="Base.Widget.AppCompat.TextView">
+        <item name="android:padding">10sp</item>
         <item name="android:gravity">center</item>
+        <item name="android:textAlignment" tools:targetApi="jelly_bean_mr1">center</item>
+    </style>
+
+    <style name="TextView.Title" parent="TextView.Base">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+        <!--        <item name="android:textAllCaps">true</item>-->
+    </style>
+
+    <style name="TextView.Description" parent="TextView.Base">
+        <item name="android:textSize">20sp</item>
+<!--        <item name="layout_constrainedHeight">true</item>-->
+<!--        <item name="android:scrollbars">vertical</item>-->
+    </style>
+
+    <style name="TextView.Order" parent="TextView.Base">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="Button.Base" parent="Widget.AppCompat.Button">
+        <item name="android:padding">5sp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 </resources>

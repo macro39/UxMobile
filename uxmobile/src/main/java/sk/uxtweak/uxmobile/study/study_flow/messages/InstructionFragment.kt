@@ -32,13 +32,17 @@ class InstructionFragment : Fragment() {
 
         textView_instructions_title.text = instructions.title
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            textView_instructions_consent.text = Html.fromHtml(instructions.content, Html.FROM_HTML_MODE_COMPACT)
-        } else {
-            textView_instructions_consent.text = Html.fromHtml(instructions.content)
+        if ((activity as StudyFlowFragmentManager).isOnlyInstructionDisplayed()) {
+            button_instruction_understand.text = getString(R.string.back)
         }
 
-        button_instruction_next.setOnClickListener {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            textView_instructions_content.text = Html.fromHtml(instructions.content, Html.FROM_HTML_MODE_COMPACT)
+        } else {
+            textView_instructions_content.text = Html.fromHtml(instructions.content)
+        }
+
+        button_instruction_understand.setOnClickListener {
             (activity as StudyFlowFragmentManager).showNextFragment(this)
         }
     }

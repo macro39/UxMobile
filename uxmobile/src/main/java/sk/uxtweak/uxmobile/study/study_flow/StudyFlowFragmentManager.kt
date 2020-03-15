@@ -67,8 +67,6 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         if (savedInstanceState !== null) {
 
             if (setColorFromStudyConfig) {
-//                setTheme(R.style.Theme_AppCompat_DayNight_DarkActionBar)
-//                setContentView(R.layout.activity_study_flow)
                 setColorFromConfig()
                 return
             }
@@ -213,6 +211,10 @@ class StudyFlowFragmentManager : AppCompatActivity() {
     fun showRejectedFragment() {
         this.disableEveryBackAction()
         showFragment(RejectedMessage())
+    }
+
+    fun isOnlyInstructionDisplayed(): Boolean {
+        return isOnlyInstructionsDisplayed
     }
 
     /**

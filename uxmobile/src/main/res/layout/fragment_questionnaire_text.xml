@@ -10,7 +10,7 @@
         android:id="@+id/editText_questionnaire_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxHeight="200dp"
+        android:maxHeight="200sp"
         android:inputType="textMultiLine"
         android:hint="@string/answer_here"
         android:textColorHint="@color/black"
