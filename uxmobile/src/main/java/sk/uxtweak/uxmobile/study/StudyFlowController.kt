@@ -16,7 +16,6 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetService
 import sk.uxtweak.uxmobile.study.model.QuestionnaireRules
-import sk.uxtweak.uxmobile.study.model.Study
 import sk.uxtweak.uxmobile.study.model.StudyTask
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
 import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
@@ -67,9 +66,6 @@ class StudyFlowController(
             "            \"question_options\": [\n" +
             "                \"man\",\n" +
             "                \"women\"\n" +
-            "            ],\n" +
-            "            \"rule_values\": [\n" +
-            "                \"man\"\n" +
             "            ]\n" +
             "        },\n" +
             "        {\n" +
@@ -82,10 +78,59 @@ class StudyFlowController(
             "            \"question_options\": [\n" +
             "                \"<18\",\n" +
             "                \">18\"\n" +
-            "            ],\n" +
-            "            \"rule_values\": [\n" +
-            "                \">18\"\n" +
             "            ]\n" +
+            "        },\n" +
+            "        {\n" +
+            "            \"id\": \"3\",\n" +
+            "            \"question_required\": true,\n" +
+            "            \"description\": \"Where are you from?\",\n" +
+            "            \"answer_type\": \"input\",\n" +
+            "            \"answer_required\": true,\n" +
+            "            \"reason_needed\": false\n" +
+            "        },\n" +
+            "        {\n" +
+            "            \"id\": \"4\",\n" +
+            "            \"question_required\": true,\n" +
+            "            \"description\": \"What's your favourite song?\",\n" +
+            "            \"answer_type\": \"textarea\",\n" +
+            "            \"answer_required\": true,\n" +
+            "            \"reason_needed\": false\n" +
+            "        },\n" +
+            "        {\n" +
+            "            \"id\": \"5\",\n" +
+            "            \"question_required\": true,\n" +
+            "            \"description\": \"Are you only child?\",\n" +
+            "            \"answer_type\": \"checkbox\",\n" +
+            "            \"answer_required\": true,\n" +
+            "            \"reason_needed\": false,\n" +
+            "            \"question_options\": [\n" +
+            "                \"yes\",\n" +
+            "                \"no\"\n" +
+            "            ]\n" +
+            "        },\n" +
+            "        {\n" +
+            "            \"id\": \"6\",\n" +
+            "            \"question_required\": true,\n" +
+            "            \"description\": \"Do you agree - Cancer is the worst disease?\",\n" +
+            "            \"answer_type\": \"5_point_linker_scale\",\n" +
+            "            \"answer_required\": true,\n" +
+            "            \"reason_needed\": false\n" +
+            "        },\n" +
+            "        {\n" +
+            "            \"id\": \"7\",\n" +
+            "            \"question_required\": true,\n" +
+            "            \"description\": \"Do you agree - BMW is the best car producer?\",\n" +
+            "            \"answer_type\": \"7_point_linker_scale\",\n" +
+            "            \"answer_required\": true,\n" +
+            "            \"reason_needed\": false\n" +
+            "        },\n" +
+            "        {\n" +
+            "            \"id\": \"8\",\n" +
+            "            \"question_required\": true,\n" +
+            "            \"description\": \"Do you agree - 70% of people will have corona in one year?\",\n" +
+            "            \"answer_type\": \"net_promoter_score\",\n" +
+            "            \"answer_required\": true,\n" +
+            "            \"reason_needed\": false\n" +
             "        }\n" +
             "    ]\n" +
             "}"

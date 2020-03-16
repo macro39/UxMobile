@@ -99,6 +99,11 @@ open class QuestionnaireBaseFragment : Fragment() {
             Constants.QUESTION_TYPE_LIKERT_7 -> {
                 setQuestionTypeLikert7(true)
             }
+            Constants.QUESTION_TYPE_NET_PROMOTER -> {
+                setQuestionTypeFragment(
+                    QuestionnaireOptionsNetPromoter()
+                )
+            }
         }
     }
 
