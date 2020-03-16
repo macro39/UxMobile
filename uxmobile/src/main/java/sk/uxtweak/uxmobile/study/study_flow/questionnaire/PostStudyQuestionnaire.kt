@@ -31,8 +31,8 @@ class PostStudyQuestionnaire : QuestionnaireBaseFragment() {
             (activity as StudyFlowFragmentManager).getData(this) as StudyQuestionnaire
 
         configure(
-            question.title,
-            question.description,
+            question.name,
+            question.instructions,
             question.questions,
             this
         )
@@ -44,7 +44,7 @@ class PostStudyQuestionnaire : QuestionnaireBaseFragment() {
                 for (questionAnswer: QuestionAnswer in questionAnswers) {
                     Log.d(
                         "PostStudyQuestionnaire",
-                        questionAnswer.id + " - " + questionAnswer.answers.toString()
+                        questionAnswer.id.toString() + " - " + questionAnswer.answers.toString()
                     )
                 }
 

@@ -4,13 +4,13 @@ import com.google.gson.annotations.SerializedName
 
 
 /**
- * Created by Kamil Macek on 21.2.2020.
+ * Created by Kamil Macek on 16.3.2020.
  */
-data class QuestionAnswer(
+data class QuestionOption(
 
     @SerializedName("id")
     val id: Int,
 
-    @SerializedName("answers")
-    var answers: ArrayList<String>
+    @SerializedName("option")
+    val option: String
 )

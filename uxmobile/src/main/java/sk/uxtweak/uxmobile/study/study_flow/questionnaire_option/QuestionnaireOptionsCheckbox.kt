@@ -36,7 +36,12 @@ class QuestionnaireOptionsCheckbox : QuestionnaireOptionsBaseFragment(),
             val checkBox = CheckBox(activity as Context?)
 
             checkBox.id = i
-            checkBox.text = question.questionOptions[i]
+            checkBox.text = question.questionOptions[i].option
+
+            if (i == 0) {
+                checkBox.isChecked = true
+                addAnswer(0)
+            }
 
             checkBox.setOnCheckedChangeListener(this)
             checkbox_questionnaire_view.addView(checkBox)

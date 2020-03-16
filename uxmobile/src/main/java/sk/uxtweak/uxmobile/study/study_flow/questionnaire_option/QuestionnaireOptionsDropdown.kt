@@ -29,10 +29,14 @@ class QuestionnaireOptionsDropdown : QuestionnaireOptionsBaseFragment() {
     }
 
     override fun addOptions() {
+
+        val options = arrayListOf<String>()
+        question.questionOptions.forEach { options.add(it.option) }
+
         val adapter = activity?.let {
             ArrayAdapter<String>(
                 it,
-                android.R.layout.simple_spinner_item, question.questionOptions.asList()
+                android.R.layout.simple_spinner_item, options
             )
         }
 

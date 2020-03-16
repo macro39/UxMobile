@@ -15,7 +15,7 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENA
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetService
-import sk.uxtweak.uxmobile.study.model.QuestionnaireRules
+import sk.uxtweak.uxmobile.study.model.StudyQuestionnaire
 import sk.uxtweak.uxmobile.study.model.StudyTask
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
 import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
@@ -53,19 +53,26 @@ class StudyFlowController(
 
     private fun setDummyQuestionnaireRules() {
         val questionnaireRules = "{\n" +
-            "    \"title\": \"SCREENING QUESTIONNAIRE\",\n" +
-            "    \"description\": \"Please answers this question\",\n" +
-            "    \"rules\": [\n" +
+            "    \"name\": \"SCREENING QUESTIONNAIRE\",\n" +
+            "    \"instructions\": \"Please answers this question\",\n" +
+            "    \"questions\": [\n" +
             "        {\n" +
             "            \"id\": \"1\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
-            "            \"description\": \"What's your gender?\",\n" +
+            "            \"description\": \"Please choose your gender\",\n" +
             "            \"answer_type\": \"radiobtn\",\n" +
             "            \"answer_required\": true,\n" +
             "            \"reason_needed\": false,\n" +
             "            \"question_options\": [\n" +
-            "                \"man\",\n" +
-            "                \"women\"\n" +
+            "                {\n" +
+            "                    \"id\": \"1\",\n" +
+            "                    \"option\": \"man\"\n" +
+            "                },\n" +
+            "                {\n" +
+            "                    \"id\": \"2\",\n" +
+            "                    \"option\": \"women\"\n" +
+            "                }\n" +
             "            ]\n" +
             "        },\n" +
             "        {\n" +
@@ -76,8 +83,14 @@ class StudyFlowController(
             "            \"answer_required\": true,\n" +
             "            \"reason_needed\": false,\n" +
             "            \"question_options\": [\n" +
-            "                \"<18\",\n" +
-            "                \">18\"\n" +
+            "                {\n" +
+            "                    \"id\": \"1\",\n" +
+            "                    \"option\": \">18\"\n" +
+            "                },\n" +
+            "                {\n" +
+            "                    \"id\": \"2\",\n" +
+            "                    \"option\": \"<18\"\n" +
+            "                }\n" +
             "            ]\n" +
             "        },\n" +
             "        {\n" +
@@ -104,8 +117,14 @@ class StudyFlowController(
             "            \"answer_required\": true,\n" +
             "            \"reason_needed\": false,\n" +
             "            \"question_options\": [\n" +
-            "                \"yes\",\n" +
-            "                \"no\"\n" +
+            "                {\n" +
+            "                    \"id\": \"1\",\n" +
+            "                    \"option\": \"yes\"\n" +
+            "                },\n" +
+            "                {\n" +
+            "                    \"id\": \"2\",\n" +
+            "                    \"option\": \"no\"\n" +
+            "                }\n" +
             "            ]\n" +
             "        },\n" +
             "        {\n" +
@@ -136,10 +155,10 @@ class StudyFlowController(
             "}"
 
         val gson = GsonBuilder().create()
-        val dummyQuestionnaireRules: QuestionnaireRules =
-            gson.fromJson(questionnaireRules, QuestionnaireRules::class.java)
+        val dummyStudyQuestionnaire: StudyQuestionnaire =
+            gson.fromJson(questionnaireRules, StudyQuestionnaire::class.java)
 
-        StudyDataHolder.questionnaireRules = dummyQuestionnaireRules
+        StudyDataHolder.screeningQuestionnaire = dummyStudyQuestionnaire
     }
 
     private fun setupBroadcastReceiver() {

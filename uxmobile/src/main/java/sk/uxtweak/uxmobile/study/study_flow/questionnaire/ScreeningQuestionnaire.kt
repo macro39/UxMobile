@@ -11,8 +11,8 @@ import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.fragment_base_questionaire.*
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.model.QuestionAnswer
-import sk.uxtweak.uxmobile.study.model.QuestionnaireRules
 import sk.uxtweak.uxmobile.study.model.Study
+import sk.uxtweak.uxmobile.study.model.StudyQuestionnaire
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
 import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 
@@ -32,13 +32,13 @@ class ScreeningQuestionnaire : QuestionnaireBaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val questionnaireRules: QuestionnaireRules =
-            (activity as StudyFlowFragmentManager).getData(this) as QuestionnaireRules
+        val screeningQuestionnaire: StudyQuestionnaire =
+            (activity as StudyFlowFragmentManager).getData(this) as StudyQuestionnaire
 
         configure(
-            questionnaireRules.title,
-            questionnaireRules.description,
-            questionnaireRules.rules,
+            screeningQuestionnaire.name,
+            screeningQuestionnaire.instructions,
+            screeningQuestionnaire.questions,
             this
         )
 
@@ -53,7 +53,7 @@ class ScreeningQuestionnaire : QuestionnaireBaseFragment() {
                 for (questionAnswer: QuestionAnswer in questionAnswers) {
                     Log.d(
                         "ScreeningQuestionnaire",
-                        questionAnswer.id + " - " + questionAnswer.answers.toString()
+                        questionAnswer.id.toString() + " - " + questionAnswer.answers.toString()
                     )
                 }
 
@@ -77,88 +77,76 @@ class ScreeningQuestionnaire : QuestionnaireBaseFragment() {
 
     private fun dummyResponseData(): String {
         return "{\n" +
-            "        \"name\": \"Study 1\",\n" +
-            "        \"id\": \"1\",\n" +
-            "\t\"studyBrandings\": {\n" +
-            "        \t\"primaryColor\": \"#008570\",\n" +
-            "        \t\"secondaryColor\": \"#FFF57C00\"\n" +
-            "    \t},\n" +
-            "        \"respondent_id\": \"RESPONDENT_ID\",\n" +
-            "        \"closing_rule\": \"string\",\n" +
-            "        \"closing_date\": 122,\n" +
-            "        \"respondent_limit\": 100,\n" +
-            "        \"welcome_message\": {\n" +
-            "\t\t\"title\": \"Welcome!\",\n" +
-            "            \t\"content\": \"Welcome to this study, and thank you for agreeing to participate! The activity shouldn't take longer than 30 to 60 minutes to complete. Your response will help us to better understand how people behave in our app.\"\n" +
-            "\t},\n" +
-            "        \"introduction\": {\n" +
-            "\t\t\"title\": \"Instructions\",\n" +
-            "            \t\"content\": \"<b>Here's how it works:</b><ol><li>You will be presented with a task.</li><li>After reading the task, you will be redirected to a website.</li><li>Click through the website as you naturally would in order to fulfill the task.</li><li>Once you arrive at the intended destination, click <b>Task done</b> and the task will end.</li><li>Repeat the previous steps for all the studyTasks to complete the RePlay study.</li></ol><em>This is not a test of your ability, there are no right or wrong answers.</em><br><b>That's it, let's get started!</b></div>\"\n" +
-            "\t},\n" +
-            " \t\"reject_message\": {\n" +
-            "\t\t\"title\": \"Thank you and hope we see you next time!\",\n" +
-            "            \t\"content\": \"We are a little sad, but also next day is there a opportunity to change your favorite application by participating in study!\"\n" +
-            "\t},\n" +
-            "        \"pre_study_questionnaire\": {\n" +
-            "\t    \t\"title\": \"PRE STUDY QUESTIONNAIRE\",\n" +
-            "            \t\"description\": \"Please fill this questionnaire\",\n" +
-            "            \t\"questions\": [\n" +
-            "                \t{\n" +
-            "                    \t\"id\": \"1\",\n" +
-            "                    \t\"name\": \"StudyQuestion name\",\n" +
-            "                    \t\"question_required\": true,\n" +
-            "                    \t\"description\": \"Have you ever been working on study?\",\n" +
-            "                    \t\"answer_type\": \"checkbox\",\n" +
-            "                    \t\"answer_required\": true,\n" +
-            "                    \t\"reason_needed\": false,\n" +
-            "                    \t\"question_options\": [\n" +
-            "                        \t\"yes\",\n" +
-            "\t\t\t\t\"no\"\n" +
-            "                    \t\t]\n" +
-            "                \t}\n" +
-            "            \t]\n" +
-            "        },\n" +
-            "        \"task_list\": [\n" +
+            "    \"name\":\"Study 1\",\n" +
+            "    \"id\":\"1\",\n" +
+            "    \"closing_rule\":\"string\",\n" +
+            "    \"closing_date\":122,\n" +
+            "    \"respondent_limit\":100,\n" +
+            "    \"welcome_message\":\"Welcome to this study, and thank you for agreeing to participate! The activity shouldn't take longer than 30 to 60 minutes to complete. Your response will help us to better understand how people behave in our app.\",\n" +
+            "    \"introduction\":\"<b>Here's how it works:</b><ol><li>You will be presented with a task.</li><li>After reading the task, you will be redirected to a website.</li><li>Click through the website as you naturally would in order to fulfill the task.</li><li>Once you arrive at the intended destination, click <b>Task done</b> and the task will end.</li><li>Repeat the previous steps for all the studyTasks to complete the RePlay study.</li></ol><em>This is not a test of your ability, there are no right or wrong answers.</em><br><b>That's it, let's get started!</b></div>\",\n" +
+            "    \"pre_study_questionnaire\":{\n" +
+            "        \"name\":\"PRE STUDY QUESTIONNAIRE\",\n" +
+            "        \"instructions\":\"Please fill this questionnaire\",\n" +
+            "        \"questions\":[\n" +
             "            {\n" +
-            "                \"name\": \"Task n.1\",\n" +
-            "                \"description\": \"MARK WHEN YOU HAVE BIRTHDAY\",\n" +
-            "                \"starting_screen\": \"FILL\",\n" +
-            "                \"closing_screens\": [\n" +
-            "                    \"FILL\"\n" +
-            "                ]\n" +
-            "            },\n" +
-            "\t    {\n" +
-            "                \"name\": \"Task n.2\",\n" +
-            "                \"description\": \"REATE NEW APPOINTMENT ON 27.05.2022\",\n" +
-            "                \"starting_screen\": \"FILL\",\n" +
-            "                \"closing_screens\": [\n" +
-            "                    \"FILL\"\n" +
+            "                \"id\":\"1\",\n" +
+            "                \"name\":\"What's your gender?\",\n" +
+            "                \"question_required\":true,\n" +
+            "                \"description\":\"Have you ever been working on study?\",\n" +
+            "                \"answer_type\":\"radiobtn\",\n" +
+            "                \"answer_required\":true,\n" +
+            "                \"reason_needed\":false,\n" +
+            "                \"question_options\":[\n" +
+            "                    {\n" +
+            "                        \"id\":\"1\",\n" +
+            "                        \"option\":\"yes\"\n" +
+            "                    },\n" +
+            "                    {\n" +
+            "                        \"id\":\"2\",\n" +
+            "                        \"option\":\"no\"\n" +
+            "                    }\n" +
             "                ]\n" +
             "            }\n" +
-            "        ],\n" +
-            "        \"post_study_questionnaire\": {\n" +
-            "\t\t\"title\": \"POST STUDY QUESTIONNAIRE\",\n" +
-            "            \t\"description\": \"Please fill this questionnaire\",\n" +
-            "            \t\"questions\": [\n" +
-            "                \t{\n" +
-            "                    \t\"id\": \"1\",\n" +
-            "                    \t\"name\": \"StudyQuestion name\",\n" +
-            "                    \t\"question_required\": true,\n" +
-            "                    \t\"description\": \"Were tasks hard to complete?\",\n" +
-            "                    \t\"answer_type\": \"5_point_linker_scale\",\n" +
-            "                    \t\"answer_required\": true,\n" +
-            "                    \t\"reason_needed\": false,\n" +
-            "                    \t\"question_options\": [\n" +
-            "                        \t\"yes\",\n" +
-            "\t\t\t\t\"no\"\n" +
-            "                    \t\t]\n" +
-            "                \t}\n" +
-            "            \t]\n" +
+            "        ]\n" +
+            "    },\n" +
+            "    \"task_list\":[\n" +
+            "        {\n" +
+            "            \"name\":\"Task n.1\",\n" +
+            "            \"description\":\"MARK WHEN YOU HAVE BIRTHDAY\",\n" +
+            "            \"starting_screen\":\"FILL\",\n" +
+            "            \"closing_screens\":[\n" +
+            "                \"FILL\"\n" +
+            "            ]\n" +
             "        },\n" +
-            "        \"thank_you_message\": {\n" +
-            "\t\t\"title\": \"Thank you, that's all!\",\n" +
-            "            \t\"content\": \"All done, awesome! Thanks again for your participation. Your feedback is incredibly useful in helping us understand how people interact with our app, so that we can make our application easier to use. You may now going back to your work!\"\t\n" +
-            "\t}\n" +
-            "    }"
+            "        {\n" +
+            "            \"name\":\"Task n.2\",\n" +
+            "            \"description\":\"CREATE NEW APPOINTMENT ON 27.05.2022\",\n" +
+            "            \"starting_screen\":\"FILL\",\n" +
+            "            \"closing_screens\":[\n" +
+            "                \"FILL\"\n" +
+            "            ]\n" +
+            "        }\n" +
+            "    ],\n" +
+            "    \"post_study_questionnaire\":{\n" +
+            "        \"name\":\"POST STUDY QUESTIONNAIRE\",\n" +
+            "        \"instructions\":\"Please fill this questionnaire\",\n" +
+            "        \"questions\":[\n" +
+            "            {\n" +
+            "                \"id\":\"1\",\n" +
+            "                \"name\":\"What's your gender?\",\n" +
+            "                \"question_required\":true,\n" +
+            "                \"description\":\"Were tasks hard to complete?\",\n" +
+            "                \"answer_type\":\"5_point_linker_scale\",\n" +
+            "                \"answer_required\":true,\n" +
+            "                \"reason_needed\":false\n" +
+            "            }\n" +
+            "        ]\n" +
+            "    },\n" +
+            "    \"thank_you_message\":\"All done, awesome! Thanks again for your participation. Your feedback is incredibly useful in helping us understand how people interact with our app, so that we can make our application easier to use. You may now going back to your work!\",\n" +
+            "    \"study_branding\":{\n" +
+            "        \"primary_color\":\"#008570\",\n" +
+            "        \"secondary_color\":\"#FFF57C00\"\n" +
+            "    }\n" +
+            "}"
     }
 }

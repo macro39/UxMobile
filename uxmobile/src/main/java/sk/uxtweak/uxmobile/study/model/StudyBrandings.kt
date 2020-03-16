@@ -7,9 +7,9 @@ import com.google.gson.annotations.SerializedName
  */
 data class StudyBrandings(
 
-    @SerializedName("primaryColor")
+    @SerializedName("primary_color")
     val primaryColor: String,
 
-    @SerializedName("secondaryColor")
+    @SerializedName("secondary_color")
     val secondaryColor: String
 )

@@ -26,20 +26,20 @@ abstract class QuestionnaireOptionsBaseFragment : Fragment() {
     }
 
     fun setAnswer(checkedId: Int) {
-        questionAnswers = arrayListOf(question.questionOptions[checkedId])
+        questionAnswers = arrayListOf(question.questionOptions[checkedId].id.toString())
     }
 
     fun addAnswer(checkedId: Int) {
         val answerToAdd = question.questionOptions[checkedId]
-        if (!questionAnswers.contains(answerToAdd)) {
-            questionAnswers.add(answerToAdd)
+        if (!questionAnswers.contains(answerToAdd.id.toString())) {
+            questionAnswers.add(answerToAdd.id.toString())
         }
     }
 
     fun removeAnswer(checkedId: Int) {
         val answerToAdd = question.questionOptions[checkedId]
-        if (questionAnswers.contains(answerToAdd)) {
-            questionAnswers.remove(answerToAdd)
+        if (questionAnswers.contains(answerToAdd.id.toString())) {
+            questionAnswers.remove(answerToAdd.id.toString())
         }
     }
 

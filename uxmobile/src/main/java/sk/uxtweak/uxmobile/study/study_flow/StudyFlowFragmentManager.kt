@@ -18,6 +18,7 @@ import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENABLED
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
+import sk.uxtweak.uxmobile.study.model.StudyMessage
 import sk.uxtweak.uxmobile.study.study_flow.base.ConsentFragment
 import sk.uxtweak.uxmobile.study.study_flow.base.GlobalMessageFragment
 import sk.uxtweak.uxmobile.study.study_flow.messages.InstructionFragment
@@ -317,7 +318,7 @@ class StudyFlowFragmentManager : AppCompatActivity() {
     fun getData(actualFragment: Fragment): Any {
         when (actualFragment) {
             is ScreeningQuestionnaire -> {
-                val data = StudyDataHolder.questionnaireRules
+                val data = StudyDataHolder.screeningQuestionnaire
                 return data!!
             }
             is PreStudyQuestionnaire -> {
@@ -330,16 +331,25 @@ class StudyFlowFragmentManager : AppCompatActivity() {
                 return StudyDataHolder.rejectMessage
             }
             is WelcomeMessage -> {
-                return StudyDataHolder.study?.welcomeMessage!!
+                return StudyMessage(
+                    Constants.WELCOME_MESSAGE_TITLE,
+                    StudyDataHolder.study?.welcomeMessage!!
+                )
             }
             is InstructionFragment -> {
-                return StudyDataHolder.study?.instruction!!
+                return StudyMessage(
+                    Constants.INSTRUCTION_TITLE,
+                    StudyDataHolder.study?.instruction!!
+                )
             }
             is TaskFragment -> {
                 return StudyDataHolder.tasks
             }
             is ThankYouMessage -> {
-                return StudyDataHolder.study?.thankYouMessage!!
+                return StudyMessage(
+                    Constants.THANK_YOU_MESSAGE_TITLE,
+                    StudyDataHolder.study?.thankYouMessage!!
+                )
             }
         }
         return ""

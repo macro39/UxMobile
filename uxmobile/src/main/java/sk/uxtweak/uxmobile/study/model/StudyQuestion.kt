@@ -9,7 +9,7 @@ import com.google.gson.annotations.SerializedName
 data class StudyQuestion(
 
     @SerializedName("id")
-    val id: String,
+    val id: Int,
 
     @SerializedName("name")
     val name: String,
@@ -24,14 +24,11 @@ data class StudyQuestion(
     val answerType: String,
 
     @SerializedName("answer_required")
-    val answerRequired: String,
+    val answerRequired: Boolean,
 
     @SerializedName("reason_needed")
     val reasonNeeded: Boolean,
 
     @SerializedName("question_options")
-    val questionOptions: Array<String>,
-
-    @SerializedName("rule_values")
-    val ruleValues: Array<String>
+    val questionOptions: ArrayList<QuestionOption>
 )

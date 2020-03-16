@@ -29,8 +29,8 @@ class PostTaskQuestionnaire : QuestionnaireBaseFragment() {
         val question: StudyQuestionnaire =
             (activity as StudyFlowFragmentManager).getData(this) as StudyQuestionnaire
 
-        textView_questionnaire_title.text = question.title
-        textView_questionnaire_description.text = question.description
+        textView_questionnaire_title.text = question.name
+        textView_questionnaire_description.text = question.instructions
 
         button_questionnaire_next.setOnClickListener {
             (activity as StudyFlowFragmentManager).showNextFragment(this)

@@ -44,7 +44,7 @@ class QuestionnaireOptionsRadioButton : QuestionnaireOptionsBaseFragment() {
                 setAnswer(i)
             }
 
-            radioButton.text = question!!.questionOptions[i]
+            radioButton.text = question.questionOptions[i].option
 
             radioGroup_questionnaire.addView(radioButton)
         }

@@ -37,12 +37,11 @@ class QuestionnaireOptionsLikert : QuestionnaireOptionsBaseFragment() {
         configure()
 
         radioGroup_likert.setOnCheckedChangeListener { group, checkedId ->
-            questionAnswers =
-                arrayListOf(group.findViewById<RadioButton>(checkedId).text.toString())
+            setText(group.findViewById<RadioButton>(checkedId).text.toString())
         }
     }
 
     override fun addOptions() {
-        questionAnswers = arrayListOf(radioButton_neutral.text.toString())
+        setText(radioButton_neutral.text.toString())
     }
 }

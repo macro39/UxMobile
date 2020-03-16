@@ -24,8 +24,11 @@ open class Constants {
         const val QUESTION_TYPE_LIKERT_5 = "5_point_linker_scale"
         const val QUESTION_TYPE_LIKERT_7 = "7_point_linker_scale"
         const val QUESTION_TYPE_NET_PROMOTER = "net_promoter_score"
-        const val REJECT_MESSAGE_TITLE = "DEFAULT REJECT MESSAGE"
+        const val REJECT_MESSAGE_TITLE = "Thank you and hope we see you next time!"
         const val REJECT_MESSAGE_CONTENT =
             "We are a little sad, but also next day is there a opportunity to change your favorite application by participating in study!"
+        const val WELCOME_MESSAGE_TITLE = "Welcome!"
+        const val INSTRUCTION_TITLE = "Instructions"
+        const val THANK_YOU_MESSAGE_TITLE = "Thank you, that's all!"
     }
 }

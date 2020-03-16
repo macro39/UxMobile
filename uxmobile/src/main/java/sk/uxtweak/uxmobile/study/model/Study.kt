@@ -13,12 +13,6 @@ data class Study(
     @SerializedName("id")
     val studyId: String,
 
-    @SerializedName("studyBrandings")
-    val studyBrandings: StudyBrandings,
-
-    @SerializedName("respondent_id")
-    val respondentId: String,
-
     @SerializedName("closing_rule")
     val closingRule: String,
 
@@ -29,13 +23,10 @@ data class Study(
     val respondentLimit: Int,
 
     @SerializedName("welcome_message")
-    val welcomeMessage: StudyMessage,
+    val welcomeMessage: String,
 
     @SerializedName("introduction")
-    val instruction: StudyMessage,
-
-    @SerializedName("reject_message")
-    val rejectMessage: StudyMessage,
+    val instruction: String,
 
     @SerializedName("pre_study_questionnaire")
     val preStudyQuestionnaire: StudyQuestionnaire,
@@ -47,5 +38,8 @@ data class Study(
     val postStudyQuestionnaire: StudyQuestionnaire,
 
     @SerializedName("thank_you_message")
-    val thankYouMessage: StudyMessage
+    val thankYouMessage: String,
+
+    @SerializedName("study_branding")
+    val studyBranding: StudyBrandings
 )

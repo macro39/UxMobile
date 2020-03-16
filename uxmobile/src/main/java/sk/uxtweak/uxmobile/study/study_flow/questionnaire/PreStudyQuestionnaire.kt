@@ -31,8 +31,8 @@ class PreStudyQuestionnaire : QuestionnaireBaseFragment() {
             (activity as StudyFlowFragmentManager).getData(this) as StudyQuestionnaire
 
         configure(
-            question.title,
-            question.description,
+            question.name,
+            question.instructions,
             question.questions,
             this
         )
@@ -44,7 +44,7 @@ class PreStudyQuestionnaire : QuestionnaireBaseFragment() {
                 for (questionAnswer: QuestionAnswer in questionAnswers) {
                     Log.d(
                         "PreStudyQuestionnaire",
-                        questionAnswer.id + " - " + questionAnswer.answers.toString()
+                        questionAnswer.id.toString() + " - " + questionAnswer.answers.toString()
                     )
                 }
 

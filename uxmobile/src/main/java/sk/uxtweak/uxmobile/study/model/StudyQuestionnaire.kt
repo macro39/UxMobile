@@ -8,11 +8,11 @@ import com.google.gson.annotations.SerializedName
  */
 data class StudyQuestionnaire(
 
-    @SerializedName("title")
-    val title: String,
+    @SerializedName("name")
+    val name: String,
 
-    @SerializedName("description")
-    val description: String,
+    @SerializedName("instructions")
+    val instructions: String,
 
     @SerializedName("questions")
     val questions: List<StudyQuestion>
