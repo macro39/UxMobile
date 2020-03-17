@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.os.SystemClock
 import android.util.Base64
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -20,10 +21,10 @@ import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
 import java.nio.ByteBuffer
 
 @OptIn(ExperimentalStdlibApi::class)
-class SessionManager(application: Application, floatWidgetClickObserver: FloatWidgetClickObserver) {
+class SessionManager(application: Application) {
     private val socket = WebSocketClient(BuildConfig.COLLECTOR_URL)
     private val connection = ConnectionManager(socket)
-    private val collector = EventRecorder(application, floatWidgetClickObserver)
+    private val collector = EventRecorder(application)
     private val recorder: ScreenRecorder
 
     private val collectedEvents = ArrayDeque<SessionEvent>()
@@ -60,11 +61,11 @@ class SessionManager(application: Application, floatWidgetClickObserver: FloatWi
     }
 
     fun startRecording() {
-
+        Log.d("RECORDING", "recording started")
     }
 
     fun stopRecording() {
-
+        Log.d("RECORDING", "recording stopped")
     }
 
     private fun startCollectingEvents() {
@@ -101,5 +102,9 @@ class SessionManager(application: Application, floatWidgetClickObserver: FloatWi
     private fun onVideoBuffer(buffer: ByteBuffer) {
         val data = Base64.encodeToString(buffer.array(), Base64.DEFAULT)
         onEvent(Event.VideoChunkEvent(data))
+    }
+
+    fun addEventListener(function: (Event) -> Unit) {
+        collector.addOnEventListener(function)
     }
 }

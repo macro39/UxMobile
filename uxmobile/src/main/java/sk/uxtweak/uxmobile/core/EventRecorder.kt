@@ -8,15 +8,12 @@ import android.view.MotionEvent
 import sk.uxtweak.uxmobile.ExceptionHandler
 import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
 import sk.uxtweak.uxmobile.adapter.WindowCallbackConnector
-import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.model.events.Event
-import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
 
 typealias EventListener = (Event) -> Unit
 
 class EventRecorder(
-    context: Context,
-    private val floatWidgetClickObserver: FloatWidgetClickObserver
+    context: Context
 ) : LifecycleObserverAdapter() {
     private var orientation = 0
     private var configurationRecentlyChanged = false
@@ -65,9 +62,6 @@ class EventRecorder(
     }
 
     private fun onEvent(event: Event) {
-        when (event) {
-            is Event.TapEvent, is Event.LongPressEvent -> floatWidgetClickObserver.onClick()
-        }
         dispatchEvent(event)
     }
 

@@ -9,7 +9,9 @@ import android.content.res.Configuration
 import android.util.Log
 import com.google.gson.GsonBuilder
 import sk.uxtweak.uxmobile.core.LifecycleObserver
+import sk.uxtweak.uxmobile.core.SessionManager
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
+import sk.uxtweak.uxmobile.model.events.Event
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENABLED
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
@@ -24,7 +26,8 @@ import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
  * Created by Kamil Macek on 12. 11. 2019.
  */
 class StudyFlowController(
-    val context: Context
+    val context: Context,
+    val sessionManager: SessionManager
 ) : LifecycleObserver, FloatWidgetClickObserver {
 
     private val TAG = this::class.java.simpleName
@@ -42,6 +45,12 @@ class StudyFlowController(
 
     init {
         ApplicationLifecycle.addObserver(this)
+
+        sessionManager.addEventListener {
+            when (it) {
+                is Event.TapEvent, is Event.LongPressEvent -> onClick()
+            }
+        }
 
         floatWidgetService = FloatWidgetService(context, this)
         floatWidgetService.onInit()
@@ -208,6 +217,7 @@ class StudyFlowController(
         Log.d(TAG, "STUDY ACCEPTED - $accepted")
         if (accepted) {
             Log.d(TAG, "Accepted taking a part in study")
+            sessionManager.startRecording()
             // for first time
             if (!isInStudy) {
                 isInStudy = true
@@ -235,6 +245,8 @@ class StudyFlowController(
     override fun taskExecutionEnded(successfully: Boolean) {
         Log.d(TAG, "TASK EXECUTION ENDED")
         floatWidgetService.setVisibility(false)
+
+        sessionManager.stopRecording()
 
         // set executed task as accomplished
         val selectedStudyTask: StudyTask =
@@ -282,6 +294,7 @@ class StudyFlowController(
                 if (!isInStudy) {
                     showStudyFlow(onlyInstructions = false, endOfTask = false)
                 } else {
+                    sessionManager.startRecording()
                     floatWidgetService.onCreate()
                 }
             }
@@ -302,6 +315,7 @@ class StudyFlowController(
         }
 
         if (!studyEnded && isInStudy) {
+            sessionManager.stopRecording()
             floatWidgetService.onDestroy()
             registerBroadcastReciever(false)
         }
