@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.core.view.children
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import sk.uxtweak.uxmobile.util.NamedThreadFactory
 import java.nio.ByteBuffer
 import java.text.DecimalFormat
@@ -55,6 +56,13 @@ fun CoroutineScope.atFixedRate(
         start = SystemClock.elapsedRealtime()
         block()
         delay((start + rate) - SystemClock.elapsedRealtime())
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+suspend fun <E> Channel<E>.toCurrentList(): List<E> = mutableListOf<E>().apply {
+    while (!isEmpty) {
+        this += receive()
     }
 }
 

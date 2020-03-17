@@ -32,8 +32,9 @@ android {
             buildConfigField("String", "MAIN_URL", "\"wss://dev-backend.mobeux.tk/adonis-ws\"")
         }
         debug {
-            buildConfigField("String", "COLLECTOR_URL", "\"ws://vlado5678.ynet.sk:8000/socketcluster/\"")
+//            buildConfigField("String", "COLLECTOR_URL", "\"ws://vlado5678.ynet.sk:8000/socketcluster/\"")
 //            buildConfigField("String", "COLLECTOR_URL", "\"ws://192.168.43.213:8000/socketcluster/\"")
+            buildConfigField("String", "COLLECTOR_URL", "\"ws://192.168.0.104:8000/socketcluster/\"")
             buildConfigField("String", "MAIN_URL", "\"wss://dev-backend.mobeux.tk/adonis-ws\"")
         }
     }

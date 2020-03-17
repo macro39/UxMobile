@@ -10,6 +10,7 @@ class SimpleCondition {
     suspend fun block() = deferred.await()
 
     fun open() {
+        deferred.complete(Unit)
         deferred = CompletableDeferred()
     }
 }

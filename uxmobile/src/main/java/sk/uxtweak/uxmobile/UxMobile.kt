@@ -7,8 +7,12 @@ import android.os.Environment
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.GlobalScope
 import sk.uxtweak.uxmobile.UxMobile.start
-import sk.uxtweak.uxmobile.core.*
+import sk.uxtweak.uxmobile.core.ConnectionManager
+import sk.uxtweak.uxmobile.core.EventRecorder
+import sk.uxtweak.uxmobile.core.EventSender
+import sk.uxtweak.uxmobile.core.SessionManager
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.media.ScreenRecorder
@@ -23,18 +27,13 @@ import java.io.FileNotFoundException
 object UxMobile {
     private var started = false
 
+    lateinit var sessionManager: SessionManager
+
     /**
      * Application Context. Initialized by
      * [sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycleInitializer] before application starts.
      */
     private lateinit var application: Application
-
-    private lateinit var eventRecorder: EventRecorder
-    private lateinit var screenRecorder: ScreenRecorder
-    private lateinit var eventsSocket: WebSocketClient
-    private lateinit var connectionManager: ConnectionManager
-    private lateinit var eventsController: EventsController
-    private lateinit var looper: EventLooper
 
     /**
      * Called by [sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycleInitializer] to attach
@@ -86,26 +85,7 @@ object UxMobile {
 
         ForegroundActivityHolder.registerObserver(ApplicationLifecycle)
 
-        eventsSocket = WebSocketClient(BuildConfig.COLLECTOR_URL)
-        connectionManager = ConnectionManager(eventsSocket)
-        connectionManager.startAutoConnection()
-
-        eventRecorder = EventRecorder(application)
-        eventRecorder.registerObserver(ApplicationLifecycle)
-
-        val displaySize = application.displaySize
-        screenRecorder = ScreenRecorder(
-            VideoFormat(
-                displaySize.width,
-                displaySize.height
-            )
-        )
-
-        looper = EventLooper(connectionManager)
-        looper.startGlobally()
-
-        eventsController = EventsController(eventRecorder, screenRecorder, eventsSocket, looper)
-        eventsController.registerObserver(ApplicationLifecycle)
+        sessionManager = SessionManager(application)
     }
 
     /**

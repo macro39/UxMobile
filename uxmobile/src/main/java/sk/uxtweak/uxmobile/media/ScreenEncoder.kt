@@ -16,6 +16,10 @@ class ScreenEncoder(private val videoFormat: VideoFormat) {
     private var onBufferReady: BufferCallback = {}
     private lateinit var drainJob: Job
 
+    var firstTime = 0L
+    var lastTime = 0L
+    var frames = 0
+
     fun start() {
         logd(TAG, "Starting encoder")
         encoder.configure(videoFormat)
@@ -42,9 +46,18 @@ class ScreenEncoder(private val videoFormat: VideoFormat) {
         onBufferReady(it.copy())
     }
 
+    private fun updatePresentationTimes(presentationTimeUs: Long) {
+        if (firstTime == 0L) {
+            firstTime = presentationTimeUs
+        }
+        lastTime = presentationTimeUs
+    }
+
     private fun CoroutineScope.drainEncoder() = launch(dispatcher) {
         while (isActive) {
-            encoder.withOutputBuffer(this) { output ->
+            encoder.withOutputBuffer(this) { output, presentationTimeUs ->
+                updatePresentationTimes(presentationTimeUs)
+                ++frames
                 buffer += output
                 if (output.hasRemaining()) {
                     flush()

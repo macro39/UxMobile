@@ -1,6 +1,7 @@
 package sk.uxtweak.uxmobile.model.events
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import sk.uxtweak.uxmobile.model.SessionEvent
 
 sealed class Event(val type: Int) {
     object StartEvent : Event(1)
@@ -52,4 +53,12 @@ sealed class Event(val type: Int) {
     ) : Event(11) {
         override fun toString() = "VideoChunkEvent ${data.substring(0, 8)}"
     }
+
+    data class FrameRateEvent(
+        @get:JsonProperty("frame_rate") val frameRate: Float
+    ) : Event(12)
+
+    data class EventsList(
+        val events: List<SessionEvent>
+    ) : Event(13)
 }

@@ -2,18 +2,22 @@ package sk.uxtweak.uxmobile.media
 
 import android.app.Activity
 import kotlinx.coroutines.*
-import sk.uxtweak.uxmobile.Encoder
-import sk.uxtweak.uxmobile.ForegroundScope
-import sk.uxtweak.uxmobile.atFixedRate
+import sk.uxtweak.uxmobile.*
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.lifecycle.withForegroundActivity
-import sk.uxtweak.uxmobile.logw
 import java.nio.ByteBuffer
 
 class ScreenRecorder(private val videoFormat: VideoFormat) {
     private val encoder = ScreenEncoder(videoFormat)
     private val screenBuffer = ScreenBuffer(videoFormat.width, videoFormat.height)
     private lateinit var encodeJob: Job
+
+    val averageFrameRate: Float
+        get() {
+            val frameRate = 1000F / ((encoder.lastTime - encoder.firstTime) / 1000F / encoder.frames.toFloat())
+            logd("UxMobile", "Frame Rate: $frameRate")
+            return frameRate
+        }
 
     fun start() {
         encoder.start()
