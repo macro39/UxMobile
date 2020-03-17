@@ -40,4 +40,9 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/black</item>
     </style>
+
+    <style name="ActionButton" parent="@android:style/Widget.ActionButton">
+        <item name="android:layout_marginEnd">20sp</item>
+        <item name="android:layout_marginRight">20sp</item>
+    </style>
 </resources>
