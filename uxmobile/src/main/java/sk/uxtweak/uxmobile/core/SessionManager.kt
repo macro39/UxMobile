@@ -59,29 +59,37 @@ class SessionManager(application: Application, floatWidgetClickObserver: FloatWi
         recorder.setOnBufferReady(::onVideoBuffer)
     }
 
-    fun startCollectingEvents() {
+    fun startRecording() {
+
+    }
+
+    fun stopRecording() {
+
+    }
+
+    private fun startCollectingEvents() {
         collector.registerObserver(ApplicationLifecycle)
     }
 
-    fun stopCollectingEvents() {
+    private fun stopCollectingEvents() {
         collector.unregisterObserver(ApplicationLifecycle)
     }
 
-    fun startRecordingVideo() {
+    private fun startRecordingVideo() {
         recorder.start()
     }
 
-    fun stopRecordingVideo(scope: CoroutineScope) = scope.launch(Dispatchers.IO) {
+    private fun stopRecordingVideo(scope: CoroutineScope) = scope.launch(Dispatchers.IO) {
         recorder.stop()
     }
 
-    fun startSendingEvents() {
+    private fun startSendingEvents() {
         // - Get generated session ID from server (try until received, otherwise cannot send events)
         // - Start putting events into EventSender to send all collected events
         // - Add all received events into EventSender
     }
 
-    fun stopSendingEvents() {
+    private fun stopSendingEvents() {
         // Stop sending events to EventSender and collect them in deque instead (if collecting is
         // enabled)
     }
