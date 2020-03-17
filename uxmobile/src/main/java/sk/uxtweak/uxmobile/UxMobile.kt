@@ -13,6 +13,7 @@ import sk.uxtweak.uxmobile.core.ConnectionManager
 import sk.uxtweak.uxmobile.core.EventRecorder
 import sk.uxtweak.uxmobile.core.EventSender
 import sk.uxtweak.uxmobile.core.SessionManager
+import sk.uxtweak.uxmobile.study.StudyFlowController
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.media.ScreenRecorder
@@ -27,6 +28,7 @@ import java.io.FileNotFoundException
 object UxMobile {
     private var started = false
 
+    private lateinit var studyFlowController: StudyFlowController
     lateinit var sessionManager: SessionManager
 
     /**
@@ -85,6 +87,7 @@ object UxMobile {
 
         ForegroundActivityHolder.registerObserver(ApplicationLifecycle)
 
+        studyFlowController = StudyFlowController(application.applicationContext)
         sessionManager = SessionManager(application)
     }
 

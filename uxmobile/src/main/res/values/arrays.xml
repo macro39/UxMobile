@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="net_promoter_below_text">
+        <item>Not at all likely</item>
+        <item></item>
+        <item></item>
+        <item></item>
+        <item></item>
+        <item>Neutral</item>
+        <item></item>
+        <item></item>
+        <item></item>
+        <item></item>
+        <item>Extremly likely</item>
+    </string-array>
+</resources>
