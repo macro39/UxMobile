@@ -16,13 +16,14 @@ import sk.uxtweak.uxmobile.media.VideoFormat
 import sk.uxtweak.uxmobile.model.SessionEvent
 import sk.uxtweak.uxmobile.model.events.Event
 import sk.uxtweak.uxmobile.net.WebSocketClient
+import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
 import java.nio.ByteBuffer
 
 @OptIn(ExperimentalStdlibApi::class)
-class SessionManager(application: Application) {
+class SessionManager(application: Application, floatWidgetClickObserver: FloatWidgetClickObserver) {
     private val socket = WebSocketClient(BuildConfig.COLLECTOR_URL)
     private val connection = ConnectionManager(socket)
-    private val collector = EventRecorder(application)
+    private val collector = EventRecorder(application, floatWidgetClickObserver)
     private val recorder: ScreenRecorder
 
     private val collectedEvents = ArrayDeque<SessionEvent>()

@@ -88,7 +88,7 @@ object UxMobile {
         ForegroundActivityHolder.registerObserver(ApplicationLifecycle)
 
         studyFlowController = StudyFlowController(application.applicationContext)
-        sessionManager = SessionManager(application)
+        sessionManager = SessionManager(application, studyFlowController)
     }
 
     /**

@@ -288,10 +288,10 @@ class StudyFlowController(
         }
     }
 
-    override fun onEveryActivityStarted(activity: Activity) {
+    override fun onAnyActivityStarted(activity: Activity) {
     }
 
-    override fun onEveryActivityStopped(activity: Activity) {
+    override fun onAnyActivityStopped(activity: Activity) {
     }
 
     override fun onLastActivityStopped(activity: Activity) {
