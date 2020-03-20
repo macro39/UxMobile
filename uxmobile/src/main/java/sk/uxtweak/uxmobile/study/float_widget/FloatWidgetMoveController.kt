@@ -1,6 +1,5 @@
 package sk.uxtweak.uxmobile.study.float_widget
 
-import android.content.Context
 import android.graphics.Point
 import android.os.CountDownTimer
 import android.view.MotionEvent
@@ -12,7 +11,6 @@ import kotlin.math.abs
  * Created by Kamil Macek on 24. 11. 2019.
  */
 class FloatWidgetMoveController(
-    context: Context,
     listener: FloatWidgetClickObserver,
     private val mWindowManager: WindowManager,
     private val mFloatView: View,
@@ -20,7 +18,7 @@ class FloatWidgetMoveController(
 ) {
 
     private var floatWidgetClickListener: FloatWidgetClickListener =
-        FloatWidgetClickListener(context, mFloatView, listener)
+        FloatWidgetClickListener(mFloatView, listener)
 
     private var isOnRightSide = true
 
@@ -147,7 +145,7 @@ class FloatWidgetMoveController(
         })
     }
 
-    fun changeFloatButtonState(expandView : Boolean) {
+    fun changeFloatButtonState(expandView: Boolean) {
         if (expandView) {
             floatWidgetClickListener.makeViewExpanded(isOnRightSide)
         } else {
@@ -192,7 +190,7 @@ class FloatWidgetMoveController(
             var mParams = mFloatView.layoutParams as WindowManager.LayoutParams
 
             override fun onTick(millisUntilFinished: Long) {
-                var step = (500 - millisUntilFinished) / 5
+                val step = (500 - millisUntilFinished) / 5
 
                 mParams.x = 0 - (currentX * currentX * step).toInt()
 

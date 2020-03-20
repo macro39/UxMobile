@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:theme="@style/Theme.Base">
 
+    <!--when collapsed-->
     <RelativeLayout
         android:id="@+id/collapsed_float_widget"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent">
 
         <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/img_circle" />
+            android:layout_width="65sp"
+            android:layout_height="65sp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_logo" />
     </RelativeLayout>
 
     <!--when expanded-->
@@ -19,8 +23,8 @@
         android:id="@+id/expanded_float_widget"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:backgroundTint="@color/lightGreen"
+        android:background="@drawable/layout_round_corners"
+        android:backgroundTint="@color/white"
         android:gravity="center"
         android:orientation="horizontal"
         android:padding="8dp"
@@ -31,8 +35,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:rotation="180"
-            android:src="@drawable/arrow" />
+            android:src="@drawable/ic_action_right" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -44,7 +47,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="@string/plugin_name"
-                android:textColor="@color/black"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -58,7 +60,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:padding="10dp"
-                    android:text="@string/instructions" />
+                    android:text="Instructions" />
 
                 <Button
                     android:id="@+id/button_float_widget_skip"
@@ -66,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:padding="10sp"
-                    android:text="@string/skip" />
+                    android:text="Skip" />
             </LinearLayout>
 
             <Button
@@ -75,7 +77,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:padding="10dp"
-                android:text="@string/task_end" />
+                android:text="End task" />
         </LinearLayout>
 
         <ImageView
@@ -83,6 +85,6 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:src="@drawable/arrow" />
+            android:src="@drawable/ic_action_left" />
     </LinearLayout>
 </FrameLayout>

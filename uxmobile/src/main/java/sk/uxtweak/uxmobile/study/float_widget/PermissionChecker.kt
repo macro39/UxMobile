@@ -17,7 +17,6 @@ class PermissionChecker(
     private val CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084
     private var hasPermission = false
 
-    // TODO - this should be changed and will checking this permission in CONSENT
     fun canDrawOverlay(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(
                 activity
@@ -43,7 +42,6 @@ class PermissionChecker(
         grantResults: IntArray
     ) {
         if (requestCode == CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
-
             hasPermission = Settings.canDrawOverlays(activity)
         }
     }

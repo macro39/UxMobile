@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -77,13 +76,11 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         }
 
         // if user reach bottom with scroll, hide action button
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            scrollView_study_flow.setOnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-                if (scrollView_study_flow.canScrollVertically(1)) {
-                    action_button_to_bottom.visibility = View.VISIBLE
-                } else {
-                    action_button_to_bottom.visibility = View.GONE
-                }
+        scrollView_study_flow.viewTreeObserver.addOnScrollChangedListener {
+            if (scrollView_study_flow.canScrollVertically(1)) {
+                action_button_to_bottom.visibility = View.VISIBLE
+            } else {
+                action_button_to_bottom.visibility = View.GONE
             }
         }
 
