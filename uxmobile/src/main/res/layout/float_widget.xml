@@ -12,6 +12,7 @@
         android:background="@android:color/transparent">
 
         <ImageView
+            android:id="@+id/imageView_float_widget"
             android:layout_width="65sp"
             android:layout_height="65sp"
             android:background="@android:color/transparent"
