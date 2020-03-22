@@ -1,6 +1,6 @@
 package sk.uxtweak.uxmobile.study.model
 
-import com.google.gson.annotations.SerializedName
+import com.fasterxml.jackson.annotation.JsonProperty
 
 
 /**
@@ -8,9 +8,9 @@ import com.google.gson.annotations.SerializedName
  */
 data class QuestionAnswer(
 
-    @SerializedName("id")
+    @JsonProperty("id")
     val id: Int,
 
-    @SerializedName("answers")
+    @JsonProperty("answers")
     var answers: ArrayList<String>
 )

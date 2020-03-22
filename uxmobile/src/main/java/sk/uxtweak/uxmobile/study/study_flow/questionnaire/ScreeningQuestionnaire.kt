@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import com.google.gson.GsonBuilder
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotlinx.android.synthetic.main.fragment_base_questionaire.*
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.model.QuestionAnswer
@@ -71,8 +71,8 @@ class ScreeningQuestionnaire : QuestionnaireBaseFragment() {
     }
 
     fun getStudy(): Study {
-        val gson = GsonBuilder().create()
-        return gson.fromJson(dummyResponseData(), Study::class.java)
+        val mapper = jacksonObjectMapper()
+        return mapper.readValue(dummyResponseData(), Study::class.java)
     }
 
     private fun dummyResponseData(): String {

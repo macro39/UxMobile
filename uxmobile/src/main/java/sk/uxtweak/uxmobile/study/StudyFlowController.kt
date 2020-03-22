@@ -7,7 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
 import android.util.Log
-import com.google.gson.GsonBuilder
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import sk.uxtweak.uxmobile.core.LifecycleObserver
 import sk.uxtweak.uxmobile.core.SessionManager
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
@@ -86,6 +86,7 @@ class StudyFlowController(
             "        },\n" +
             "        {\n" +
             "            \"id\": \"2\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"How old are you?\",\n" +
             "            \"answer_type\": \"dropdown\",\n" +
@@ -104,6 +105,7 @@ class StudyFlowController(
             "        },\n" +
             "        {\n" +
             "            \"id\": \"3\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"Where are you from?\",\n" +
             "            \"answer_type\": \"input\",\n" +
@@ -112,6 +114,7 @@ class StudyFlowController(
             "        },\n" +
             "        {\n" +
             "            \"id\": \"4\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"What's your favourite song?\",\n" +
             "            \"answer_type\": \"textarea\",\n" +
@@ -120,6 +123,7 @@ class StudyFlowController(
             "        },\n" +
             "        {\n" +
             "            \"id\": \"5\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"Are you only child?\",\n" +
             "            \"answer_type\": \"checkbox\",\n" +
@@ -138,6 +142,7 @@ class StudyFlowController(
             "        },\n" +
             "        {\n" +
             "            \"id\": \"6\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"Do you agree - Cancer is the worst disease?\",\n" +
             "            \"answer_type\": \"5_point_linker_scale\",\n" +
@@ -146,6 +151,7 @@ class StudyFlowController(
             "        },\n" +
             "        {\n" +
             "            \"id\": \"7\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"Do you agree - BMW is the best car producer?\",\n" +
             "            \"answer_type\": \"7_point_linker_scale\",\n" +
@@ -154,6 +160,7 @@ class StudyFlowController(
             "        },\n" +
             "        {\n" +
             "            \"id\": \"8\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"Do you agree - 70% of people will have corona in one year?\",\n" +
             "            \"answer_type\": \"net_promoter_score\",\n" +
@@ -163,9 +170,10 @@ class StudyFlowController(
             "    ]\n" +
             "}"
 
-        val gson = GsonBuilder().create()
+        val mapper = jacksonObjectMapper()
+
         val dummyStudyQuestionnaire: StudyQuestionnaire =
-            gson.fromJson(questionnaireRules, StudyQuestionnaire::class.java)
+            mapper.readValue(questionnaireRules, StudyQuestionnaire::class.java)
 
         StudyDataHolder.screeningQuestionnaire = dummyStudyQuestionnaire
     }
