@@ -72,7 +72,7 @@ class StudyFlowController(
             "            \"description\": \"Please choose your gender\",\n" +
             "            \"answer_type\": \"radiobtn\",\n" +
             "            \"answer_required\": true,\n" +
-            "            \"reason_needed\": false,\n" +
+            "            \"reason_needed\": true,\n" +
             "            \"question_options\": [\n" +
             "                {\n" +
             "                    \"id\": \"1\",\n" +
