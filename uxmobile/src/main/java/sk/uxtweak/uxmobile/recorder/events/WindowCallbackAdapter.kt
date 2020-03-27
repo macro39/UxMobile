@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.adapter
+package sk.uxtweak.uxmobile.recorder.events
 
 import android.os.Build
 import android.view.*

@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.core
+package sk.uxtweak.uxmobile.lifecycle
 
 import android.app.Activity
 import android.content.res.Configuration

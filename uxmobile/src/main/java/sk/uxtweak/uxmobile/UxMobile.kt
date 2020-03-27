@@ -7,18 +7,13 @@ import android.os.Environment
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.GlobalScope
 import sk.uxtweak.uxmobile.UxMobile.start
-import sk.uxtweak.uxmobile.core.ConnectionManager
-import sk.uxtweak.uxmobile.core.EventRecorder
-import sk.uxtweak.uxmobile.core.EventSender
-import sk.uxtweak.uxmobile.core.SessionManager
-import sk.uxtweak.uxmobile.study.StudyFlowController
+import sk.uxtweak.uxmobile.core.Stats
+import sk.uxtweak.uxmobile.core.logi
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
-import sk.uxtweak.uxmobile.media.ScreenRecorder
-import sk.uxtweak.uxmobile.media.VideoFormat
-import sk.uxtweak.uxmobile.net.WebSocketClient
+import sk.uxtweak.uxmobile.sender.SessionManager
+import sk.uxtweak.uxmobile.study.StudyFlowController
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -76,10 +71,15 @@ object UxMobile {
      */
     @JvmStatic
     @MainThread
-    fun start(apiKey: String) = startInternal(apiKey)
+    fun start(apiKey: String) =
+        startInternal(apiKey)
 
     private fun startInternal(apiKey: String) {
-        logi(TAG, "Starting UxMobile")
+        Stats.init(application)
+        logi(
+            TAG,
+            "Starting UxMobile"
+        )
         if (started) {
             throw IllegalStateException("UxMobile has already started!")
         }
@@ -87,8 +87,13 @@ object UxMobile {
 
         ForegroundActivityHolder.registerObserver(ApplicationLifecycle)
 
-        sessionManager = SessionManager(application)
-        studyFlowController = StudyFlowController(application.applicationContext, sessionManager)
+        sessionManager = SessionManager(
+            application
+        )
+        studyFlowController = StudyFlowController(
+            application.applicationContext,
+            sessionManager
+        )
     }
 
     /**
@@ -122,7 +127,9 @@ object UxMobile {
         ) {
             throw IllegalStateException("Read storage permission is not granted!")
         }
-        val apiKeyFile = File(Environment.getExternalStorageDirectory(), API_KEY_FILE)
+        val apiKeyFile = File(Environment.getExternalStorageDirectory(),
+            API_KEY_FILE
+        )
         if (!apiKeyFile.exists()) {
             throw FileNotFoundException("File with API key not found!")
         }

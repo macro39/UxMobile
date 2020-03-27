@@ -1,9 +1,7 @@
-package sk.uxtweak.uxmobile
+package sk.uxtweak.uxmobile.lifecycle
 
 import android.app.Activity
 import kotlinx.coroutines.*
-import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
-import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import kotlin.coroutines.CoroutineContext
 
 object ForegroundScope : LifecycleObserverAdapter(), CoroutineScope {

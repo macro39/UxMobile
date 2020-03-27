@@ -1,7 +1,6 @@
-package sk.uxtweak.uxmobile.model.events
+package sk.uxtweak.uxmobile.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import sk.uxtweak.uxmobile.model.SessionEvent
 
 sealed class Event(val type: Int) {
     object StartEvent : Event(1)

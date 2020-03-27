@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile
+package sk.uxtweak.uxmobile.core
 
 import android.app.Application
 import android.content.Context
@@ -12,17 +12,10 @@ import android.view.WindowManager
 import androidx.core.view.children
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import sk.uxtweak.uxmobile.util.NamedThreadFactory
 import java.nio.ByteBuffer
 import java.text.DecimalFormat
-import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-
-private val encoderDispatcher = Executors.newSingleThreadExecutor(NamedThreadFactory("Encoder", Thread.MAX_PRIORITY)).asCoroutineDispatcher()
-
-val Dispatchers.Encoder: ExecutorCoroutineDispatcher
-    get() = encoderDispatcher
 
 data class Size(val width: Int, val height: Int)
 

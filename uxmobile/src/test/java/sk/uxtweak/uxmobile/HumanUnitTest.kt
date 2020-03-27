@@ -1,5 +1,6 @@
 package sk.uxtweak.uxmobile
 
+import sk.uxtweak.uxmobile.core.toHumanUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

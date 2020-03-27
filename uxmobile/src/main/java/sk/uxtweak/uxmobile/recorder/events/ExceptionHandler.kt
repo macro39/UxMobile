@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile
+package sk.uxtweak.uxmobile.recorder.events
 
 import android.util.Log
 
@@ -28,7 +28,9 @@ class ExceptionHandler(
             val currentHandler = Thread.getDefaultUncaughtExceptionHandler()
             if (currentHandler != null && currentHandler !is ExceptionHandler) {
                 Thread.setDefaultUncaughtExceptionHandler(
-                    ExceptionHandler(currentHandler)
+                    ExceptionHandler(
+                        currentHandler
+                    )
                 )
             }
         }

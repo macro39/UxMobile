@@ -1,8 +1,8 @@
-package sk.uxtweak.uxmobile.core
+package sk.uxtweak.uxmobile.recorder.events
 
 import android.view.GestureDetector
 import android.view.MotionEvent
-import sk.uxtweak.uxmobile.model.events.Event
+import sk.uxtweak.uxmobile.model.Event
 
 /**
  * When registered with [GestureDetector], this class receives motion events, then converts them to
