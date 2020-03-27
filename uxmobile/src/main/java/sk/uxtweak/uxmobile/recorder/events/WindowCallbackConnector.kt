@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.adapter
+package sk.uxtweak.uxmobile.recorder.events
 
 import android.app.Activity
 import android.content.Context
@@ -48,7 +48,6 @@ class WindowCallbackConnector(activity: Activity? = null) {
             }
     }
 
-    // TODO: Refactor to something more readable
     private fun unregisterWindowCallback() {
         currentActivity?.window?.callback =
             (currentActivity?.window?.callback as? WindowCallbackAdapter)?.baseCallback

@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.media
+package sk.uxtweak.uxmobile.recorder.screen
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -8,6 +8,12 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import sk.uxtweak.uxmobile.util.NamedThreadFactory
 import java.nio.ByteBuffer
 import java.util.concurrent.Executors
+
+fun MediaCodec.BufferInfo.duplicate(): MediaCodec.BufferInfo {
+    val copy = MediaCodec.BufferInfo()
+    copy.set(offset, size, presentationTimeUs, flags)
+    return copy
+}
 
 fun MediaCodec.configureEncoder(videoFormat: VideoFormat) {
     configure(videoFormat(), null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)

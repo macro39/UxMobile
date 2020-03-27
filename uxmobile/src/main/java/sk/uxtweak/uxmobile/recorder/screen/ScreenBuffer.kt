@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.media
+package sk.uxtweak.uxmobile.recorder.screen
 
 import android.graphics.Bitmap
 import android.graphics.Canvas

@@ -5,6 +5,7 @@ import android.util.Log
 import kotlinx.coroutines.*
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import sk.uxtweak.uxmobile.core.atFixedRate
 
 class AtFixedRateTest {
     @OptIn(ExperimentalCoroutinesApi::class)

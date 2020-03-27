@@ -1,7 +1,6 @@
 package sk.uxtweak.uxmobile.lifecycle
 
 import android.app.Activity
-import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
 import java.lang.ref.WeakReference
 
 object ForegroundActivityHolder : LifecycleObserverAdapter() {

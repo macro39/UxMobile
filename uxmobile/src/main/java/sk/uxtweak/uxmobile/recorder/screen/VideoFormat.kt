@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.media
+package sk.uxtweak.uxmobile.recorder.screen
 
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
@@ -29,7 +29,7 @@ class VideoFormat(
     companion object {
         const val VIDEO_FORMAT = "video/avc"
         private const val DEFAULT_FRAME_RATE = 25
-        private const val DEFAULT_BIT_RATE = 150_000
+        private const val DEFAULT_BIT_RATE = 500_000
         private const val DEFAULT_I_FRAME_INTERVAL = 10
     }
 }

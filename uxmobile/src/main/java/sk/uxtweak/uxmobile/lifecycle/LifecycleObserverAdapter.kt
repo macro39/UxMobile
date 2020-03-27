@@ -1,14 +1,13 @@
-package sk.uxtweak.uxmobile.adapter
+package sk.uxtweak.uxmobile.lifecycle
 
 import android.app.Activity
 import android.content.res.Configuration
-import sk.uxtweak.uxmobile.core.LifecycleObserver
-import sk.uxtweak.uxmobile.lifecycle.Lifecycle
 
 /**
  * Any class that extends this class should be registered to lifecycle by calling [registerObserver].
  */
-abstract class LifecycleObserverAdapter : LifecycleObserver {
+abstract class LifecycleObserverAdapter :
+    LifecycleObserver {
     override fun onFirstActivityStarted(activity: Activity) {}
     override fun onAnyActivityStarted(activity: Activity) {}
     override fun onAnyActivityStopped(activity: Activity) {}

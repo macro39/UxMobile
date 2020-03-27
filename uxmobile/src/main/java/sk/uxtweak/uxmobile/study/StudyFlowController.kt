@@ -8,10 +8,10 @@ import android.content.IntentFilter
 import android.content.res.Configuration
 import android.util.Log
 import com.google.gson.GsonBuilder
-import sk.uxtweak.uxmobile.core.LifecycleObserver
-import sk.uxtweak.uxmobile.core.SessionManager
+import sk.uxtweak.uxmobile.lifecycle.LifecycleObserver
+import sk.uxtweak.uxmobile.sender.SessionManager
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
-import sk.uxtweak.uxmobile.model.events.Event
+import sk.uxtweak.uxmobile.model.Event
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENABLED
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET

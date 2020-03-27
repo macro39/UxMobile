@@ -1,14 +1,12 @@
-package sk.uxtweak.uxmobile.core
+package sk.uxtweak.uxmobile.recorder.events
 
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import android.view.GestureDetector
 import android.view.MotionEvent
-import sk.uxtweak.uxmobile.ExceptionHandler
-import sk.uxtweak.uxmobile.adapter.LifecycleObserverAdapter
-import sk.uxtweak.uxmobile.adapter.WindowCallbackConnector
-import sk.uxtweak.uxmobile.model.events.Event
+import sk.uxtweak.uxmobile.lifecycle.LifecycleObserverAdapter
+import sk.uxtweak.uxmobile.model.Event
 
 typealias EventListener = (Event) -> Unit
 
@@ -18,9 +16,11 @@ class EventRecorder(
     private var orientation = 0
     private var configurationRecentlyChanged = false
 
-    private val motionEventConverter = MotionEventConverter(::onEvent)
+    private val motionEventConverter =
+        MotionEventConverter(::onEvent)
     private val gestureDetector = GestureDetector(context, motionEventConverter)
-    private val connector = WindowCallbackConnector()
+    private val connector =
+        WindowCallbackConnector()
 
     private val eventListeners = mutableListOf<EventListener>()
 
