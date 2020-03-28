@@ -15,5 +15,6 @@ abstract class BasicListenerAdapter : BasicListener {
         serverCloseFrame: WebSocketFrame?,
         clientCloseFrame: WebSocketFrame?,
         closedByServer: Boolean
-    ) {}
+    ) {
+    }
 }

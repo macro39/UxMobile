@@ -102,19 +102,23 @@ class WebSocketClient(url: String) : BasicListenerAdapter() {
          * First reconnect interval
          */
         private const val RECONNECT_INTERVAL = 2000
+
         /**
          * Maximum reconnect interval
          */
         private const val MAX_RECONNECT_INTERVAL = 30_000
+
         /**
          * How many times to increase the reconnect interval on unsuccessful connect attempt
          * (until max reconnect interval is reached)
          */
         private const val RECONNECT_DECAY = 2.0F
+
         /**
          * How many times try to reconnect (-1 for unlimited)
          */
         private const val MAX_ATTEMPTS = -1
+
         /**
          * Time until ACK must be received when emitting event
          */

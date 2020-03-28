@@ -31,17 +31,12 @@ object Stats {
                 "Logging thread",
                 Thread.MIN_PRIORITY
             )
-        ).scheduleWithFixedDelay({
-            logd(TAG, "Video time: $videoTime")
-            logd(
-                TAG,
-                "Frames encoded: $framesEncoded (Key frames: $keyFrames)"
-            )
-            logd(
-                TAG,
-                "Files : ${context.fileList().joinToString()}"
-            )
-        },
+        ).scheduleWithFixedDelay(
+            {
+                logd(TAG, "Video time: $videoTime")
+                logd(TAG, "Frames encoded: $framesEncoded (Key frames: $keyFrames)")
+                logd(TAG, "Files : ${context.fileList().joinToString()}")
+            },
             PRINT_DELAY,
             PRINT_DELAY,
             PRINT_TIME_UNIT

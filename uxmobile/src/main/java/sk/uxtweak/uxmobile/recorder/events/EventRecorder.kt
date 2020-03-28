@@ -5,56 +5,54 @@ import android.content.Context
 import android.content.res.Configuration
 import android.view.GestureDetector
 import android.view.MotionEvent
+import sk.uxtweak.uxmobile.lifecycle.Lifecycle
 import sk.uxtweak.uxmobile.lifecycle.LifecycleObserverAdapter
+import sk.uxtweak.uxmobile.lifecycle.minusAssign
+import sk.uxtweak.uxmobile.lifecycle.plusAssign
 import sk.uxtweak.uxmobile.model.Event
 
-typealias EventListener = (Event) -> Unit
+private typealias EventListener = (Event) -> Unit
 
 class EventRecorder(
-    context: Context
-) : LifecycleObserverAdapter() {
-    private var orientation = 0
-    private var configurationRecentlyChanged = false
-
-    private val motionEventConverter =
-        MotionEventConverter(::onEvent)
+    context: Context,
+    private val lifecycle: Lifecycle
+) {
+    private val activityEventRecorder = ActivityEventRecorder(lifecycle)
+    private val motionEventConverter = MotionEventConverter(::onEvent)
     private val gestureDetector = GestureDetector(context, motionEventConverter)
-    private val connector =
-        WindowCallbackConnector()
+    private val connector = WindowCallbackConnector()
 
     private val eventListeners = mutableListOf<EventListener>()
 
+    private val observer = object : LifecycleObserverAdapter() {
+        override fun onAnyActivityStarted(activity: Activity) {
+            connector.onActivityChanged(activity)
+        }
+    }
+
     init {
+        activityEventRecorder.addActivityEventListener(
+            ::onActivityStarted,
+            ::onConfigurationChanged
+        )
+    }
+
+    fun start() {
+        activityEventRecorder.start()
         registerExceptionHandler()
         connector += ::onTouchEvent
+        lifecycle += observer
+    }
+
+    fun stop() {
+        lifecycle -= observer
+        connector -= ::onTouchEvent
+        unregisterExceptionHandler()
+        activityEventRecorder.stop()
     }
 
     fun addOnEventListener(eventListener: EventListener) {
         eventListeners += eventListener
-    }
-
-    override fun onFirstActivityStarted(activity: Activity) {
-        orientation = activity.resources.configuration.orientation
-    }
-
-    override fun onAnyActivityStarted(activity: Activity) {
-        handleConfigurationChange(activity)
-        connector.currentActivity = activity
-    }
-
-    private fun handleConfigurationChange(activity: Activity) {
-        if (!configurationRecentlyChanged) {
-            dispatchEvent(Event.ActivityStartedEvent(activity.localClassName))
-        }
-        configurationRecentlyChanged = false
-    }
-
-    override fun onConfigurationChanged(configuration: Configuration) {
-        configurationRecentlyChanged = true
-        if (orientation != configuration.orientation) {
-            orientation = configuration.orientation
-            dispatchEvent(Event.OrientationEvent(orientation))
-        }
     }
 
     private fun onTouchEvent(event: MotionEvent) {
@@ -65,7 +63,7 @@ class EventRecorder(
         dispatchEvent(event)
     }
 
-    private fun dispatchEvent(event: Event) = notifyListeners(event)
+    private fun dispatchEvent(event: Event) = eventListeners.forEach { it(event) }
 
     private fun registerExceptionHandler() {
         ExceptionHandler.register()
@@ -74,5 +72,11 @@ class EventRecorder(
         }
     }
 
-    private fun notifyListeners(event: Event) = eventListeners.forEach { it(event) }
+    private fun unregisterExceptionHandler() = ExceptionHandler.unregister()
+
+    private fun onActivityStarted(activity: Activity) =
+        dispatchEvent(Event.ActivityStartedEvent(activity.localClassName))
+
+    private fun onConfigurationChanged(configuration: Configuration) =
+        dispatchEvent(Event.OrientationEvent(configuration.orientation))
 }

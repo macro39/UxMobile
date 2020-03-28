@@ -71,29 +71,20 @@ object UxMobile {
      */
     @JvmStatic
     @MainThread
-    fun start(apiKey: String) =
-        startInternal(apiKey)
+    fun start(apiKey: String) = startInternal(apiKey)
 
     private fun startInternal(apiKey: String) {
         Stats.init(application)
-        logi(
-            TAG,
-            "Starting UxMobile"
-        )
+        logi(TAG, "Starting UxMobile")
         if (started) {
             throw IllegalStateException("UxMobile has already started!")
         }
         started = true
 
-        ForegroundActivityHolder.registerObserver(ApplicationLifecycle)
+        ForegroundActivityHolder.register(ApplicationLifecycle)
 
-        sessionManager = SessionManager(
-            application
-        )
-        studyFlowController = StudyFlowController(
-            application.applicationContext,
-            sessionManager
-        )
+        sessionManager = SessionManager(application)
+        studyFlowController = StudyFlowController(application.applicationContext, sessionManager)
     }
 
     /**
@@ -127,9 +118,7 @@ object UxMobile {
         ) {
             throw IllegalStateException("Read storage permission is not granted!")
         }
-        val apiKeyFile = File(Environment.getExternalStorageDirectory(),
-            API_KEY_FILE
-        )
+        val apiKeyFile = File(Environment.getExternalStorageDirectory(), API_KEY_FILE)
         if (!apiKeyFile.exists()) {
             throw FileNotFoundException("File with API key not found!")
         }

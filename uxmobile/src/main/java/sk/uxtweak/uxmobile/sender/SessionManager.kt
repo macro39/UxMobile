@@ -23,8 +23,7 @@ import java.nio.ByteBuffer
 class SessionManager(application: Application) {
     private val socket = WebSocketClient(BuildConfig.COLLECTOR_URL)
     private val connection = ConnectionManager(socket)
-    private val collector =
-        EventRecorder(application)
+    private val eventRecorder = EventRecorder(application, ApplicationLifecycle)
     private val recorder: ScreenRecorder
 
     private val collectedEvents = ArrayDeque<SessionEvent>()
@@ -32,8 +31,8 @@ class SessionManager(application: Application) {
     init {
         connection.startAutoConnection()
 
-        collector.addOnEventListener(::onEvent)
-        collector.registerObserver(ApplicationLifecycle)
+        eventRecorder.addOnEventListener(::onEvent)
+        eventRecorder.start()
 
         val path = application.filesDir.absolutePath
         val size = application.displaySize
@@ -72,6 +71,6 @@ class SessionManager(application: Application) {
     }
 
     fun addEventListener(function: (Event) -> Unit) {
-        collector.addOnEventListener(function)
+        eventRecorder.addOnEventListener(function)
     }
 }

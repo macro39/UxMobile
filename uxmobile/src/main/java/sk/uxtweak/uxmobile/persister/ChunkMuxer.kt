@@ -125,7 +125,8 @@ class ChunkMuxer(private val filesPath: String, private val keyFramesInOneChunk:
         if (!executor.awaitTermination(
                 SHUTDOWN_TIMEOUT,
                 SHUTDOWN_TIME_UNIT
-            )) {
+            )
+        ) {
             logw(
                 TAG,
                 "Executor didn't shutdown gracefully in time limit, shutting down forcefully!"

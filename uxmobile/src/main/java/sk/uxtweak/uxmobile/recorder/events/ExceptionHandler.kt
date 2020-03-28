@@ -35,6 +35,9 @@ class ExceptionHandler(
             }
         }
 
+        @JvmStatic
+        fun unregister() = Thread.setDefaultUncaughtExceptionHandler(handler!!.exceptionHandler)
+
         val handler: ExceptionHandler?
             get() {
                 val currentHandler = Thread.getDefaultUncaughtExceptionHandler()
@@ -44,6 +47,7 @@ class ExceptionHandler(
                 return null
             }
 
-        fun setHandlerListener(listener: (Thread, Throwable) -> Unit) = handler?.setListener(listener)
+        fun setHandlerListener(listener: (Thread, Throwable) -> Unit) =
+            handler?.setListener(listener)
     }
 }

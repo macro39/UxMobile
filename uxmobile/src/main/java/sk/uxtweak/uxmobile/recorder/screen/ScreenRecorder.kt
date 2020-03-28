@@ -34,7 +34,11 @@ class ScreenRecorder(filesPath: String, private val videoFormat: VideoFormat) {
     }
 
     fun start() {
-        job = GlobalScope.atFixedRate(Dispatchers.IO, block = recordingJob, rate = videoFormat.frameTime)
+        job = GlobalScope.atFixedRate(
+            Dispatchers.IO,
+            block = recordingJob,
+            rate = videoFormat.frameTime
+        )
         encoder.start()
         muxer.start()
     }
