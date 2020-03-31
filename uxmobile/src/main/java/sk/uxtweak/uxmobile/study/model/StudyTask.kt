@@ -1,22 +1,22 @@
 package sk.uxtweak.uxmobile.study.model
 
-import com.google.gson.annotations.SerializedName
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * Created by Kamil Macek on 28. 1. 2020.
  */
 data class StudyTask(
 
-    @SerializedName("name")
+    @JsonProperty("name")
     val name: String,
 
-    @SerializedName("description")
+    @JsonProperty("description")
     val description: String,
 
-    @SerializedName("starting_screen")
+    @JsonProperty("starting_screen")
     val startingScreen: String,
 
-    @SerializedName("closing_screens")
+    @JsonProperty("closing_screens")
     val closingScreens: List<String>,
 
     var accomplished: Boolean = false,

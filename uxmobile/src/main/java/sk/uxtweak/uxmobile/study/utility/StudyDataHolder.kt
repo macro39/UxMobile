@@ -10,6 +10,7 @@ import sk.uxtweak.uxmobile.study.model.StudyTask
  * Created by Kamil Macek on 19.2.2020.
  */
 object StudyDataHolder {
+    var agreedWithTerms = false
     var numberOfTasks: Int = 0
     var doingTaskWithName = ""
     lateinit var tasks: List<StudyTask>

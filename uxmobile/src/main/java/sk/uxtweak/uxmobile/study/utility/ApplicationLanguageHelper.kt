@@ -12,9 +12,10 @@ import java.util.*
 /**
  * Created by Kamil Macek on 24.2.2020.
  */
-class ApplicationLanguageHelper(base: Context) : ContextThemeWrapper(base, R.style.Theme_AppCompat) {
-    companion object {
+class ApplicationLanguageHelper(base: Context) :
+    ContextThemeWrapper(base, R.style.Theme_Base) {
 
+    companion object {
         fun wrap(context: Context, language: String): ContextThemeWrapper {
             var context = context
             val config = context.resources.configuration
@@ -38,7 +39,7 @@ class ApplicationLanguageHelper(base: Context) : ContextThemeWrapper(base, R.sty
 
         @SuppressWarnings("deprecation")
         fun setSystemLocaleLegacy(config: Configuration, locale: Locale) {
-            config.locale = locale
+            config.setLocale(locale)
         }
 
         @TargetApi(Build.VERSION_CODES.N)

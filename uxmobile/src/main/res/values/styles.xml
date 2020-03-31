@@ -26,8 +26,6 @@
 
     <style name="TextView.Description" parent="TextView.Base">
         <item name="android:textSize">20sp</item>
-<!--        <item name="layout_constrainedHeight">true</item>-->
-<!--        <item name="android:scrollbars">vertical</item>-->
     </style>
 
     <style name="TextView.Order" parent="TextView.Base">
@@ -37,6 +35,8 @@
 
     <style name="Button.Base" parent="Widget.AppCompat.Button">
         <item name="android:padding">5sp</item>
+        <item name="android:layout_marginBottom">20sp</item>
+        <item name="android:layout_marginTop">20sp</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/black</item>
     </style>

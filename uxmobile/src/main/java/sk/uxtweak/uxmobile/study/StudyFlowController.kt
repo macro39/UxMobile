@@ -6,10 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
+import android.os.Handler
 import android.util.Log
-import com.google.gson.GsonBuilder
 import sk.uxtweak.uxmobile.lifecycle.LifecycleObserver
 import sk.uxtweak.uxmobile.sender.SessionManager
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.model.Event
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
@@ -70,9 +71,9 @@ class StudyFlowController(
             "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"Please choose your gender\",\n" +
-            "            \"answer_type\": \"radiobtn\",\n" +
+            "            \"answer_type\": \"radio_button\",\n" +
             "            \"answer_required\": true,\n" +
-            "            \"reason_needed\": false,\n" +
+            "            \"reason_needed\": true,\n" +
             "            \"question_options\": [\n" +
             "                {\n" +
             "                    \"id\": \"1\",\n" +
@@ -86,9 +87,10 @@ class StudyFlowController(
             "        },\n" +
             "        {\n" +
             "            \"id\": \"2\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"How old are you?\",\n" +
-            "            \"answer_type\": \"dropdown\",\n" +
+            "            \"answer_type\": \"dropdown_select\",\n" +
             "            \"answer_required\": true,\n" +
             "            \"reason_needed\": false,\n" +
             "            \"question_options\": [\n" +
@@ -104,25 +106,28 @@ class StudyFlowController(
             "        },\n" +
             "        {\n" +
             "            \"id\": \"3\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"Where are you from?\",\n" +
-            "            \"answer_type\": \"input\",\n" +
+            "            \"answer_type\": \"single_line\",\n" +
             "            \"answer_required\": true,\n" +
             "            \"reason_needed\": false\n" +
             "        },\n" +
             "        {\n" +
             "            \"id\": \"4\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"What's your favourite song?\",\n" +
-            "            \"answer_type\": \"textarea\",\n" +
+            "            \"answer_type\": \"multi_line\",\n" +
             "            \"answer_required\": true,\n" +
             "            \"reason_needed\": false\n" +
             "        },\n" +
             "        {\n" +
             "            \"id\": \"5\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"Are you only child?\",\n" +
-            "            \"answer_type\": \"checkbox\",\n" +
+            "            \"answer_type\": \"checkbox_select\",\n" +
             "            \"answer_required\": true,\n" +
             "            \"reason_needed\": false,\n" +
             "            \"question_options\": [\n" +
@@ -138,6 +143,7 @@ class StudyFlowController(
             "        },\n" +
             "        {\n" +
             "            \"id\": \"6\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"Do you agree - Cancer is the worst disease?\",\n" +
             "            \"answer_type\": \"5_point_linker_scale\",\n" +
@@ -146,6 +152,7 @@ class StudyFlowController(
             "        },\n" +
             "        {\n" +
             "            \"id\": \"7\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"Do you agree - BMW is the best car producer?\",\n" +
             "            \"answer_type\": \"7_point_linker_scale\",\n" +
@@ -154,6 +161,7 @@ class StudyFlowController(
             "        },\n" +
             "        {\n" +
             "            \"id\": \"8\",\n" +
+            "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"Do you agree - 70% of people will have corona in one year?\",\n" +
             "            \"answer_type\": \"net_promoter_score\",\n" +
@@ -163,9 +171,10 @@ class StudyFlowController(
             "    ]\n" +
             "}"
 
-        val gson = GsonBuilder().create()
+        val mapper = jacksonObjectMapper()
+
         val dummyStudyQuestionnaire: StudyQuestionnaire =
-            gson.fromJson(questionnaireRules, StudyQuestionnaire::class.java)
+            mapper.readValue(questionnaireRules, StudyQuestionnaire::class.java)
 
         StudyDataHolder.screeningQuestionnaire = dummyStudyQuestionnaire
     }
@@ -178,6 +187,10 @@ class StudyFlowController(
                 val action = intent?.action
 
                 if (Constants.RECEIVER_IN_STUDY == action) {
+                    if (intent.getBooleanExtra(Constants.RECEIVER_ASK_LATER, true)) {
+                        waitForNextAskForTakingPartInStudy()
+                        return
+                    }
                     if (intent.getBooleanExtra(
                             Constants.RECEIVER_STUDY_RESUME_AFTER_ONLY_INSTRUCTIONS_ENABLED,
                             true
@@ -284,7 +297,13 @@ class StudyFlowController(
         context.startActivity(intent)
     }
 
-    override fun onFirstActivityStarted(activity: Activity) {
+    private fun waitForNextAskForTakingPartInStudy() {
+        Handler().postDelayed({
+            studyStateResolver()
+        }, 3000)
+    }
+
+    private fun studyStateResolver() {
         if (!studyEnded) {
             registerBroadcastReciever(true)
 
@@ -299,6 +318,10 @@ class StudyFlowController(
                 }
             }
         }
+    }
+
+    override fun onFirstActivityStarted(activity: Activity) {
+        studyStateResolver()
     }
 
     override fun onAnyActivityStarted(activity: Activity) {

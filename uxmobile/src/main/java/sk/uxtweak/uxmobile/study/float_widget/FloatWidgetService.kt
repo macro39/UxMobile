@@ -1,14 +1,21 @@
 package sk.uxtweak.uxmobile.study.float_widget
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.Point
+import android.graphics.PorterDuff
 import android.os.Build
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import android.widget.LinearLayout
+import com.devs.vectorchildfinder.VectorChildFinder
+import com.devs.vectorchildfinder.VectorDrawableCompat
 import sk.uxtweak.uxmobile.R
+import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
+
 
 /**
  * Created by Kamil Macek on 23. 11. 2019.
@@ -47,8 +54,15 @@ class FloatWidgetService(
             // TODO WindowManager Bad token exe... need to fix
             mWindowManager.addView(mFloatView, getWindowParams())
 
+            setBackgroundColors()
+
             mFloatWidgetMoveController =
-                FloatWidgetMoveController(context, listener, mWindowManager, mFloatView, mDisplaySize)
+                FloatWidgetMoveController(
+                    listener,
+                    mWindowManager,
+                    mFloatView,
+                    mDisplaySize
+                )
 
             addedToView = true
         }
@@ -83,6 +97,21 @@ class FloatWidgetService(
 
     fun changeFloatButtonState(expandView: Boolean) {
         mFloatWidgetMoveController?.changeFloatButtonState(expandView)
+    }
+
+    private fun setBackgroundColors() {
+        // set background color of expanded view
+        mFloatView.findViewById<LinearLayout>(R.id.expanded_float_widget).background.setColorFilter(
+            Color.parseColor(StudyDataHolder.getBackgroundColorPrimary()),
+            PorterDuff.Mode.SRC_ATOP
+        )
+
+        // set background color of collapsed view
+        val vectorLogo =
+            VectorChildFinder(context, R.drawable.ic_logo, mFloatView.findViewById(R.id.imageView_float_widget))
+
+        val path1: VectorDrawableCompat.VFullPath = vectorLogo.findPathByName("background")
+        path1.fillColor = Color.parseColor(StudyDataHolder.getBackgroundColorPrimary())
     }
 
     private fun initializeDisplaySize() {

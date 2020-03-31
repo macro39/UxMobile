@@ -46,14 +46,20 @@ open class QuestionnaireBaseFragment : Fragment() {
     }
 
     fun nextOnClick(): Boolean {
+        val childFragment =
+            childFragmentManager.fragments.first() as QuestionnaireOptionsBaseFragment
 
-        questionAnswers.add((childFragmentManager.fragments.first() as QuestionnaireOptionsBaseFragment).getAnswer())
+        return if (childFragment.isQuestionAnsweredCorrectly()) {
+            questionAnswers.add(childFragment.getAnswer())
 
-        return if (questionsToAnswers.size != 0) {
-            showNextQuestion()
-            true
+            if (questionsToAnswers.size != 0) {
+                showNextQuestion()
+                true
+            } else {
+                false
+            }
         } else {
-            false
+            true
         }
     }
 

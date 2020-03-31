@@ -26,4 +26,7 @@
     <string name="more_or_less_agree">Viac-menej \Súhlasím</string>
     <string name="strongly_agree">Viac \nSúhlasím</string>
     <string name="agree">Súhlasím</string>
+    <string name="reason_empty">Dôvod musí byť vyplnený!</string>
+    <string name="reason_title">Prosím, udajte dôvod, prečo ste si zvolili túto možnosť</string>
+    <string name="answer_empty">Prosím, odpovedzte na otázku</string>
 </resources>
