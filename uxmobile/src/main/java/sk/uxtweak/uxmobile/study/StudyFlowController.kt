@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
+import android.os.Handler
 import android.util.Log
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import sk.uxtweak.uxmobile.core.LifecycleObserver
@@ -186,6 +187,10 @@ class StudyFlowController(
                 val action = intent?.action
 
                 if (Constants.RECEIVER_IN_STUDY == action) {
+                    if (intent.getBooleanExtra(Constants.RECEIVER_ASK_LATER, true)) {
+                        waitForNextAskForTakingPartInStudy()
+                        return
+                    }
                     if (intent.getBooleanExtra(
                             Constants.RECEIVER_STUDY_RESUME_AFTER_ONLY_INSTRUCTIONS_ENABLED,
                             true
@@ -292,7 +297,13 @@ class StudyFlowController(
         context.startActivity(intent)
     }
 
-    override fun onFirstActivityStarted(activity: Activity) {
+    private fun waitForNextAskForTakingPartInStudy() {
+        Handler().postDelayed({
+            studyStateResolver()
+        }, 3000)
+    }
+
+    private fun studyStateResolver() {
         if (!studyEnded) {
             registerBroadcastReciever(true)
 
@@ -307,6 +318,10 @@ class StudyFlowController(
                 }
             }
         }
+    }
+
+    override fun onFirstActivityStarted(activity: Activity) {
+        studyStateResolver()
     }
 
     override fun onAnyActivityStarted(activity: Activity) {

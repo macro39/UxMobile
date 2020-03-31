@@ -190,7 +190,11 @@ class StudyFlowFragmentManager : AppCompatActivity() {
     }
 
     private fun showConsent() {
-        showFragment(ConsentFragment())
+        if (StudyDataHolder.agreedWithTerms) {
+            showGlobalMessage()
+        } else {
+            showFragment(ConsentFragment())
+        }
     }
 
     /**
@@ -267,6 +271,7 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         // TODO add if statements, because not every fragment is required (345689 are optional)
         when (actualFragment) {
             is ConsentFragment -> {
+                StudyDataHolder.agreedWithTerms = true
                 showGlobalMessage()
             }
             is GlobalMessageFragment -> showFragment(ScreeningQuestionnaire())
@@ -323,7 +328,12 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         }
     }
 
-    private fun sendBroadcastStudyAccepted(accepted: Boolean, ended: Boolean) {
+    fun askLater() {
+        sendBroadcastStudyAccepted(later = true)
+        finish()
+    }
+
+    private fun sendBroadcastStudyAccepted(accepted: Boolean = false, ended: Boolean = false, later: Boolean = false) {
         val intent = Intent(Constants.RECEIVER_IN_STUDY)
         intent.putExtra(Constants.RECEIVER_IN_STUDY, accepted)
         intent.putExtra(Constants.RECEIVER_STUDY_ENDED, ended)
@@ -331,11 +341,8 @@ class StudyFlowFragmentManager : AppCompatActivity() {
             Constants.RECEIVER_STUDY_RESUME_AFTER_ONLY_INSTRUCTIONS_ENABLED,
             isOnlyInstructionsDisplayed
         )
+        intent.putExtra(Constants.RECEIVER_ASK_LATER, later)
         sendBroadcast(intent)
-    }
-
-    fun askLater(later: Boolean) {
-        // TODO add funcionality if user clicked later button
     }
 
     fun getData(actualFragment: Fragment): Any {
