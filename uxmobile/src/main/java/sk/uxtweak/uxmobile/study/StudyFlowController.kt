@@ -71,7 +71,7 @@ class StudyFlowController(
             "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"Please choose your gender\",\n" +
-            "            \"answer_type\": \"radiobtn\",\n" +
+            "            \"answer_type\": \"radio_button\",\n" +
             "            \"answer_required\": true,\n" +
             "            \"reason_needed\": true,\n" +
             "            \"question_options\": [\n" +
@@ -90,7 +90,7 @@ class StudyFlowController(
             "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"How old are you?\",\n" +
-            "            \"answer_type\": \"dropdown\",\n" +
+            "            \"answer_type\": \"dropdown_select\",\n" +
             "            \"answer_required\": true,\n" +
             "            \"reason_needed\": false,\n" +
             "            \"question_options\": [\n" +
@@ -109,7 +109,7 @@ class StudyFlowController(
             "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"Where are you from?\",\n" +
-            "            \"answer_type\": \"input\",\n" +
+            "            \"answer_type\": \"single_line\",\n" +
             "            \"answer_required\": true,\n" +
             "            \"reason_needed\": false\n" +
             "        },\n" +
@@ -118,7 +118,7 @@ class StudyFlowController(
             "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"What's your favourite song?\",\n" +
-            "            \"answer_type\": \"textarea\",\n" +
+            "            \"answer_type\": \"multi_line\",\n" +
             "            \"answer_required\": true,\n" +
             "            \"reason_needed\": false\n" +
             "        },\n" +
@@ -127,7 +127,7 @@ class StudyFlowController(
             "            \"name\": \"What's your gender?\",\n" +
             "            \"question_required\": true,\n" +
             "            \"description\": \"Are you only child?\",\n" +
-            "            \"answer_type\": \"checkbox\",\n" +
+            "            \"answer_type\": \"checkbox_select\",\n" +
             "            \"answer_required\": true,\n" +
             "            \"reason_needed\": false,\n" +
             "            \"question_options\": [\n" +

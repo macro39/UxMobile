@@ -93,7 +93,7 @@ class ScreeningQuestionnaire : QuestionnaireBaseFragment() {
             "                \"name\":\"What's your gender?\",\n" +
             "                \"question_required\":true,\n" +
             "                \"description\":\"Have you ever been working on study?\",\n" +
-            "                \"answer_type\":\"radiobtn\",\n" +
+            "                \"answer_type\":\"radio_button\",\n" +
             "                \"answer_required\":true,\n" +
             "                \"reason_needed\":false,\n" +
             "                \"question_options\":[\n" +
