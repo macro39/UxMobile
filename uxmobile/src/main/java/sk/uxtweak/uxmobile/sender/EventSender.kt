@@ -33,7 +33,7 @@ class EventSender(private val connector: ConnectionManager) {
     suspend fun sendAll(events: List<SessionEvent>) = events.forEach { channel.send(it) }
 
     suspend fun loop() {
-        connector.waitUntilConnected()
+        connector.suspendUntilConnected()
         supervisorScope {
             logi(
                 TAG,
@@ -60,7 +60,7 @@ class EventSender(private val connector: ConnectionManager) {
                                 "Cannot reach WebSocket event server"
                             )
                             launch { sendAll(events) }
-                            connector.waitUntilConnected()
+                            connector.suspendUntilConnected()
                         } catch (exception: EmitException) {
                             logw(
                                 TAG,

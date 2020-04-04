@@ -4,15 +4,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import sk.uxtweak.uxmobile.concurrency.ChannelCondition
-import sk.uxtweak.uxmobile.concurrency.Condition
+import sk.uxtweak.uxmobile.util.TAG
 import sk.uxtweak.uxmobile.util.logd
 import sk.uxtweak.uxmobile.util.loge
 import sk.uxtweak.uxmobile.util.logi
 
 class ConnectionManager(private val socket: WebSocketClient) {
-    private val condition: Condition =
-        ChannelCondition()
+    val isConnected: Boolean
+        get() = socket.isConnected
+
     private val onConnectedOnceListeners = mutableListOf<() -> Unit>()
     private var onConnectedListener: () -> Unit = {}
     private var onDisconnectedListener: () -> Unit = {}
@@ -23,20 +23,11 @@ class ConnectionManager(private val socket: WebSocketClient) {
                 socket.autoReconnect = true
                 socket.setOnConnected(::onSocketConnected)
                 socket.setOnDisconnected(::onSocketDisconnected)
-                logi(
-                    TAG,
-                    "Connecting to events WebSocket server"
-                )
+                logi(TAG, "Connecting to events WebSocket server")
                 socket.connect()
-                logi(
-                    TAG,
-                    "Connected to events WebSocket server"
-                )
+                logi(TAG, "Connected to events WebSocket server")
             } catch (exception: Exception) {
-                loge(
-                    TAG,
-                    "Exception occurred while executing context(${exception.message.toString()}): "
-                )
+                loge(TAG, "Exception occurred while executing context(${exception.message.toString()}): ")
             }
         }
     }
@@ -55,31 +46,20 @@ class ConnectionManager(private val socket: WebSocketClient) {
 
     suspend fun emit(event: String, message: Any = "") = socket.emit(event, message)
 
-    suspend fun waitUntilConnected() {
-        if (!socket.isConnected) {
-            logd(TAG, "Waiting for connection")
-            condition.block()
-            logd(TAG, "Ended waiting for connection")
-        }
-    }
-
     suspend fun suspendUntilConnected() = suspendCancellableCoroutine<Unit> {
-        if (!socket.isConnected) {
+        if (!isConnected) {
             logd(TAG, "Suspending for connection")
             addOnConnectedOnce {
-                logd(
-                    TAG,
-                    "Ended suspend for connection"
-                )
+                logd(TAG, "Ended suspend for connection")
                 it.resumeWith(Result.success(Unit))
             }
+        } else {
+            it.resumeWith(Result.success(Unit))
         }
-        it.resumeWith(Result.success(Unit))
     }
 
     private fun onSocketConnected() {
         logi(TAG, "WebSocket connected to server")
-        condition.open()
         onConnectedOnceListeners.forEach { it() }
         onConnectedOnceListeners.clear()
         onConnectedListener()
@@ -88,9 +68,5 @@ class ConnectionManager(private val socket: WebSocketClient) {
     private fun onSocketDisconnected() {
         logi(TAG, "WebSocket disconnected from server")
         onDisconnectedListener()
-    }
-
-    companion object {
-        private const val TAG = "UxMobile"
     }
 }
