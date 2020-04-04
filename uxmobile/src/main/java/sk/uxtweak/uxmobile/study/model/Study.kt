@@ -1,45 +1,45 @@
 package sk.uxtweak.uxmobile.study.model
 
-import com.google.gson.annotations.SerializedName
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * Created by Kamil Macek on 6. 2. 2020.
  */
 data class Study(
 
-    @SerializedName("name")
+    @JsonProperty("name")
     val name: String,
 
-    @SerializedName("id")
+    @JsonProperty("id")
     val studyId: String,
 
-    @SerializedName("closing_rule")
+    @JsonProperty("closing_rule")
     val closingRule: String,
 
-    @SerializedName("closing_date")
+    @JsonProperty("closing_date")
     val closingDate: Int,
 
-    @SerializedName("respondent_limit")
+    @JsonProperty("respondent_limit")
     val respondentLimit: Int,
 
-    @SerializedName("welcome_message")
+    @JsonProperty("welcome_message")
     val welcomeMessage: String,
 
-    @SerializedName("introduction")
+    @JsonProperty("introduction")
     val instruction: String,
 
-    @SerializedName("pre_study_questionnaire")
+    @JsonProperty("pre_study_questionnaire")
     val preStudyQuestionnaire: StudyQuestionnaire,
 
-    @SerializedName("task_list")
+    @JsonProperty("task_list")
     val studyTasks: List<StudyTask>,
 
-    @SerializedName("post_study_questionnaire")
+    @JsonProperty("post_study_questionnaire")
     val postStudyQuestionnaire: StudyQuestionnaire,
 
-    @SerializedName("thank_you_message")
+    @JsonProperty("thank_you_message")
     val thankYouMessage: String,
 
-    @SerializedName("study_branding")
+    @JsonProperty("study_branding")
     val studyBranding: StudyBrandings
 )

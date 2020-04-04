@@ -26,4 +26,7 @@
     <string name="more_or_less_agree">More or less \nAgree</string>
     <string name="strongly_agree">Strongly \nAgree</string>
     <string name="agree">Agree</string>
+    <string name="reason_empty">Reason cannot be empty!</string>
+    <string name="reason_title">Please, put some reason, why you choose this answer</string>
+    <string name="answer_empty">Please, answer this question!</string>
 </resources>

@@ -40,7 +40,7 @@ class GlobalMessageFragment : Fragment() {
 
         button_global_message_later.setOnClickListener {
             Log.d(TAG, "Ask later for study participating")
-            (activity as StudyFlowFragmentManager).askLater(false)
+            (activity as StudyFlowFragmentManager).askLater()
         }
     }
 }

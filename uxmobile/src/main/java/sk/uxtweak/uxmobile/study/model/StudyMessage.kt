@@ -1,15 +1,15 @@
 package sk.uxtweak.uxmobile.study.model
 
-import com.google.gson.annotations.SerializedName
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * Created by Kamil Macek on 11. 2. 2020.
  */
 data class StudyMessage(
 
-    @SerializedName("title")
+    @JsonProperty("title")
     val title: String,
 
-    @SerializedName("content")
+    @JsonProperty("content")
     val content: String
 )

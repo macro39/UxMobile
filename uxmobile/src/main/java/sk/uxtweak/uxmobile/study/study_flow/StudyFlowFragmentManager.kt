@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -77,13 +76,11 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         }
 
         // if user reach bottom with scroll, hide action button
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            scrollView_study_flow.setOnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-                if (scrollView_study_flow.canScrollVertically(1)) {
-                    action_button_to_bottom.visibility = View.VISIBLE
-                } else {
-                    action_button_to_bottom.visibility = View.GONE
-                }
+        scrollView_study_flow.viewTreeObserver.addOnScrollChangedListener {
+            if (scrollView_study_flow.canScrollVertically(1)) {
+                action_button_to_bottom.visibility = View.VISIBLE
+            } else {
+                action_button_to_bottom.visibility = View.GONE
             }
         }
 
@@ -193,7 +190,11 @@ class StudyFlowFragmentManager : AppCompatActivity() {
     }
 
     private fun showConsent() {
-        showFragment(ConsentFragment())
+        if (StudyDataHolder.agreedWithTerms) {
+            showGlobalMessage()
+        } else {
+            showFragment(ConsentFragment())
+        }
     }
 
     /**
@@ -270,6 +271,7 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         // TODO add if statements, because not every fragment is required (345689 are optional)
         when (actualFragment) {
             is ConsentFragment -> {
+                StudyDataHolder.agreedWithTerms = true
                 showGlobalMessage()
             }
             is GlobalMessageFragment -> showFragment(ScreeningQuestionnaire())
@@ -326,7 +328,12 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         }
     }
 
-    private fun sendBroadcastStudyAccepted(accepted: Boolean, ended: Boolean) {
+    fun askLater() {
+        sendBroadcastStudyAccepted(later = true)
+        finish()
+    }
+
+    private fun sendBroadcastStudyAccepted(accepted: Boolean = false, ended: Boolean = false, later: Boolean = false) {
         val intent = Intent(Constants.RECEIVER_IN_STUDY)
         intent.putExtra(Constants.RECEIVER_IN_STUDY, accepted)
         intent.putExtra(Constants.RECEIVER_STUDY_ENDED, ended)
@@ -334,11 +341,8 @@ class StudyFlowFragmentManager : AppCompatActivity() {
             Constants.RECEIVER_STUDY_RESUME_AFTER_ONLY_INSTRUCTIONS_ENABLED,
             isOnlyInstructionsDisplayed
         )
+        intent.putExtra(Constants.RECEIVER_ASK_LATER, later)
         sendBroadcast(intent)
-    }
-
-    fun askLater(later: Boolean) {
-        // TODO add funcionality if user clicked later button
     }
 
     fun getData(actualFragment: Fragment): Any {

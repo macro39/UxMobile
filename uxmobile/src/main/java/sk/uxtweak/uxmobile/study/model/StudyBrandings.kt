@@ -1,15 +1,15 @@
 package sk.uxtweak.uxmobile.study.model
 
-import com.google.gson.annotations.SerializedName
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * Created by Kamil Macek on 11. 2. 2020.
  */
 data class StudyBrandings(
 
-    @SerializedName("primary_color")
+    @JsonProperty("primary_color")
     val primaryColor: String,
 
-    @SerializedName("secondary_color")
+    @JsonProperty("secondary_color")
     val secondaryColor: String
 )
