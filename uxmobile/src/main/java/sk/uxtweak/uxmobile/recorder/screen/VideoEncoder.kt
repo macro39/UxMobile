@@ -1,36 +1,25 @@
 package sk.uxtweak.uxmobile.recorder.screen
 
-import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.media.MediaCodec
 import android.media.MediaFormat
 import android.view.Surface
+import kotlinx.coroutines.*
 import sk.uxtweak.uxmobile.core.copy
-import sk.uxtweak.uxmobile.core.logi
-import sk.uxtweak.uxmobile.core.logw
-import sk.uxtweak.uxmobile.util.NamedThreadFactory
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 private typealias OnEncodedListener = (EncodedFrame) -> Unit
 private typealias OnOutputFormatChanged = (MediaFormat) -> Unit
 
-class VideoEncoder(videoFormat: VideoFormat) {
-    private val executor =
-        Executors.newSingleThreadExecutor(NamedThreadFactory("Encoder thread", Thread.MAX_PRIORITY))
+class VideoEncoder(private val videoFormat: VideoFormat) {
+    private var job: Job? = null
     private val encoder = MediaCodec.createEncoderByType(VideoFormat.VIDEO_FORMAT)
     private val info = MediaCodec.BufferInfo()
     private lateinit var surface: Surface
-    private lateinit var future: Future<*>
     private var onEncodedListener: OnEncodedListener = {}
     private var onOutputFormatChanged: OnOutputFormatChanged = {}
 
-    @Volatile
-    private var isRunning = false
-
-    private val job = Runnable {
-        while (isRunning) {
+    private val encoderJob: suspend CoroutineScope.() -> Unit = {
+        while (isActive) {
             val index = encoder.dequeueOutputBuffer(info, DEFAULT_DEQUEUE_TIMEOUT)
             if (index == MediaCodec.INFO_TRY_AGAIN_LATER || index < 0) {
                 continue
@@ -52,43 +41,42 @@ class VideoEncoder(videoFormat: VideoFormat) {
         }
     }
 
-    init {
-        configure(videoFormat)
-    }
-
-    fun configure(videoFormat: VideoFormat) {
+    fun configure() {
         encoder.configureEncoder(videoFormat)
         surface = encoder.createInputSurface()
     }
 
     fun start() {
-        if (isRunning) {
+        if (job?.isActive == true) {
             throw IllegalStateException("Encoder already started, must be stopped first")
         }
+        configure()
         encoder.start()
-        isRunning = true
-        future = executor.submit(job)
+        job = GlobalScope.launch(Dispatchers.IO, block = encoderJob)
     }
 
-    fun stop() {
-        if (!isRunning) {
+    fun stop(scope: CoroutineScope = GlobalScope) = scope.launch(Dispatchers.IO) {
+        stopAndJoin()
+    }
+
+    suspend fun stopAndJoin() {
+        if (job?.isActive == false) {
             throw IllegalStateException("Encoder must be started first")
         }
-        isRunning = false
-        joinJob()
+        job?.cancelAndJoin()
         encoder.stop()
+        surface.release()
     }
 
     fun release() {
-        if (isRunning) {
+        if (job?.isActive == true) {
             throw IllegalStateException("Must be first stopped before releasing")
         }
-        surface.release()
         encoder.release()
     }
 
-    fun encode(bitmap: Bitmap) = surface.withLockedCanvas {
-        drawBitmap(bitmap)
+    suspend fun drawFrame(block: suspend (Canvas) -> Unit) = surface.withLockedCanvas {
+        block(this)
     }
 
     fun setOnEncodedListener(listener: OnEncodedListener) {
@@ -99,39 +87,7 @@ class VideoEncoder(videoFormat: VideoFormat) {
         onOutputFormatChanged = listener
     }
 
-    private fun joinJob() {
-        try {
-            future.get(SHUTDOWN_TIMEOUT, SHUTDOWN_TIME_UNIT)
-        } catch (exception: TimeoutException) {
-            logw(
-                TAG,
-                "Timeout when waiting to finish encoder job, shutting down executor!"
-            )
-            shutdownExecutor()
-        }
-    }
-
-    private fun shutdownExecutor() {
-        executor.shutdown()
-        if (!executor.awaitTermination(SHUTDOWN_TIMEOUT, SHUTDOWN_TIME_UNIT)) {
-            logw(
-                TAG,
-                "Executor didn't shutdown gracefully in time limit, shutting down forcefully!"
-            )
-            val message = buildString {
-                append("Tasks that didn't shutdown gracefully: ")
-                executor.shutdownNow().also {
-                    append("Task: $it")
-                }
-            }
-            logi(TAG, message)
-        }
-    }
-
     companion object {
-        private const val TAG = "UxMobile"
         private const val DEFAULT_DEQUEUE_TIMEOUT = 10L * 1000L
-        private const val SHUTDOWN_TIMEOUT = 1L
-        private val SHUTDOWN_TIME_UNIT = TimeUnit.SECONDS
     }
 }

@@ -9,7 +9,7 @@ import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
 import sk.uxtweak.uxmobile.UxMobile.start
 import sk.uxtweak.uxmobile.core.Stats
-import sk.uxtweak.uxmobile.core.logi
+import sk.uxtweak.uxmobile.util.logi
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.sender.SessionManager

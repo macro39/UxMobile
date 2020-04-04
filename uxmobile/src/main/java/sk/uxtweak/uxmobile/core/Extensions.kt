@@ -39,11 +39,24 @@ fun View.findViewAt(x: Int, y: Int): View? {
     return null
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
+fun CoroutineScope.withFixedDelay(
+    context: CoroutineContext = EmptyCoroutineContext,
+    timeMillis: Long,
+    block: suspend CoroutineScope.() -> Unit
+) = launch(newCoroutineContext(context)) {
+    while (isActive) {
+        block()
+        delay(timeMillis)
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
 fun CoroutineScope.atFixedRate(
     context: CoroutineContext = EmptyCoroutineContext,
     rate: Long,
     block: suspend CoroutineScope.() -> Unit
-) = launch(context) {
+) = launch(newCoroutineContext(context)) {
     var start: Long
     while (isActive) {
         start = SystemClock.elapsedRealtime()
@@ -73,22 +86,6 @@ val Application.displaySize: Size
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         return displayMetrics.widthPixels with displayMetrics.heightPixels
     }
-
-fun logd(tag: String, message: String) = Log.d(tag, "[${Thread.currentThread().name}] $message")
-fun logi(tag: String, message: String) = Log.i(tag, "[${Thread.currentThread().name}] $message")
-fun logw(tag: String, message: String, throwable: Throwable? = null) =
-    if (throwable == null) Log.w(tag, "[${Thread.currentThread().name}] $message") else Log.w(
-        tag,
-        "[${Thread.currentThread().name}] $message",
-        throwable
-    )
-
-fun loge(tag: String, message: String, throwable: Throwable? = null) =
-    if (throwable == null) Log.e(tag, "[${Thread.currentThread().name}] $message") else Log.e(
-        tag,
-        "[${Thread.currentThread().name}] $message",
-        throwable
-    )
 
 private val humanFormat = DecimalFormat("0.##")
 

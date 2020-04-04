@@ -5,62 +5,55 @@ import android.media.MediaFormat
 import kotlinx.coroutines.*
 import sk.uxtweak.uxmobile.core.Stats
 import sk.uxtweak.uxmobile.core.atFixedRate
-import sk.uxtweak.uxmobile.core.logw
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.lifecycle.withForegroundActivity
-import sk.uxtweak.uxmobile.persister.ChunkMuxer
-import sk.uxtweak.uxmobile.persister.MuxerCommand
-import sk.uxtweak.uxmobile.persister.stopAndJoin
 
-class ScreenRecorder(filesPath: String, private val videoFormat: VideoFormat) {
-    private val encoder = VideoEncoder(videoFormat)
+class ScreenRecorder(private val videoFormat: VideoFormat) {
+    private lateinit var encoder: VideoEncoder
     private val screenBuffer = ScreenBuffer(videoFormat.width, videoFormat.height)
-    private val muxer = ChunkMuxer(filesPath, 2)
     private lateinit var job: Job
-    private var onChunkReadyListener: (String) -> Unit = {}
+    private var onEncodedFrameListener: (EncodedFrame) -> Unit = {}
+    private var onOutputFormatChangedListener: (MediaFormat) -> Unit = {}
 
     private val recordingJob: suspend CoroutineScope.() -> Unit = {
         while (isActive) {
             ForegroundActivityHolder.withForegroundActivity {
                 drawFrame(it)
-                encodeFrame()
             }
         }
     }
 
-    init {
+    fun start() {
+        encoder = VideoEncoder(videoFormat)
         encoder.setOnEncodedListener(::onEncodedFrame)
         encoder.setOnOutputFormatChanged(::onOutputFormatChanged)
-    }
-
-    fun start() {
-        job = GlobalScope.atFixedRate(
-            Dispatchers.IO,
-            block = recordingJob,
-            rate = videoFormat.frameTime
-        )
+        job = GlobalScope.atFixedRate(Dispatchers.IO, videoFormat.frameTime, recordingJob)
         encoder.start()
-        muxer.start()
     }
 
-    fun stop() {
-        runBlocking { job.cancelAndJoin() }
+    fun stop(scope: CoroutineScope = GlobalScope) = scope.launch {
+        stopAndJoin()
+    }
+
+    suspend fun stopAndJoin() {
+        job.cancelAndJoin()
         encoder.stop()
-        muxer.stopAndJoin()
         encoder.release()
     }
 
-    fun setOnChunkReady(listener: (String) -> Unit) {
-        onChunkReadyListener = listener
+    fun setOnEncodedFrameListener(listener: (EncodedFrame) -> Unit) {
+        onEncodedFrameListener = listener
     }
 
-    private fun onOutputFormatChanged(format: MediaFormat) {
-        muxer.postCommand(MuxerCommand.ChangeOutputFormat(format))
+    fun setOnOutputFormatChangedListener(listener: (MediaFormat) -> Unit) {
+        onOutputFormatChangedListener = listener
     }
+
+    private fun onOutputFormatChanged(format: MediaFormat) = onOutputFormatChangedListener(format)
 
     private fun onEncodedFrame(frame: EncodedFrame) {
         Stats.onFrameEncoded(frame)
-        muxer.postCommand(MuxerCommand.MuxFrame(frame))
+        onEncodedFrameListener(frame)
     }
 
     private suspend fun drawFrame(activity: Activity) {
@@ -68,21 +61,8 @@ class ScreenRecorder(filesPath: String, private val videoFormat: VideoFormat) {
         if (rootLayout.width == 0 && rootLayout.height == 0) {
             return
         }
-        screenBuffer.drawToBuffer(rootLayout)
-    }
-
-    private fun encodeFrame() {
-        if (!screenBuffer.isEmpty) {
-            encoder.encode(screenBuffer.bitmap)
-        } else {
-            logw(
-                TAG,
-                "Screen buffer is empty while encoding!"
-            )
+        encoder.drawFrame {
+            screenBuffer.drawToCanvas(rootLayout, it)
         }
-    }
-
-    companion object {
-        private const val TAG = "UxMobile"
     }
 }

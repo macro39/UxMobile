@@ -2,9 +2,9 @@ package sk.uxtweak.uxmobile.sender
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import sk.uxtweak.uxmobile.core.logd
-import sk.uxtweak.uxmobile.core.logi
-import sk.uxtweak.uxmobile.core.logw
+import sk.uxtweak.uxmobile.util.logd
+import sk.uxtweak.uxmobile.util.logi
+import sk.uxtweak.uxmobile.util.logw
 import sk.uxtweak.uxmobile.core.toCurrentList
 import sk.uxtweak.uxmobile.model.Event
 import sk.uxtweak.uxmobile.model.SessionEvent

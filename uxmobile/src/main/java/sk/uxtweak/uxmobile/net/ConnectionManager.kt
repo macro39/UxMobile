@@ -6,9 +6,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import sk.uxtweak.uxmobile.concurrency.ChannelCondition
 import sk.uxtweak.uxmobile.concurrency.Condition
-import sk.uxtweak.uxmobile.core.logd
-import sk.uxtweak.uxmobile.core.loge
-import sk.uxtweak.uxmobile.core.logi
+import sk.uxtweak.uxmobile.util.logd
+import sk.uxtweak.uxmobile.util.loge
+import sk.uxtweak.uxmobile.util.logi
 
 class ConnectionManager(private val socket: WebSocketClient) {
     private val condition: Condition =

@@ -2,11 +2,12 @@ package sk.uxtweak.uxmobile.core
 
 import android.content.Context
 import android.os.SystemClock
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import sk.uxtweak.uxmobile.recorder.screen.EncodedFrame
 import sk.uxtweak.uxmobile.recorder.screen.isKeyFrame
-import sk.uxtweak.uxmobile.util.NamedThreadFactory
+import sk.uxtweak.uxmobile.util.logd
 import java.text.DecimalFormat
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 object Stats {
@@ -26,31 +27,18 @@ object Stats {
         get() = "${format.format((lastFrameTime - firstFrameTime) / 1000F)} s"
 
     fun init(context: Context) {
-        Executors.newSingleThreadScheduledExecutor(
-            NamedThreadFactory(
-                "Logging thread",
-                Thread.MIN_PRIORITY
-            )
-        ).scheduleWithFixedDelay(
-            {
-                logd(TAG, "Video time: $videoTime")
-                logd(TAG, "Frames encoded: $framesEncoded (Key frames: $keyFrames)")
-                logd(TAG, "Files : ${context.fileList().joinToString()}")
-            },
-            PRINT_DELAY,
-            PRINT_DELAY,
-            PRINT_TIME_UNIT
-        )
+        GlobalScope.withFixedDelay(Dispatchers.IO, PRINT_TIME_UNIT.toMillis(PRINT_DELAY)) {
+            logd(TAG, "Video time: $videoTime")
+            logd(TAG, "Frames encoded: $framesEncoded (Key frames: $keyFrames)")
+            logd(TAG, "Files : ${context.fileList().joinToString()}")
+        }
     }
 
-    fun onStartRecording() =
-        logd(TAG, "Recording started")
+    fun onStartRecording() = logd(TAG, "Recording started")
 
-    fun onStopRecording() =
-        logd(TAG, "Recording stopped")
+    fun onStopRecording() = logd(TAG, "Recording stopped")
 
-    fun onVideoChunk(path: String) =
-        logd(TAG, "Recording $path saved")
+    fun onVideoChunk(path: String) = logd(TAG, "Recording $path saved")
 
     fun onFrameEncoded(frame: EncodedFrame) {
         if (isFirstFrame) {

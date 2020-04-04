@@ -5,7 +5,7 @@ import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.res.Configuration
 import android.os.Bundle
-import sk.uxtweak.uxmobile.core.logd
+import sk.uxtweak.uxmobile.util.logd
 import java.util.concurrent.CopyOnWriteArrayList
 
 object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
