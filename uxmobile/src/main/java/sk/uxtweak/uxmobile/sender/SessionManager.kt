@@ -1,15 +1,12 @@
 package sk.uxtweak.uxmobile.sender
 
-import android.app.Activity
 import android.app.Application
 import android.os.SystemClock
 import android.util.Base64
 import sk.uxtweak.uxmobile.BuildConfig
 import sk.uxtweak.uxmobile.core.Stats
 import sk.uxtweak.uxmobile.core.displaySize
-import sk.uxtweak.uxmobile.core.logd
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
-import sk.uxtweak.uxmobile.lifecycle.LifecycleObserverAdapter
 import sk.uxtweak.uxmobile.model.Event
 import sk.uxtweak.uxmobile.model.SessionEvent
 import sk.uxtweak.uxmobile.net.ConnectionManager
@@ -23,8 +20,7 @@ import java.nio.ByteBuffer
 class SessionManager(application: Application) {
     private val socket = WebSocketClient(BuildConfig.COLLECTOR_URL)
     private val connection = ConnectionManager(socket)
-    private val collector =
-        EventRecorder(application)
+    private val eventRecorder = EventRecorder(application, ApplicationLifecycle)
     private val recorder: ScreenRecorder
 
     private val collectedEvents = ArrayDeque<SessionEvent>()
@@ -32,20 +28,11 @@ class SessionManager(application: Application) {
     init {
         connection.startAutoConnection()
 
-        collector.addOnEventListener(::onEvent)
-        collector.registerObserver(ApplicationLifecycle)
+        eventRecorder.addOnEventListener(::onEvent)
+        eventRecorder.start()
 
-        val path = application.filesDir.absolutePath
         val size = application.displaySize
-        recorder = ScreenRecorder(path, VideoFormat(size.width, size.height))
-        recorder.setOnChunkReady(::onVideoChunk)
-
-        ApplicationLifecycle.addObserver(object : LifecycleObserverAdapter() {
-            override fun onLastActivityStopped(activity: Activity) {
-                logd("UxMobile", "Stopping recorder")
-                recorder.stop()
-            }
-        })
+        recorder = ScreenRecorder(VideoFormat(size.width, size.height))
     }
 
     fun startRecording() {
@@ -72,6 +59,6 @@ class SessionManager(application: Application) {
     }
 
     fun addEventListener(function: (Event) -> Unit) {
-        collector.addOnEventListener(function)
+        eventRecorder.addOnEventListener(function)
     }
 }

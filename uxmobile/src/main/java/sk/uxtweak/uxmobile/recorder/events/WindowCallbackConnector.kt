@@ -1,7 +1,6 @@
 package sk.uxtweak.uxmobile.recorder.events
 
 import android.app.Activity
-import android.content.Context
 import android.view.MotionEvent
 
 /**
@@ -10,28 +9,29 @@ import android.view.MotionEvent
  * removes all added listeners and should no longer be used.
  */
 class WindowCallbackConnector(activity: Activity? = null) {
+    private var currentActivity: Activity? = null
     private val touchEventListeners = mutableListOf<(MotionEvent) -> Unit>()
 
-    var currentActivity: Activity? = activity
-        set(value) {
-            unregisterWindowCallback()
-            field = value
-            registerWindowCallback()
-        }
+    init {
+        onActivityChanged(activity)
+    }
 
-    val context: Context
-        get() = currentActivity!!
+    fun onActivityChanged(activity: Activity?) {
+        unregisterWindowCallback()
+        currentActivity = activity
+        registerWindowCallback()
+    }
 
-    fun addListener(listener: (MotionEvent) -> Unit) {
+    fun addEventListener(listener: (MotionEvent) -> Unit) {
         touchEventListeners += listener
     }
 
-    fun removeListener(listener: (MotionEvent) -> Unit) {
+    fun removeEventListener(listener: (MotionEvent) -> Unit) {
         touchEventListeners -= listener
     }
 
-    operator fun plusAssign(listener: (MotionEvent) -> Unit) = addListener(listener)
-    operator fun minusAssign(listener: (MotionEvent) -> Unit) = removeListener(listener)
+    operator fun plusAssign(listener: (MotionEvent) -> Unit) = addEventListener(listener)
+    operator fun minusAssign(listener: (MotionEvent) -> Unit) = removeEventListener(listener)
 
     private fun registerWindowCallback() {
         val previousCallback = currentActivity?.window?.callback

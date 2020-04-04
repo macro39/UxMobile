@@ -2,12 +2,8 @@ package sk.uxtweak.uxmobile.persister
 
 import android.media.MediaFormat
 import android.media.MediaMuxer
-import sk.uxtweak.uxmobile.core.logd
-import sk.uxtweak.uxmobile.core.loge
-import sk.uxtweak.uxmobile.core.logi
-import sk.uxtweak.uxmobile.core.logw
 import sk.uxtweak.uxmobile.recorder.screen.isKeyFrame
-import sk.uxtweak.uxmobile.util.NamedThreadFactory
+import sk.uxtweak.uxmobile.util.*
 import java.io.File
 import java.util.concurrent.*
 
@@ -20,7 +16,7 @@ class ChunkMuxer(private val filesPath: String, private val keyFramesInOneChunk:
     private var muxer: MediaMuxer? = null
     private var trackIndex = -1
     private var currentKeyFrame = keyFramesInOneChunk
-    private lateinit var future: Future<*>
+    private var future: Future<*>? = null
     private lateinit var format: MediaFormat
 
     private val job = Runnable {
@@ -41,17 +37,11 @@ class ChunkMuxer(private val filesPath: String, private val keyFramesInOneChunk:
                         )
                     }
                     is MuxerCommand.ChangeOutputFormat -> {
-                        logd(
-                            TAG,
-                            "Muxer output format changed"
-                        )
+                        logd(TAG, "Muxer output format changed")
                         format = command.format
                     }
                     is MuxerCommand.StopMuxer -> {
-                        logd(
-                            TAG,
-                            "Stopping chunk muxer"
-                        )
+                        logd(TAG, "Stopping chunk muxer")
                         muxer?.stop()
                         muxer?.release()
                         break@job
@@ -59,21 +49,14 @@ class ChunkMuxer(private val filesPath: String, private val keyFramesInOneChunk:
                 }
             }
         } catch (exception: Exception) {
-            loge(
-                TAG,
-                "ChunkMuxer exception",
-                exception
-            )
+            loge(TAG, "ChunkMuxer exception", exception)
             throw exception
         }
     }
 
     fun postCommand(command: MuxerCommand) {
-        if (!::future.isInitialized) {
-            logw(
-                TAG,
-                "Posting command $command to muxer that is not started!"
-            )
+        if (future == null) {
+            logw(TAG, "Posting command $command to muxer that is not started!")
         }
         if (!queue.offer(command)) {
             throw IllegalStateException("Cannot insert command into queue!")
@@ -81,51 +64,36 @@ class ChunkMuxer(private val filesPath: String, private val keyFramesInOneChunk:
     }
 
     fun start() {
-        logd(
-            TAG,
-            "Starting muxer"
-        )
-        if (::future.isInitialized) {
+        logd(TAG, "Starting muxer")
+        if (future != null) {
             throw IllegalStateException("Muxer already started!")
         }
         future = executor.submit(job)
     }
 
     fun stop() {
-        logd(
-            TAG,
-            "Stopping muxer"
-        )
-        if (!::future.isInitialized) {
+        logd(TAG, "Stopping muxer")
+        if (future == null) {
             throw IllegalStateException("Muxer is not started!")
         }
         postCommand(MuxerCommand.StopMuxer)
     }
 
     fun join() {
-        if (!::future.isInitialized) {
-            throw IllegalStateException("Muxer is not started!")
-        }
+        val job = future ?: throw IllegalStateException("Muxer is not started!")
         try {
-            future.get(
-                SHUTDOWN_TIMEOUT,
-                SHUTDOWN_TIME_UNIT
-            )
+            job.get(SHUTDOWN_TIMEOUT, SHUTDOWN_TIME_UNIT)
         } catch (exception: TimeoutException) {
-            logw(
-                TAG,
-                "Timeout when waiting to finish muxer job, shutting down executor!"
-            )
+            logw(TAG, "Timeout when waiting to finish muxer job, shutting down executor!")
             shutdownExecutor()
+        } finally {
+            future = null
         }
     }
 
     private fun shutdownExecutor() {
         executor.shutdown()
-        if (!executor.awaitTermination(
-                SHUTDOWN_TIMEOUT,
-                SHUTDOWN_TIME_UNIT
-            )) {
+        if (!executor.awaitTermination(SHUTDOWN_TIMEOUT, SHUTDOWN_TIME_UNIT)) {
             logw(
                 TAG,
                 "Executor didn't shutdown gracefully in time limit, shutting down forcefully!"
@@ -136,24 +104,15 @@ class ChunkMuxer(private val filesPath: String, private val keyFramesInOneChunk:
                     append("Task: $it")
                 }
             }
-            logi(
-                TAG,
-                message
-            )
+            logi(TAG, message)
         }
     }
 
     private fun restartMuxer() {
-        logd(
-            TAG,
-            "Saving old chunk and creating new chunk"
-        )
+        logd(TAG, "Saving old chunk and creating new chunk")
         muxer?.stop()
         muxer?.release()
-        muxer = MediaMuxer(
-            getPath(++index),
-            MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4
-        )
+        muxer = MediaMuxer(getPath(++index), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
         trackIndex = muxer!!.addTrack(format)
         muxer!!.start()
     }

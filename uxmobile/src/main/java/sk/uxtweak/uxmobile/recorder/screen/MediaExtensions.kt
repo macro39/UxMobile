@@ -19,7 +19,7 @@ fun MediaCodec.configureEncoder(videoFormat: VideoFormat) {
     configure(videoFormat(), null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
 }
 
-fun Surface.withLockedCanvas(block: Canvas.() -> Unit) {
+suspend fun Surface.withLockedCanvas(block: suspend Canvas.() -> Unit) {
     var canvas: Canvas? = null
     try {
         canvas = lockCanvas(null)
