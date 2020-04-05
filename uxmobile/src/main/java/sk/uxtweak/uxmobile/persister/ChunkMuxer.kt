@@ -7,7 +7,7 @@ import sk.uxtweak.uxmobile.util.*
 import java.io.File
 import java.util.concurrent.*
 
-class ChunkMuxer(private val filesPath: String, private val keyFramesInOneChunk: Int = 1) {
+class ChunkMuxer(var filesPath: String? = null, private val keyFramesInOneChunk: Int = 1) {
     private val executor = Executors.newSingleThreadExecutor(
         NamedThreadFactory("Muxer thread", Thread.MAX_PRIORITY)
     )
@@ -19,9 +19,12 @@ class ChunkMuxer(private val filesPath: String, private val keyFramesInOneChunk:
     private var future: Future<*>? = null
     private lateinit var format: MediaFormat
 
+    val isRunning: Boolean
+        get() = future != null
+
     private val job = Runnable {
         try {
-            job@ while (true) {
+            loop@ while (true) {
                 when (val command = queue.take()) {
                     is MuxerCommand.MuxFrame -> {
                         if (command.frame.isKeyFrame) {
@@ -44,7 +47,7 @@ class ChunkMuxer(private val filesPath: String, private val keyFramesInOneChunk:
                         logd(TAG, "Stopping chunk muxer")
                         muxer?.stop()
                         muxer?.release()
-                        break@job
+                        break@loop
                     }
                 }
             }
@@ -55,8 +58,8 @@ class ChunkMuxer(private val filesPath: String, private val keyFramesInOneChunk:
     }
 
     fun postCommand(command: MuxerCommand) {
-        if (future == null) {
-            logw(TAG, "Posting command $command to muxer that is not started!")
+        if (!isRunning) {
+            logw(TAG, "Posting command ${command::class.java.simpleName} to muxer that is not started!")
         }
         if (!queue.offer(command)) {
             throw IllegalStateException("Cannot insert command into queue!")
@@ -65,7 +68,7 @@ class ChunkMuxer(private val filesPath: String, private val keyFramesInOneChunk:
 
     fun start() {
         logd(TAG, "Starting muxer")
-        if (future != null) {
+        if (isRunning) {
             throw IllegalStateException("Muxer already started!")
         }
         future = executor.submit(job)
@@ -73,9 +76,6 @@ class ChunkMuxer(private val filesPath: String, private val keyFramesInOneChunk:
 
     fun stop() {
         logd(TAG, "Stopping muxer")
-        if (future == null) {
-            throw IllegalStateException("Muxer is not started!")
-        }
         postCommand(MuxerCommand.StopMuxer)
     }
 

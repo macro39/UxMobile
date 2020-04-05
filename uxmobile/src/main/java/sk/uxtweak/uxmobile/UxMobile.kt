@@ -14,6 +14,7 @@ import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.sender.SessionManager
 import sk.uxtweak.uxmobile.study.StudyFlowController
+import sk.uxtweak.uxmobile.util.IOUtils
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -81,10 +82,12 @@ object UxMobile {
         }
         started = true
 
+        IOUtils.initialize(application)
+
         ForegroundActivityHolder.register(ApplicationLifecycle)
 
         sessionManager = SessionManager(application)
-        studyFlowController = StudyFlowController(application.applicationContext, sessionManager)
+//        studyFlowController = StudyFlowController(application.applicationContext, sessionManager)
     }
 
     /**

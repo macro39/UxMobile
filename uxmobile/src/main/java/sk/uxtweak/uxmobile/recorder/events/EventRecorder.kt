@@ -55,6 +55,10 @@ class EventRecorder(
         eventListeners += eventListener
     }
 
+    fun removeOnEventListener(eventListener: EventListener) {
+        eventListeners -= eventListener
+    }
+
     private fun onTouchEvent(event: MotionEvent) {
         gestureDetector.onTouchEvent(event)
     }
