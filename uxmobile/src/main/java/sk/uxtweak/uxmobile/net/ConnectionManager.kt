@@ -25,7 +25,6 @@ class ConnectionManager(private val socket: WebSocketClient) {
                 socket.setOnDisconnected(::onSocketDisconnected)
                 logi(TAG, "Connecting to events WebSocket server")
                 socket.connect()
-                logi(TAG, "Connected to events WebSocket server")
             } catch (exception: Exception) {
                 loge(TAG, "Exception occurred while executing context(${exception.message.toString()}): ")
             }

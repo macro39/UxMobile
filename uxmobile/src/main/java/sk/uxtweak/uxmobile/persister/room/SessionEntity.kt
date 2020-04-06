@@ -5,5 +5,5 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "session_entities")
 data class SessionEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0
+    @PrimaryKey val uuid: String
 )

@@ -48,6 +48,7 @@ sealed class Event(val type: Int) {
     ) : Event(10)
 
     data class VideoChunkEvent(
+        val name: String,
         val data: String
     ) : Event(11) {
         override fun toString() = "VideoChunkEvent ${data.substring(0, 8)}"

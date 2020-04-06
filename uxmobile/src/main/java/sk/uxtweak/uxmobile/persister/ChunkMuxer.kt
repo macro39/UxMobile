@@ -7,7 +7,15 @@ import sk.uxtweak.uxmobile.util.*
 import java.io.File
 import java.util.concurrent.*
 
-class ChunkMuxer(var filesPath: String? = null, private val keyFramesInOneChunk: Int = 1) {
+class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
+    var filesPath: String? = null
+        set(value) {
+            if (field != value) {
+                index = 0
+            }
+            field = value
+        }
+
     private val executor = Executors.newSingleThreadExecutor(
         NamedThreadFactory("Muxer thread", Thread.MAX_PRIORITY)
     )
