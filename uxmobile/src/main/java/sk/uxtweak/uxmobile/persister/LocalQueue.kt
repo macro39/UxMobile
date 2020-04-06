@@ -20,10 +20,12 @@ class LocalQueue<E>(private val limit: Int) {
     private var onQueueUnlocked: () -> Unit = {}
     private lateinit var job: Job
 
+    val size: Int
+        get() = queue.size
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Suppress("UNCHECKED_CAST")
     fun start() {
-        // TODO: Doesn't send files after stop and start called
         if (channel.isClosedForSend || channel.isClosedForReceive) {
             channel = Channel(Channel.UNLIMITED)
         }
@@ -49,7 +51,7 @@ class LocalQueue<E>(private val limit: Int) {
         }
     }
 
-    fun stop(scope: CoroutineScope = GlobalScope) = scope.launch(Dispatchers.IO) {
+    fun stop() = runBlocking {
         stopAndJoin()
     }
 
@@ -73,6 +75,7 @@ class LocalQueue<E>(private val limit: Int) {
         suspendCancellableCoroutine<Unit> {
             onQueueUnlocked = {
                 it.resumeWith(Result.success(Unit))
+                onQueueUnlocked = {}
             }
             lockAction = action
             channel.offer(LocalQueueCommand.LockQueue)

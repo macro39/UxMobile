@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.SystemClock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import sk.uxtweak.uxmobile.UxMobile
 import sk.uxtweak.uxmobile.recorder.screen.EncodedFrame
 import sk.uxtweak.uxmobile.recorder.screen.isKeyFrame
 import sk.uxtweak.uxmobile.util.logd
@@ -12,9 +13,8 @@ import java.util.concurrent.TimeUnit
 
 object Stats {
     private const val TAG = "UxStats"
-    private const val PRINT_DELAY = 10L
-    private val PRINT_TIME_UNIT = TimeUnit.SECONDS
 
+    private lateinit var context: Context
     private val format = DecimalFormat("0.##")
 
     private var isFirstFrame = true
@@ -22,23 +22,44 @@ object Stats {
     private var lastFrameTime = 0L
     private var framesEncoded = 0
     private var keyFrames = 0
+    private var connected = false
 
     private val videoTime: String
         get() = "${format.format((lastFrameTime - firstFrameTime) / 1000F)} s"
 
     fun init(context: Context) {
-        GlobalScope.withFixedDelay(Dispatchers.IO, PRINT_TIME_UNIT.toMillis(PRINT_DELAY)) {
-            logd(TAG, "Video time: $videoTime")
-            logd(TAG, "Frames encoded: $framesEncoded (Key frames: $keyFrames)")
-            logd(TAG, "Files : ${context.fileList().joinToString()}")
-        }
+        this.context = context
     }
 
-    fun onStartRecording() = logd(TAG, "Recording started")
+    suspend fun log() = buildString {
+        append("API key: ${UxMobile.apiKey}\n")
+        append("Connected to server: ${if (connected) "yes" else "no"}\n")
+        append("Current session ID: ${UxMobile.sessionManager.persister.sessionId ?: "None"}\n")
+        append("Events in memory: ${UxMobile.sessionManager.persister.eventsCount}\n")
+        append("Video time: $videoTime\n")
+        append("Frames encoded: $framesEncoded (Key frames: $keyFrames)\n")
+        append("\nDatabase sessions:\n${UxMobile.sessionManager.persister.fetchDatabaseStats().joinToString("\n", postfix = "\n")}")
+        append("\nVideo sessions:\n${videoSession()}\n")
+    }
+
+    fun onConnected() {
+        connected = true
+    }
+
+    fun onDisconnected() {
+        connected = false
+    }
+
+    fun onStartRecording() {
+        logd(TAG, "Recording started")
+        isFirstFrame = true
+        firstFrameTime = 0L
+        lastFrameTime = 0L
+        framesEncoded = 0
+        keyFrames = 0
+    }
 
     fun onStopRecording() = logd(TAG, "Recording stopped")
-
-    fun onVideoChunk(path: String) = logd(TAG, "Recording $path saved")
 
     fun onFrameEncoded(frame: EncodedFrame) {
         if (isFirstFrame) {
@@ -49,6 +70,12 @@ object Stats {
         ++framesEncoded
         if (frame.isKeyFrame) {
             ++keyFrames
+        }
+    }
+
+    private fun videoSession() = buildString {
+        context.filesDir.listFiles()?.forEach { file ->
+            append("${file.name} (${file.list()?.size ?: 0})\n")
         }
     }
 }

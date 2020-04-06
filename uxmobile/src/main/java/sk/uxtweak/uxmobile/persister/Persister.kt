@@ -3,10 +3,7 @@ package sk.uxtweak.uxmobile.persister
 import android.media.MediaFormat
 import android.os.SystemClock
 import com.fasterxml.uuid.Generators
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import sk.uxtweak.uxmobile.model.Event
 import sk.uxtweak.uxmobile.model.SessionEvent
 import sk.uxtweak.uxmobile.persister.room.AppDatabase
@@ -19,24 +16,37 @@ import sk.uxtweak.uxmobile.recorder.screen.isKeyFrame
 import sk.uxtweak.uxmobile.util.*
 import java.io.File
 
+class DatabaseSession(private val sessionId: String, private val eventCount: Int) {
+    override fun toString() = "$sessionId (Events: $eventCount)"
+}
+
 @OptIn(ExperimentalStdlibApi::class)
 class Persister(
     private val recorder: EventRecorder,
     private val screenRecorder: ScreenRecorder,
     private val database: AppDatabase
 ) {
+    var isRunning: Boolean = false
+        private set
+
     private val chunkMuxer = ChunkMuxer(keyFramesInOneChunk = 2)
     private val tempList = mutableListOf<SessionEvent>()
+
     val localQueue = LocalQueue<SessionEvent>(100)
     var sessionId: String? = null
 
+    val eventsCount: Int
+        get() = localQueue.size + tempList.size
+
     fun start() {
         logi(TAG, "Starting persister")
+        isRunning = true
         localQueue.start()
         recorder.addOnEventListener(::onEventReceived)
-        screenRecorder.setOnEncodedFrameListener(::onEncodedFrame)
         screenRecorder.setOnOutputFormatChangedListener(::onOutputFormatChanged)
+        screenRecorder.setOnEncodedFrameListener(::onEncodedFrame)
         localQueue.doOnLimitReached(::onLocalQueueLimitReached)
+        startChunkMuxer()
     }
 
     fun stop() {
@@ -44,8 +54,10 @@ class Persister(
         screenRecorder.setOnEncodedFrameListener {}
         screenRecorder.setOnOutputFormatChangedListener {}
         recorder.removeOnEventListener(::onEventReceived)
+        runBlocking { flushEvents() }
         localQueue.stop()
-        chunkMuxer.stop()
+        chunkMuxer.stopAndJoin()
+        isRunning = false
     }
 
     fun generateNewSessionId(scope: CoroutineScope = GlobalScope) = scope.launch(Dispatchers.IO) {
@@ -58,15 +70,7 @@ class Persister(
         tempList.forEach { localQueue.insert(it) }
         tempList.clear()
 
-        logd(TAG, "Starting video chunk muxer")
-        val sessionDirectory = File(IOUtils.filesDir, sessionId.toString())
-        if (!sessionDirectory.mkdirs()) {
-            logw(TAG, "Cannot create session directory ${sessionDirectory.path}")
-        }
-        chunkMuxer.filesPath = sessionDirectory.path
-        if (!chunkMuxer.isRunning) {
-            chunkMuxer.start()
-        }
+        startChunkMuxer()
     }
 
     suspend fun flushEvents() {
@@ -111,5 +115,23 @@ class Persister(
         val events = queue.map { EventEntity(0, sessionId!!, it.toJson()) }
         database.eventDao().insert(events)
         queue.clear()
+    }
+
+    suspend fun fetchDatabaseStats(): List<DatabaseSession> {
+        val sessions = mutableMapOf<String, Int>()
+        database.eventDao().getAll().forEach {
+            sessions[it.sessionId] = (sessions[it.sessionId] ?: 0) + 1
+        }
+        return sessions.map { DatabaseSession(it.key, it.value) }
+    }
+
+    private fun startChunkMuxer() {
+        if (sessionId != null) {
+            chunkMuxer.filesPath = File(IOUtils.filesDir, sessionId.toString())
+            if (!chunkMuxer.isRunning) {
+                logd(TAG, "Starting video chunk muxer")
+                chunkMuxer.start()
+            }
+        }
     }
 }

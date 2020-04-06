@@ -11,6 +11,9 @@
         android:allowBackup="true"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true">
+        <activity
+            android:label="Debug menu"
+            android:name=".ui.DebugActivity" />
         <activity android:name=".study.study_flow.StudyFlowFragmentManager" />
         <activity android:name=".study.float_widget.FloatWidgetService" />
 

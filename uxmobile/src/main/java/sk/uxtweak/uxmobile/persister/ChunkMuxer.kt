@@ -8,7 +8,7 @@ import java.io.File
 import java.util.concurrent.*
 
 class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
-    var filesPath: String? = null
+    var filesPath: File? = null
         set(value) {
             if (field != value) {
                 index = 0
@@ -35,6 +35,9 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
             loop@ while (true) {
                 when (val command = queue.take()) {
                     is MuxerCommand.MuxFrame -> {
+                        if (!filesPath!!.exists() && !filesPath!!.mkdirs()) {
+                            logw(TAG, "Cannot create session directory ${filesPath!!.path}")
+                        }
                         if (command.frame.isKeyFrame) {
                             if (++currentKeyFrame >= keyFramesInOneChunk) {
                                 currentKeyFrame = 0
@@ -55,6 +58,7 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
                         logd(TAG, "Stopping chunk muxer")
                         muxer?.stop()
                         muxer?.release()
+                        muxer = null
                         break@loop
                     }
                 }
@@ -79,6 +83,8 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
         if (isRunning) {
             throw IllegalStateException("Muxer already started!")
         }
+        index = if (filesPath != null) 0 else -1
+        currentKeyFrame = keyFramesInOneChunk
         future = executor.submit(job)
     }
 
@@ -102,10 +108,7 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
     private fun shutdownExecutor() {
         executor.shutdown()
         if (!executor.awaitTermination(SHUTDOWN_TIMEOUT, SHUTDOWN_TIME_UNIT)) {
-            logw(
-                TAG,
-                "Executor didn't shutdown gracefully in time limit, shutting down forcefully!"
-            )
+            logw(TAG, "Executor didn't shutdown gracefully in time limit, shutting down forcefully!")
             val message = buildString {
                 append("Tasks that didn't shutdown gracefully: ")
                 executor.shutdownNow().also {

@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import sk.uxtweak.uxmobile.core.Stats
 import java.io.IOException
 import java.util.concurrent.TimeoutException
 import kotlin.coroutines.resume
@@ -31,14 +32,20 @@ class WebSocketClient(url: String) : BasicListenerAdapter() {
             override fun onConnected(
                 socket: Socket,
                 headers: MutableMap<String, MutableList<String>>?
-            ) = onConnectedListener()
+            ) {
+                Stats.onConnected()
+                onConnectedListener()
+            }
 
             override fun onDisconnected(
                 socket: Socket,
                 serverCloseFrame: WebSocketFrame?,
                 clientCloseFrame: WebSocketFrame?,
                 closedByServer: Boolean
-            ) = onDisconnectedListener()
+            ) {
+                Stats.onDisconnected()
+                onDisconnectedListener()
+            }
         })
     }
 
@@ -51,6 +58,8 @@ class WebSocketClient(url: String) : BasicListenerAdapter() {
     }
 
     suspend fun connect() = withContext(Dispatchers.IO) { socket.connect() }
+
+    fun disconnect() = socket.disconnect()
 
     suspend fun emit(event: String, message: Any = ""): Any? {
         return withTimeoutOrNull(EMIT_TIMEOUT) {

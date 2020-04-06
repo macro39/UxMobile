@@ -5,11 +5,10 @@ import android.content.Context
 import android.content.res.Configuration
 import android.view.GestureDetector
 import android.view.MotionEvent
-import sk.uxtweak.uxmobile.lifecycle.Lifecycle
-import sk.uxtweak.uxmobile.lifecycle.LifecycleObserverAdapter
-import sk.uxtweak.uxmobile.lifecycle.minusAssign
-import sk.uxtweak.uxmobile.lifecycle.plusAssign
+import sk.uxtweak.uxmobile.lifecycle.*
 import sk.uxtweak.uxmobile.model.Event
+import sk.uxtweak.uxmobile.util.TAG
+import sk.uxtweak.uxmobile.util.logd
 
 private typealias EventListener = (Event) -> Unit
 
@@ -17,6 +16,9 @@ class EventRecorder(
     context: Context,
     private val lifecycle: Lifecycle
 ) {
+    var isRunning: Boolean = false
+        private set
+
     private val activityEventRecorder = ActivityEventRecorder(lifecycle)
     private val motionEventConverter = MotionEventConverter(::onEvent)
     private val gestureDetector = GestureDetector(context, motionEventConverter)
@@ -38,13 +40,19 @@ class EventRecorder(
     }
 
     fun start() {
+        logd(TAG, "Starting event recorder")
+        isRunning = true
         activityEventRecorder.start()
         registerExceptionHandler()
         connector += ::onTouchEvent
         lifecycle += observer
+        connector.onActivityChanged(ForegroundActivityHolder.foregroundActivity)
     }
 
     fun stop() {
+        logd(TAG, "Stopping event recorder")
+        isRunning = false
+        connector.onActivityChanged(null)
         lifecycle -= observer
         connector -= ::onTouchEvent
         unregisterExceptionHandler()
@@ -67,7 +75,10 @@ class EventRecorder(
         dispatchEvent(event)
     }
 
-    private fun dispatchEvent(event: Event) = eventListeners.forEach { it(event) }
+    private fun dispatchEvent(event: Event) {
+        logd(TAG, "Dispatching event")
+        eventListeners.forEach { it(event) }
+    }
 
     private fun registerExceptionHandler() {
         ExceptionHandler.register()

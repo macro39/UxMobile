@@ -22,37 +22,28 @@ import sk.uxtweak.uxmobile.util.logd
 
 class SessionManager(application: Application) {
     private val socket = WebSocketClient(BuildConfig.COLLECTOR_URL)
-    private val connection = ConnectionManager(socket)
-    private val eventRecorder = EventRecorder(application, ApplicationLifecycle)
-    private val screenRecorder: ScreenRecorder
+    val connectionManager = ConnectionManager(socket)
+    val eventRecorder = EventRecorder(application, ApplicationLifecycle)
+    val screenRecorder: ScreenRecorder
+    lateinit var persister: Persister
+    val sender: EventSender
     private val database: AppDatabase
-    private lateinit var persister: Persister
-    private val sender: EventSender
 
     private val observer = object : LifecycleObserverAdapter() {
         override fun onFirstActivityStarted(activity: Activity) {
+            startAll()
             logd(TAG, "Generating new session ID for persister")
             persister.generateNewSessionId()
-            persister.start()
         }
 
         override fun onLastActivityStopped(activity: Activity) {
-            GlobalScope.launch(Dispatchers.IO) {
-                persister.stop()
-                logd(TAG, "Flushing events")
-                persister.flushEvents()
-                logd(TAG, "Clearing session ID")
-                persister.sessionId = null
-            }
+            super.onLastActivityStopped(activity)
+            stopAll()
         }
     }
 
     init {
         ApplicationLifecycle.addObserver(observer)
-
-        connection.startAutoConnection()
-
-        eventRecorder.start()
 
         val size = application.displaySize
         screenRecorder = ScreenRecorder(VideoFormat(size.width, size.height))
@@ -60,20 +51,33 @@ class SessionManager(application: Application) {
         database = AppDatabase.create(application, false)
         persister = Persister(eventRecorder, screenRecorder, database)
 
-        sender = EventSender(connection, persister, database)
-        sender.start()
+        sender = EventSender(connectionManager, persister, database)
+    }
 
+    private fun startAll() {
+        persister.start()
+        eventRecorder.start()
         screenRecorder.start()
+        if (!sender.isRunning) {
+            sender.start()
+        }
+        if (!connectionManager.isRunning) {
+            connectionManager.start()
+        }
+    }
+
+    private fun stopAll() {
+        eventRecorder.stop()
+        screenRecorder.stop()
+        persister.stop()
     }
 
     fun startRecording() {
-        Stats.onStartRecording()
-        screenRecorder.start()
+
     }
 
     fun stopRecording() {
-        Stats.onStopRecording()
-        screenRecorder.stop()
+
     }
 
     fun addEventListener(function: (Event) -> Unit) = eventRecorder.addOnEventListener(function)
