@@ -4,18 +4,26 @@ import android.util.Log
 
 const val TAG = "UxMobile"
 
-fun logd(tag: String, message: String) = Log.d(tag, "[${Thread.currentThread().name}] $message")
-fun logi(tag: String, message: String) = Log.i(tag, "[${Thread.currentThread().name}] $message")
-fun logw(tag: String, message: String, throwable: Throwable? = null) =
-    if (throwable == null) Log.w(tag, "[${Thread.currentThread().name}] $message") else Log.w(
-        tag,
-        "[${Thread.currentThread().name}] $message",
-        throwable
-    )
+fun logd(tag: String, message: String) {
+    val newMessage = "[${Thread.currentThread().name}] $message"
+    Log.d(tag, newMessage)
+    LogUtils.append(newMessage)
+}
 
-fun loge(tag: String, message: String, throwable: Throwable? = null) =
-    if (throwable == null) Log.e(tag, "[${Thread.currentThread().name}] $message") else Log.e(
-        tag,
-        "[${Thread.currentThread().name}] $message",
-        throwable
-    )
+fun logi(tag: String, message: String) {
+    val newMessage = "[${Thread.currentThread().name}] $message"
+    Log.i(tag, newMessage)
+    LogUtils.append(newMessage)
+}
+
+fun logw(tag: String, message: String, throwable: Throwable? = null) {
+    val newMessage = "[${Thread.currentThread().name}] $message"
+    if (throwable == null) Log.w(tag, newMessage) else Log.w(tag, newMessage, throwable)
+    LogUtils.append(newMessage)
+}
+
+fun loge(tag: String, message: String, throwable: Throwable? = null) {
+    val newMessage = "[${Thread.currentThread().name}] $message"
+    if (throwable == null) Log.e(tag, newMessage) else Log.e(tag, newMessage, throwable)
+    LogUtils.append(newMessage)
+}

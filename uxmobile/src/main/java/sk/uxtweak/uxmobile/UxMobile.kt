@@ -2,19 +2,24 @@ package sk.uxtweak.uxmobile
 
 import android.Manifest
 import android.app.Application
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.os.Environment
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
 import sk.uxtweak.uxmobile.UxMobile.start
+import sk.uxtweak.uxmobile.core.SessionManager
 import sk.uxtweak.uxmobile.core.Stats
-import sk.uxtweak.uxmobile.util.logi
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
-import sk.uxtweak.uxmobile.core.SessionManager
 import sk.uxtweak.uxmobile.study.StudyFlowController
+import sk.uxtweak.uxmobile.ui.DebugActivity
+import sk.uxtweak.uxmobile.ui.ShakeDetector
 import sk.uxtweak.uxmobile.util.IOUtils
+import sk.uxtweak.uxmobile.util.logi
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -26,6 +31,7 @@ object UxMobile {
 
     private lateinit var studyFlowController: StudyFlowController
     lateinit var sessionManager: SessionManager
+    var apiKey: String? = null
 
     /**
      * Application Context. Initialized by
@@ -78,13 +84,30 @@ object UxMobile {
             throw IllegalStateException("UxMobile has already started!")
         }
         started = true
+        this.apiKey = apiKey
 
         IOUtils.initialize(application)
 
         ForegroundActivityHolder.register(ApplicationLifecycle)
 
         sessionManager = SessionManager(application)
-//        studyFlowController = StudyFlowController(application.applicationContext, sessionManager)
+        studyFlowController = StudyFlowController(application.applicationContext, sessionManager)
+
+        val sensorManager = ContextCompat.getSystemService(application, SensorManager::class.java)
+        val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+        val shakeDetector = ShakeDetector()
+        shakeDetector.setOnShakeListener(object : ShakeDetector.OnShakeListener {
+            override fun onShake(count: Int) {
+                if (count == 3) {
+                    val intent = Intent(application, DebugActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    ContextCompat.startActivity(application, intent, null)
+                }
+            }
+        })
+
+        sensorManager?.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI)
     }
 
     /**

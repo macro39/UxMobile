@@ -7,10 +7,17 @@ import sk.uxtweak.uxmobile.core.Stats
 import sk.uxtweak.uxmobile.core.atFixedRate
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
 import sk.uxtweak.uxmobile.lifecycle.withForegroundActivity
+import sk.uxtweak.uxmobile.util.TAG
+import sk.uxtweak.uxmobile.util.logd
 
 class ScreenRecorder(private val videoFormat: VideoFormat) {
+    var isRunning: Boolean = false
+        private set
+
     private lateinit var encoder: VideoEncoder
     private val screenBuffer = ScreenBuffer(videoFormat.width, videoFormat.height)
+    private var format: MediaFormat? = null
+    private var wasKeyFrame = false
     private lateinit var job: Job
     private var onEncodedFrameListener: (EncodedFrame) -> Unit = {}
     private var onOutputFormatChangedListener: (MediaFormat) -> Unit = {}
@@ -24,11 +31,14 @@ class ScreenRecorder(private val videoFormat: VideoFormat) {
     }
 
     fun start() {
+        logd(TAG, "Starting screen recorder")
+        Stats.onStartRecording()
+        isRunning = true
         encoder = VideoEncoder(videoFormat)
         encoder.setOnEncodedListener(::onEncodedFrame)
         encoder.setOnOutputFormatChanged(::onOutputFormatChanged)
-        job = GlobalScope.atFixedRate(Dispatchers.IO, videoFormat.frameTime, recordingJob)
         encoder.start()
+        job = GlobalScope.atFixedRate(Dispatchers.IO, videoFormat.frameTime, recordingJob)
     }
 
     fun stop(scope: CoroutineScope = GlobalScope) = scope.launch {
@@ -37,23 +47,39 @@ class ScreenRecorder(private val videoFormat: VideoFormat) {
 
     suspend fun stopAndJoin() {
         job.cancelAndJoin()
-        encoder.stop()
+        encoder.stopAndJoin()
         encoder.release()
+        wasKeyFrame = false
+        format = null
+        isRunning = false
+        Stats.onStopRecording()
     }
 
     fun setOnEncodedFrameListener(listener: (EncodedFrame) -> Unit) {
         onEncodedFrameListener = listener
+        wasKeyFrame = false
     }
 
     fun setOnOutputFormatChangedListener(listener: (MediaFormat) -> Unit) {
         onOutputFormatChangedListener = listener
+        if (format != null) {
+            onOutputFormatChangedListener(format!!)
+        }
     }
 
-    private fun onOutputFormatChanged(format: MediaFormat) = onOutputFormatChangedListener(format)
+    private fun onOutputFormatChanged(format: MediaFormat) {
+        this.format = format
+        onOutputFormatChangedListener(format)
+    }
 
     private fun onEncodedFrame(frame: EncodedFrame) {
-        Stats.onFrameEncoded(frame)
-        onEncodedFrameListener(frame)
+        if (frame.isKeyFrame) {
+            wasKeyFrame = true
+        }
+        if (wasKeyFrame) {
+            Stats.onFrameEncoded(frame)
+            onEncodedFrameListener(frame)
+        }
     }
 
     private suspend fun drawFrame(activity: Activity) {

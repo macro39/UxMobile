@@ -65,13 +65,6 @@ fun CoroutineScope.atFixedRate(
     }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
-suspend fun <E> Channel<E>.toCurrentList(): List<E> = mutableListOf<E>().apply {
-    while (!isEmpty) {
-        this += receive()
-    }
-}
-
 fun ByteBuffer.copy(): ByteBuffer {
     val copy = ByteBuffer.allocate(limit())
     copy.put(this)

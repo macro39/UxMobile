@@ -46,10 +46,6 @@ object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
     }
 
     override fun onActivityStarted(activity: Activity) {
-        logd(
-            TAG,
-            "onActivityStarted: " + activity.localClassName
-        )
         latestConfiguration = null
         activityCounter++
 
@@ -63,10 +59,6 @@ object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
     }
 
     override fun onActivityStopped(activity: Activity) {
-        logd(
-            TAG,
-            "onActivityStopped: " + activity.localClassName
-        )
         activityCounter--
 
         observers.forEach { it.onAnyActivityStopped(activity) }

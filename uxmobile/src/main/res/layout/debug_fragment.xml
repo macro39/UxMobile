@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Switch
+        android:id="@+id/eventRecorderSwitch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Event recorder (records events)"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Switch
+        android:id="@+id/screenRecorderSwitch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Screen recorder (records screen as video)"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eventRecorderSwitch" />
+
+    <Switch
+        android:id="@+id/connectionManagerSwitch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Connection manager (manages connection to server)"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/screenRecorderSwitch" />
+
+    <Switch
+        android:id="@+id/persisterSwitch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Persister (stores events in memory and database)"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/connectionManagerSwitch" />
+
+    <Switch
+        android:id="@+id/senderSwitch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Sender (sends stored events)"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/persisterSwitch" />
+
+    <Button
+        android:id="@+id/generateNewSessionIdButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Generate new session ID"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/senderSwitch" />
+
+    <TextView
+        android:id="@+id/logText"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        android:scrollbars="vertical"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/generateNewSessionIdButton"
+        tools:text="Information view" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

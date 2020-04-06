@@ -10,6 +10,9 @@ import sk.uxtweak.uxmobile.util.loge
 import sk.uxtweak.uxmobile.util.logi
 
 class ConnectionManager(private val socket: WebSocketClient) {
+    var isRunning: Boolean = false
+        private set
+
     val isConnected: Boolean
         get() = socket.isConnected
 
@@ -17,18 +20,29 @@ class ConnectionManager(private val socket: WebSocketClient) {
     private var onConnectedListener: () -> Unit = {}
     private var onDisconnectedListener: () -> Unit = {}
 
-    fun startAutoConnection() {
+    init {
+        socket.setOnConnected(::onSocketConnected)
+        socket.setOnDisconnected(::onSocketDisconnected)
+    }
+
+    fun start() {
         GlobalScope.launch(Dispatchers.IO) {
+            isRunning = true
             try {
                 socket.autoReconnect = true
-                socket.setOnConnected(::onSocketConnected)
-                socket.setOnDisconnected(::onSocketDisconnected)
                 logi(TAG, "Connecting to events WebSocket server")
                 socket.connect()
             } catch (exception: Exception) {
                 loge(TAG, "Exception occurred while executing context(${exception.message.toString()}): ")
             }
         }
+    }
+
+    fun stop() {
+        logi(TAG, "Disconnecting from events WebSocket server")
+        socket.autoReconnect = false
+        socket.disconnect()
+        isRunning = false
     }
 
     private fun addOnConnectedOnce(listener: () -> Unit) {
@@ -45,7 +59,7 @@ class ConnectionManager(private val socket: WebSocketClient) {
 
     suspend fun emit(event: String, message: Any = "") = socket.emit(event, message)
 
-    suspend fun suspendUntilConnected() = suspendCancellableCoroutine<Unit> {
+    suspend fun waitUntilConnected() = suspendCancellableCoroutine<Unit> {
         if (!isConnected) {
             logd(TAG, "Suspending for connection")
             addOnConnectedOnce {

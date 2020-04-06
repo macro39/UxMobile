@@ -47,7 +47,7 @@ class VideoEncoder(private val videoFormat: VideoFormat) {
     }
 
     fun start() {
-        if (job?.isActive == true) {
+        if (job != null && job?.isActive == true) {
             throw IllegalStateException("Encoder already started, must be stopped first")
         }
         configure()
@@ -55,15 +55,15 @@ class VideoEncoder(private val videoFormat: VideoFormat) {
         job = GlobalScope.launch(Dispatchers.IO, block = encoderJob)
     }
 
-    fun stop(scope: CoroutineScope = GlobalScope) = scope.launch(Dispatchers.IO) {
+    fun stop() = runBlocking {
         stopAndJoin()
     }
 
     suspend fun stopAndJoin() {
-        if (job?.isActive == false) {
+        if (job == null || !job!!.isActive) {
             throw IllegalStateException("Encoder must be started first")
         }
-        job?.cancelAndJoin()
+        job!!.cancelAndJoin()
         encoder.stop()
         surface.release()
     }
