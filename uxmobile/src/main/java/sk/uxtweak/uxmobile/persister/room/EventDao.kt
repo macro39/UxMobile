@@ -10,9 +10,15 @@ interface EventDao {
     @Delete
     suspend fun delete(events: List<EventEntity>)
 
+    @Delete
+    fun deleteEvents(events: List<EventEntity>)
+
     @Query("SELECT * FROM event_entities")
     fun getAll(): List<EventEntity>
 
-    @Query("SELECT COUNT(*) FROM event_entities")
-    fun count(): Long
+    @Query("SELECT * FROM event_entities WHERE session_id = :sessionId")
+    fun getForSessionId(sessionId: String): List<EventEntity>
+
+    @Query("SELECT COUNT(*) FROM event_entities WHERE session_id = :id")
+    fun countForId(id: String): Long
 }

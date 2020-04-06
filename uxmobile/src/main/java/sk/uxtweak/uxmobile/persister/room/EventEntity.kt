@@ -5,7 +5,7 @@ import androidx.room.*
 @Entity(
     tableName = "event_entities", foreignKeys = [ForeignKey(
         entity = SessionEntity::class,
-        parentColumns = ["id"],
+        parentColumns = ["uuid"],
         childColumns = ["session_id"],
         onDelete = ForeignKey.CASCADE
     )],
@@ -13,6 +13,6 @@ import androidx.room.*
 )
 data class EventEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
-    @ColumnInfo(name = "session_id") val sessionId: Long,
+    @ColumnInfo(name = "session_id") val sessionId: String,
     val json: String
 )

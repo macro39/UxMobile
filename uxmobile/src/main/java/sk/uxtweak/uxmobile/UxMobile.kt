@@ -12,7 +12,7 @@ import sk.uxtweak.uxmobile.core.Stats
 import sk.uxtweak.uxmobile.util.logi
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
-import sk.uxtweak.uxmobile.sender.SessionManager
+import sk.uxtweak.uxmobile.core.SessionManager
 import sk.uxtweak.uxmobile.study.StudyFlowController
 import sk.uxtweak.uxmobile.util.IOUtils
 import java.io.File
@@ -57,10 +57,7 @@ object UxMobile {
         try {
             startInternal(loadApiKeyFromManifest())
         } catch (exception: IllegalStateException) {
-            Log.e(
-                TAG,
-                "Cannot load API key! Check if you have your API key declared in Android Manifest"
-            )
+            Log.e(TAG, "Cannot load API key! Check if you have your API key declared in Android Manifest")
         }
     }
 

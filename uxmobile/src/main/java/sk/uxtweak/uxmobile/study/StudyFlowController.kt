@@ -9,7 +9,7 @@ import android.content.res.Configuration
 import android.os.Handler
 import android.util.Log
 import sk.uxtweak.uxmobile.lifecycle.LifecycleObserver
-import sk.uxtweak.uxmobile.sender.SessionManager
+import sk.uxtweak.uxmobile.core.SessionManager
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.model.Event
