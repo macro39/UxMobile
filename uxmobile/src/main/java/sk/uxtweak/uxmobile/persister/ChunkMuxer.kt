@@ -2,6 +2,7 @@ package sk.uxtweak.uxmobile.persister
 
 import android.media.MediaFormat
 import android.media.MediaMuxer
+import android.os.Process
 import sk.uxtweak.uxmobile.recorder.screen.isKeyFrame
 import sk.uxtweak.uxmobile.util.*
 import java.io.File
@@ -17,8 +18,9 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
         }
 
     private val executor = Executors.newSingleThreadExecutor(
-        NamedThreadFactory("Muxer thread", Thread.MAX_PRIORITY)
+        NamedThreadFactory("Muxer")
     )
+
     private val queue: BlockingQueue<MuxerCommand> = LinkedBlockingQueue()
     private var index = -1
     private var muxer: MediaMuxer? = null
@@ -31,6 +33,7 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
         get() = future != null
 
     private val job = Runnable {
+        Process.setThreadPriority(THREAD_PRIORITY)
         try {
             loop@ while (true) {
                 when (val command = queue.take()) {
@@ -132,6 +135,7 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
 
     companion object {
         private const val TAG = "UxMobile"
+        private const val THREAD_PRIORITY = -10
         private const val SHUTDOWN_TIMEOUT = 3L
         private val SHUTDOWN_TIME_UNIT = TimeUnit.SECONDS
     }

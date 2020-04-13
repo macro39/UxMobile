@@ -3,7 +3,7 @@ package sk.uxtweak.uxmobile.recorder.events
 import android.util.Log
 
 class ExceptionHandler(
-    private val exceptionHandler: Thread.UncaughtExceptionHandler
+    private val exceptionHandler: Thread.UncaughtExceptionHandler?
 ) : Thread.UncaughtExceptionHandler {
     private var listener: (Thread, Throwable) -> Unit = { _, _ -> }
 
@@ -17,7 +17,7 @@ class ExceptionHandler(
 
         listener(thread, exception)
 
-        exceptionHandler.uncaughtException(thread, exception)
+        exceptionHandler?.uncaughtException(thread, exception)
     }
 
     companion object {
@@ -26,7 +26,7 @@ class ExceptionHandler(
         @JvmStatic
         fun register() {
             val currentHandler = Thread.getDefaultUncaughtExceptionHandler()
-            if (currentHandler != null && currentHandler !is ExceptionHandler) {
+            if (currentHandler !is ExceptionHandler) {
                 Thread.setDefaultUncaughtExceptionHandler(
                     ExceptionHandler(
                         currentHandler

@@ -1,14 +1,14 @@
-package sk.uxtweak.uxmobile.persister.room
+package sk.uxtweak.uxmobile.persister.database
 
 import androidx.room.*
 
 @Dao
 interface SessionDao {
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(session: SessionEntity): Long
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insert(session: SessionEntity): Long
 
     @Update
-    suspend fun update(session: SessionEntity)
+    fun update(session: SessionEntity)
 
     @Delete
     fun delete(session: SessionEntity)

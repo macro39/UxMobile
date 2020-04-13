@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.persister.room
+package sk.uxtweak.uxmobile.persister.database
 
 import androidx.room.*
 

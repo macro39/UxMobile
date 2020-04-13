@@ -1,4 +1,4 @@
-package sk.uxtweak.uxmobile.persister.room
+package sk.uxtweak.uxmobile.persister.database
 
 import android.content.Context
 import androidx.room.Database
@@ -11,11 +11,13 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun eventDao(): EventDao
 
     companion object {
+        private const val DATABASE_NAME = "EventsDatabase"
+
         fun create(context: Context, inMemory: Boolean = false): AppDatabase {
             return if (inMemory) {
                 Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
             } else {
-                Room.databaseBuilder(context, AppDatabase::class.java, "EventsDatabase").build()
+                Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME).build()
             }
         }
     }

@@ -2,14 +2,11 @@ package sk.uxtweak.uxmobile.core
 
 import android.content.Context
 import android.os.SystemClock
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import sk.uxtweak.uxmobile.UxMobile
 import sk.uxtweak.uxmobile.recorder.screen.EncodedFrame
 import sk.uxtweak.uxmobile.recorder.screen.isKeyFrame
 import sk.uxtweak.uxmobile.util.logd
 import java.text.DecimalFormat
-import java.util.concurrent.TimeUnit
 
 object Stats {
     private const val TAG = "UxStats"
@@ -34,8 +31,8 @@ object Stats {
     suspend fun log() = buildString {
         append("API key: ${UxMobile.apiKey}\n")
         append("Connected to server: ${if (connected) "yes" else "no"}\n")
-        append("Current session ID: ${UxMobile.sessionManager.persister.sessionId ?: "None"}\n")
-        append("Events in memory: ${UxMobile.sessionManager.persister.eventsCount}\n")
+        append("Current session ID: ${UxMobile.sessionManager.sessionId}\n")
+        append("Events in memory: ${UxMobile.sessionManager.persister.eventsCount} (in cache: ${UxMobile.sessionManager.persister.cachedEventsCount})\n")
         append("Video time: $videoTime\n")
         append("Frames encoded: $framesEncoded (Key frames: $keyFrames)\n")
         append("\nDatabase sessions:\n${UxMobile.sessionManager.persister.fetchDatabaseStats().joinToString("\n", postfix = "\n")}")

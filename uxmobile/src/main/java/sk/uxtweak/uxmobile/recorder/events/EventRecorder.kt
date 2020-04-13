@@ -10,8 +10,6 @@ import sk.uxtweak.uxmobile.model.Event
 import sk.uxtweak.uxmobile.util.TAG
 import sk.uxtweak.uxmobile.util.logd
 
-private typealias EventListener = (Event) -> Unit
-
 class EventRecorder(
     context: Context,
     private val lifecycle: Lifecycle
@@ -24,7 +22,7 @@ class EventRecorder(
     private val gestureDetector = GestureDetector(context, motionEventConverter)
     private val connector = WindowCallbackConnector()
 
-    private val eventListeners = mutableListOf<EventListener>()
+    private val eventListeners = mutableListOf<(Event) -> Unit>()
 
     private val observer = object : LifecycleObserverAdapter() {
         override fun onAnyActivityStarted(activity: Activity) {
@@ -59,11 +57,11 @@ class EventRecorder(
         activityEventRecorder.stop()
     }
 
-    fun addOnEventListener(eventListener: EventListener) {
+    fun addOnEventListener(eventListener: (Event) -> Unit) {
         eventListeners += eventListener
     }
 
-    fun removeOnEventListener(eventListener: EventListener) {
+    fun removeOnEventListener(eventListener: (Event) -> Unit) {
         eventListeners -= eventListener
     }
 

@@ -93,21 +93,7 @@ object UxMobile {
         sessionManager = SessionManager(application)
         studyFlowController = StudyFlowController(application.applicationContext, sessionManager)
 
-        val sensorManager = ContextCompat.getSystemService(application, SensorManager::class.java)
-        val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-
-        val shakeDetector = ShakeDetector()
-        shakeDetector.setOnShakeListener(object : ShakeDetector.OnShakeListener {
-            override fun onShake(count: Int) {
-                if (count == 3) {
-                    val intent = Intent(application, DebugActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    ContextCompat.startActivity(application, intent, null)
-                }
-            }
-        })
-
-        sensorManager?.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI)
+        registerDebugMenu()
     }
 
     /**
@@ -146,6 +132,24 @@ object UxMobile {
             throw FileNotFoundException("File with API key not found!")
         }
         return apiKeyFile.readText()
+    }
+
+    private fun registerDebugMenu() {
+        val sensorManager = ContextCompat.getSystemService(application, SensorManager::class.java)
+        val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+        val shakeDetector = ShakeDetector()
+        shakeDetector.setOnShakeListener(object : ShakeDetector.OnShakeListener {
+            override fun onShake(count: Int) {
+                if (count == 3) {
+                    val intent = Intent(application, DebugActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    ContextCompat.startActivity(application, intent, null)
+                }
+            }
+        })
+
+        sensorManager?.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI)
     }
 
     private const val TAG = "UxMobile"

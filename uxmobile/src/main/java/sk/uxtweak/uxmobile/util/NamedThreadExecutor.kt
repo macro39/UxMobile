@@ -1,5 +1,7 @@
 package sk.uxtweak.uxmobile.util
 
+import kotlinx.coroutines.asCoroutineDispatcher
+import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
 
 class NamedThreadFactory(

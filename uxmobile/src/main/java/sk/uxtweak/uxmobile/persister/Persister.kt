@@ -2,17 +2,22 @@ package sk.uxtweak.uxmobile.persister
 
 import android.media.MediaFormat
 import android.os.SystemClock
-import com.fasterxml.uuid.Generators
+import androidx.annotation.WorkerThread
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import sk.uxtweak.uxmobile.concurrency.withTryLock
+import sk.uxtweak.uxmobile.core.SessionManager
 import sk.uxtweak.uxmobile.model.Event
 import sk.uxtweak.uxmobile.model.SessionEvent
-import sk.uxtweak.uxmobile.persister.room.AppDatabase
-import sk.uxtweak.uxmobile.persister.room.EventEntity
-import sk.uxtweak.uxmobile.persister.room.SessionEntity
+import sk.uxtweak.uxmobile.persister.database.AppDatabase
+import sk.uxtweak.uxmobile.persister.database.EventEntity
+import sk.uxtweak.uxmobile.persister.database.SessionEntity
 import sk.uxtweak.uxmobile.recorder.events.EventRecorder
 import sk.uxtweak.uxmobile.recorder.screen.EncodedFrame
 import sk.uxtweak.uxmobile.recorder.screen.ScreenRecorder
 import sk.uxtweak.uxmobile.recorder.screen.isKeyFrame
+import sk.uxtweak.uxmobile.recorder.screen.newSingleCoroutineDispatcher
 import sk.uxtweak.uxmobile.util.*
 import java.io.File
 
@@ -22,7 +27,8 @@ class DatabaseSession(private val sessionId: String, private val eventCount: Int
 
 @OptIn(ExperimentalStdlibApi::class)
 class Persister(
-    private val recorder: EventRecorder,
+    private val sessionManager: SessionManager,
+    private val eventRecorder: EventRecorder,
     private val screenRecorder: ScreenRecorder,
     private val database: AppDatabase
 ) {
@@ -30,65 +36,80 @@ class Persister(
         private set
 
     private val chunkMuxer = ChunkMuxer(keyFramesInOneChunk = 2)
-    private val tempList = mutableListOf<SessionEvent>()
+    private val databaseJobs = mutableListOf<Job>()
+    private val databaseContext = newSingleCoroutineDispatcher("Database writer")
 
-    val localQueue = LocalQueue<SessionEvent>(100)
-    var sessionId: String? = null
+    private val mutex = Mutex()
+    private val events = ArrayDeque<SessionEvent>(EVENT_LOCAL_LIMIT)
+    private val cache = ArrayDeque<SessionEvent>(EVENT_LOCAL_LIMIT)
+
+    val cachedEventsCount: Int
+        get() = cache.size
 
     val eventsCount: Int
-        get() = localQueue.size + tempList.size
+        get() = events.size
+
+    init {
+        eventRecorder.addOnEventListener(::onEventReceived)
+        screenRecorder.setOnOutputFormatChangedListener(::onOutputFormatChanged)
+        screenRecorder.setOnEncodedFrameListener(::onEncodedFrame)
+    }
 
     fun start() {
         logi(TAG, "Starting persister")
         isRunning = true
-        localQueue.start()
-        recorder.addOnEventListener(::onEventReceived)
-        screenRecorder.setOnOutputFormatChangedListener(::onOutputFormatChanged)
-        screenRecorder.setOnEncodedFrameListener(::onEncodedFrame)
-        localQueue.doOnLimitReached(::onLocalQueueLimitReached)
+        GlobalScope.launch(Dispatchers.IO) {
+            database.sessionDao().insert(SessionEntity(sessionManager.sessionId))
+        }
         startChunkMuxer()
+        eventRecorder.start()
+        screenRecorder.start()
     }
 
     fun stop() {
         logi(TAG, "Stopping persister")
-        screenRecorder.setOnEncodedFrameListener {}
-        screenRecorder.setOnOutputFormatChangedListener {}
-        recorder.removeOnEventListener(::onEventReceived)
-        runBlocking { flushEvents() }
-        localQueue.stop()
+        screenRecorder.stop()
+        eventRecorder.stop()
+        flushEvents()
+        waitForDatabaseJobs()
         chunkMuxer.stopAndJoin()
         isRunning = false
     }
 
-    fun generateNewSessionId(scope: CoroutineScope = GlobalScope) = scope.launch(Dispatchers.IO) {
-        logd(TAG, "Generating session ID")
-        sessionId = Generators.timeBasedGenerator().generate().toString()
-        database.sessionDao().insert(SessionEntity(sessionId!!))
-
-        logd(TAG, "Session ID ($sessionId) generated, sending temporary list (${tempList.size}) to LQ")
-        tempList.forEach { it.sessionId = sessionId }
-        tempList.forEach { localQueue.insert(it) }
-        tempList.clear()
-
-        startChunkMuxer()
+    private fun waitForDatabaseJobs() {
+        runBlocking { databaseJobs.forEach { it.join() } }
+        databaseJobs.clear()
     }
 
-    suspend fun flushEvents() {
-        localQueue.withLock {
-            insertEventsIntoDatabase(it)
+    fun flushEvents() {
+        databaseJobs.removeAll { it.isCompleted }
+        if (events.isNotEmpty()) {
+            val eventsToFlush = events.map { EventEntity(0, sessionManager.sessionId, it.toJson()) }
+            events.clear()
+            databaseJobs += GlobalScope.launch(databaseContext) {
+                logd(TAG, "Inserting events (${eventsToFlush.size}) into database")
+                mutex.withLock {
+                    database.eventDao().insert(eventsToFlush)
+                }
+            }
         }
     }
 
     private fun onEventReceived(event: Event) {
-        val sessionEvent = SessionEvent(null, SystemClock.elapsedRealtime(), event)
-        if (sessionId == null) {
-            logd(TAG, "Storing event to temporary list")
-            tempList += sessionEvent
-        } else {
-            logd(TAG, "Sending event to local queue")
-            sessionEvent.sessionId = sessionId.toString()
-            localQueue.insert(sessionEvent)
-        }
+        logd(TAG, "Sending event to local queue")
+        val sessionEvent = SessionEvent(sessionManager.sessionId, SystemClock.elapsedRealtime(), event)
+
+        mutex.withTryLock({
+            events.addAll(cache)
+            cache.clear()
+
+            events.add(sessionEvent)
+            if (events.size >= EVENT_LOCAL_LIMIT) {
+                flushEvents()
+            }
+        }, {
+            cache.add(sessionEvent)
+        })
     }
 
     private fun onEncodedFrame(frame: EncodedFrame) {
@@ -103,20 +124,6 @@ class Persister(
         chunkMuxer.postCommand(MuxerCommand.ChangeOutputFormat(format))
     }
 
-    private suspend fun onLocalQueueLimitReached(queue: ArrayDeque<SessionEvent>) {
-        logd(TAG, "Local queue limit reached, storing events into database")
-        insertEventsIntoDatabase(queue)
-        GlobalScope.launch {
-            logd(TAG, "Events in database ${database.eventDao().countForId(sessionId!!)}")
-        }
-    }
-
-    private suspend fun insertEventsIntoDatabase(queue: ArrayDeque<SessionEvent>) {
-        val events = queue.map { EventEntity(0, sessionId!!, it.toJson()) }
-        database.eventDao().insert(events)
-        queue.clear()
-    }
-
     suspend fun fetchDatabaseStats(): List<DatabaseSession> {
         val sessions = mutableMapOf<String, Int>()
         database.eventDao().getAll().forEach {
@@ -126,12 +133,20 @@ class Persister(
     }
 
     private fun startChunkMuxer() {
-        if (sessionId != null) {
-            chunkMuxer.filesPath = File(IOUtils.filesDir, sessionId.toString())
-            if (!chunkMuxer.isRunning) {
-                logd(TAG, "Starting video chunk muxer")
-                chunkMuxer.start()
+        chunkMuxer.filesPath = File(IOUtils.filesDir, sessionManager.sessionId)
+        logd(TAG, "Starting video chunk muxer")
+        chunkMuxer.start()
+    }
+
+    suspend fun fetchEvents(action: suspend (ArrayDeque<SessionEvent>) -> Unit) {
+        if (events.isNotEmpty()) {
+            mutex.withLock {
+                action(events)
             }
         }
+    }
+
+    companion object {
+        private const val EVENT_LOCAL_LIMIT = 100
     }
 }
