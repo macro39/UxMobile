@@ -13,10 +13,10 @@ class WindowCallbackConnector(activity: Activity? = null) {
     private val touchEventListeners = mutableListOf<(MotionEvent) -> Unit>()
 
     init {
-        onActivityChanged(activity)
+        changeActivity(activity)
     }
 
-    fun onActivityChanged(activity: Activity?) {
+    fun changeActivity(activity: Activity?) {
         unregisterWindowCallback()
         currentActivity = activity
         registerWindowCallback()

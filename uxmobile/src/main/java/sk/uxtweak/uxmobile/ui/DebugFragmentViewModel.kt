@@ -28,14 +28,6 @@ class DebugFragmentViewModel : ViewModel() {
         }
     }
 
-    fun eventRecorderClicked(isChecked: Boolean) {
-        updateStates()
-    }
-
-    fun screenRecorderClicked(isChecked: Boolean) {
-        updateStates()
-    }
-
     fun connectionManagerClicked(isChecked: Boolean) {
         if (isChecked) {
             UxMobile.sessionManager.connectionManager.start()
@@ -47,7 +39,9 @@ class DebugFragmentViewModel : ViewModel() {
 
     fun persisterClicked(isChecked: Boolean) {
         if (isChecked) {
-            UxMobile.sessionManager.persister.start()
+            viewModelScope.launch(Dispatchers.IO) {
+                UxMobile.sessionManager.persister.start()
+            }
         } else {
             UxMobile.sessionManager.persister.stop()
         }

@@ -1,18 +1,18 @@
 package sk.uxtweak.uxmobile.concurrency
 
-import kotlinx.coroutines.sync.Mutex
+import android.os.Looper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlin.coroutines.CoroutineContext
 
-inline fun Mutex.withTryLock(success: () -> Unit, failure: () -> Unit = {}) {
-    val locked = tryLock()
-    try {
-        if (locked) {
-            success()
-        } else {
-            failure()
-        }
-    } finally {
-        if (locked) {
-            unlock()
-        }
+fun requireMainThread() {
+    if (Thread.currentThread() != Looper.getMainLooper().thread) {
+        throw IllegalStateException("Called from wrong thread! Must be called from main thread.")
     }
 }
+
+@Suppress("FunctionName")
+fun MainContext(): CoroutineContext = SupervisorJob() + Dispatchers.Main
+
+@Suppress("FunctionName")
+fun IOContext(): CoroutineContext = SupervisorJob() + Dispatchers.IO

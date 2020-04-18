@@ -3,16 +3,16 @@ package sk.uxtweak.uxmobile.persister.database
 import androidx.room.*
 
 @Entity(
-    tableName = "event_entities", foreignKeys = [ForeignKey(
-        entity = SessionEntity::class,
-        parentColumns = ["uuid"],
-        childColumns = ["session_id"],
+    tableName = "events", foreignKeys = [ForeignKey(
+        entity = RecordingEntity::class,
+        parentColumns = ["id"],
+        childColumns = ["recording_id"],
         onDelete = ForeignKey.CASCADE
     )],
-    indices = [Index(value = ["session_id"])]
+    indices = [Index(value = ["recording_id"])]
 )
 data class EventEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
-    @ColumnInfo(name = "session_id") val sessionId: String,
+    @ColumnInfo(name = "recording_id") val recordingId: String,
     val json: String
 )

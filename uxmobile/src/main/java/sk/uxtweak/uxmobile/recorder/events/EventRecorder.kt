@@ -26,7 +26,7 @@ class EventRecorder(
 
     private val observer = object : LifecycleObserverAdapter() {
         override fun onAnyActivityStarted(activity: Activity) {
-            connector.onActivityChanged(activity)
+            connector.changeActivity(activity)
         }
     }
 
@@ -44,13 +44,13 @@ class EventRecorder(
         registerExceptionHandler()
         connector += ::onTouchEvent
         lifecycle += observer
-        connector.onActivityChanged(ForegroundActivityHolder.foregroundActivity)
+        connector.changeActivity(ForegroundActivityHolder.foregroundActivity)
     }
 
     fun stop() {
         logd(TAG, "Stopping event recorder")
         isRunning = false
-        connector.onActivityChanged(null)
+        connector.changeActivity(null)
         lifecycle -= observer
         connector -= ::onTouchEvent
         unregisterExceptionHandler()

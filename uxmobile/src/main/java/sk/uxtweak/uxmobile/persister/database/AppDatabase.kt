@@ -5,10 +5,15 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [SessionEntity::class, EventEntity::class], version = 1, exportSchema = true)
+@Database(
+    entities = [RecordingEntity::class, EventEntity::class, VideoEntity::class],
+    version = 1,
+    exportSchema = true
+)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun sessionDao(): SessionDao
+    abstract fun recordingDao(): RecordingDao
     abstract fun eventDao(): EventDao
+    abstract fun videoDao(): VideoDao
 
     companion object {
         private const val DATABASE_NAME = "EventsDatabase"

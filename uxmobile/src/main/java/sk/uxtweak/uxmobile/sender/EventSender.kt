@@ -1,157 +1,179 @@
 package sk.uxtweak.uxmobile.sender
 
 import android.util.Base64
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
 import org.json.JSONObject
-import sk.uxtweak.uxmobile.UxMobile
+import sk.uxtweak.uxmobile.concurrency.IOContext
 import sk.uxtweak.uxmobile.core.SessionManager
-import sk.uxtweak.uxmobile.core.toHumanUnit
-import sk.uxtweak.uxmobile.core.withFixedDelay
 import sk.uxtweak.uxmobile.model.Event
 import sk.uxtweak.uxmobile.model.SessionEvent
 import sk.uxtweak.uxmobile.net.ConnectionManager
 import sk.uxtweak.uxmobile.persister.Persister
 import sk.uxtweak.uxmobile.persister.database.AppDatabase
 import sk.uxtweak.uxmobile.persister.database.EventEntity
+import sk.uxtweak.uxmobile.persister.database.VideoEntity
 import sk.uxtweak.uxmobile.util.*
 import java.io.File
 import java.io.FileInputStream
-import java.util.concurrent.TimeoutException
-import kotlin.math.max
+import kotlin.coroutines.CoroutineContext
 
 class EventSender(
     private val sessionManager: SessionManager,
     private val connection: ConnectionManager,
     private val persister: Persister,
     private val database: AppDatabase
-) {
+) : CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = reusableContext
+    private lateinit var reusableContext: CoroutineContext
+
     var isRunning: Boolean = false
         private set
 
-    private lateinit var job: Job
+    private var changedSendJob: Job? = null
 
-    private val senderJob: suspend CoroutineScope.() -> Unit = {
-        connection.waitUntilConnected()
-        sendNextVideoSession()
-        sendNextSession()
+    private lateinit var videoLiveData: LiveData<List<VideoEntity>>
+    private lateinit var eventsLiveData: LiveData<List<EventEntity>>
+
+    private val eventsChangedObserver = Observer<List<EventEntity>> { events ->
+        launch {
+            connection.emit(EVENT_CHANNEL, events.toJson())
+            database.eventDao().delete(events)
+        }
+    }
+
+    private val videoChangedObserver = Observer<List<VideoEntity>> { videos ->
+        launch {
+            changedSendJob?.join()
+            changedSendJob = launch {
+                videos.forEach {
+                    val file = File(it.path)
+                    if (file.exists()) {
+                        val sessionId = database.recordingDao().getById(it.recordingId).sessionId
+                        logd(TAG, "Sending file ${it.recordingId} with session ID $sessionId")
+                        sendFile(
+                            file,
+                            it.recordingId.toString(),
+                            sessionId
+                        )
+                        file.delete()
+                    } else {
+                        logw(TAG, "File ${file.path} does not exists!")
+                    }
+                    database.videoDao().delete(it)
+                }
+            }
+        }
     }
 
     fun start() {
+        reusableContext = IOContext()
         isRunning = true
-        job = GlobalScope.withFixedDelay(Dispatchers.IO, SENDER_JOB_DELAY, senderJob)
+        connection.setOnConnected(::onConnected)
+        connection.setOnDisconnected(::onDisconnected)
+        persister.doOnEventsFlush(this, ::onEventsFlush)
     }
 
-    fun stop() = runBlocking {
-        stopAndJoin()
-    }
-
-    suspend fun stopAndJoin() {
-        job.cancelAndJoin()
+    fun stop() {
+        cancel()
+        persister.clearFlushListener()
+        connection.setOnConnected {}
+        connection.setOnDisconnected {}
         isRunning = false
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
-    private suspend fun sendLocalQueue() {
-        persister.fetchEvents {
-            logd(TAG, "Sending events in memory (${it.size})")
-            connection.emit(EVENT_CHANNEL, Event.EventsList(it.toList()).toJson())
-            it.clear()
-        }
-    }
-
-    private suspend fun sendNextVideoSession() {
-        val sessionDirectories = IOUtils.filesDir.listFiles()!!
-
-        deleteEmptyDirectories(sessionDirectories)
-        val directory = getFirstDirectory(sessionDirectories) ?: return
-
-        val isSessionDirectory = sessionManager.sessionId == directory.name
-        val isStoringVideo = UxMobile.sessionManager.persister.isRunning &&
-            UxMobile.sessionManager.screenRecorder.isRunning
-
-        val files = directory.listFiles()
-        files?.sortedBy { it.name }
-            ?.take(if (isSessionDirectory && isStoringVideo) max(files.size - 1, 0) else files.size)
-            ?.forEach { file ->
-                val data = FileInputStream(file).use {
-                    it.readBytes()
-                }
-                logd(TAG, "Sending file ${file.name} (${data.size.toHumanUnit()})")
-                val encodedData = Base64.encodeToString(data, Base64.DEFAULT)
-                val event = Event.VideoChunkEvent(file.nameWithoutExtension, encodedData)
-                val sessionEvent = SessionEvent(directory.name, 0, event)
-                val eventsList = Event.EventsList(listOf(sessionEvent))
+    private fun onConnected() {
+        videoLiveData = database.videoDao().getAll()
+        videoLiveData.observeForever(videoChangedObserver)
+        changedSendJob = connection.launch {
+            while (isActive) {
                 try {
-                    connection.emit(EVENT_CHANNEL, eventsList.toJson())
-                    file.delete()
-                } catch (exception: TimeoutException) {
-                    logw(TAG, "Timeout when sending video chunk")
+                    logd(TAG, "Trying to send events and screen from DB")
+                    sendStoredEvents()
+                    logd(TAG, "Sent all events and screen from DB")
+                    break
                 } catch (exception: Exception) {
-                    logw(TAG, "Cannot send video chunk ${file.name} in session ${directory.name}")
+                    logw(TAG, "Could not send events or screen (${exception.message})")
+                    delay(RETRY_ATTEMPT_DELAY)
                 }
             }
+        }
+        if (persister.isRunning) {
+            eventsLiveData = database.eventDao().getForRecordingLive(persister.recordingId)
+            eventsLiveData.observeForever(eventsChangedObserver)
+        }
     }
 
-    private suspend fun sendNextSession() {
-        val session = database.sessionDao().first()
-        if (session == null) {
-            sendLocalQueue()
-            return
+    private fun onDisconnected() {
+        videoLiveData.removeObserver(videoChangedObserver)
+        eventsLiveData.removeObserver(eventsChangedObserver)
+    }
+
+    private suspend fun sendStoredEvents() {
+        val recordings = if (persister.isRunning) {
+            database.recordingDao().getAllExcept(persister.recordingId)
+        } else {
+            database.recordingDao().getAll()
         }
 
-        val events = database.eventDao().getForSessionId(session.uuid)
-        logd(TAG, "Sending session ${session.uuid} (Events: ${events.size})")
-        try {
-            for (chunk in events.chunked(100)) {
-                logd(TAG, "Sending chunk")
-                connection.emit(EVENT_CHANNEL, chunk.toJson())
-                database.eventDao().deleteEvents(chunk)
+        recordings.forEach {
+            val events = database.eventDao().getForRecording(it.id)
+            if (events.isNotEmpty()) {
+                connection.emit(EVENT_CHANNEL, events.toJson())
             }
-            if (session.uuid != sessionManager.sessionId) {
-                database.sessionDao().delete(session)
-            }
+            database.recordingDao().delete(it)
+        }
+    }
 
-            logd(TAG, "Sessions from database sent, sending events from memory")
-            sendLocalQueue()
+    private suspend fun onEventsFlush(events: List<Event>): Boolean {
+        if (!connection.isConnected) {
+            return false
+        }
+        return try {
+            connection.emit(
+                EVENT_CHANNEL,
+                Event.EventsList(persister.recordingId, sessionManager.sessionId, events).toJson()
+            )
+            logd(TAG, "Sent events to server")
+            true
         } catch (exception: Exception) {
-            logw(TAG, "Cannot send events", exception)
+            logd(TAG, "Could not send events to server, storing to database")
+            false
         }
+    }
+
+    private suspend fun sendFile(file: File, recordingId: String, sessionId: String) {
+        val data = FileInputStream(file).use { it.readBytes() }
+        val encoded = Base64.encodeToString(data, Base64.DEFAULT)
+        val event = Event.VideoChunkEvent(file.nameWithoutExtension, encoded)
+        val sessionEvent = SessionEvent(recordingId, sessionId, event)
+        connection.emit(EVENT_CHANNEL, sessionEvent.toJson())
     }
 
     private fun List<EventEntity>.toJson(): String {
-        val array = JSONArray()
-        for (event in this) {
-            array.put(JSONObject(event.json))
+        val array = buildJsonArray {
+            for (event in this@toJson) {
+                put(JSONObject(event.json))
+            }
         }
-        val obj = JSONObject()
-        obj.put("events", array)
-        return obj.toString()
+        return buildJsonObject {
+            put("events", array)
+        }
     }
 
-    private fun deleteEmptyDirectories(sessionDirectories: Array<File>) {
-        val shouldDeleteSessionDirectory = !UxMobile.sessionManager.persister.isRunning ||
-            !UxMobile.sessionManager.screenRecorder.isRunning
-        sessionDirectories.filter {
-            it.listFiles()?.isEmpty() ?: true && (sessionManager.sessionId != it.name || shouldDeleteSessionDirectory)
-        }.forEach { it.delete() }
-    }
+    private fun buildJsonArray(action: JSONArray.() -> Unit) = JSONArray().apply {
+        action(this)
+    }.toString()
 
-    private fun getFirstDirectory(sessionDirectories: Array<File>): File? {
-        val possibleDirectories = sessionDirectories.filter {
-            it.listFiles()?.isNotEmpty() ?: false && it.name != sessionManager.sessionId
-        }
-        return if (possibleDirectories.isNotEmpty()) {
-            possibleDirectories.first()
-        } else {
-            sessionDirectories.find { it.name == sessionManager.sessionId }
-        }
-    }
+    private fun buildJsonObject(action: JSONObject.() -> Unit) = JSONObject().apply {
+        action(this)
+    }.toString()
 
     companion object {
+        private const val RETRY_ATTEMPT_DELAY = 5000L
         private const val EVENT_CHANNEL = "events"
-        private const val SENDER_JOB_DELAY = 1000L
     }
 }

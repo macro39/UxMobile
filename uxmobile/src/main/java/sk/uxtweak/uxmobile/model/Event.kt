@@ -1,8 +1,9 @@
 package sk.uxtweak.uxmobile.model
 
+import android.os.SystemClock
 import com.fasterxml.jackson.annotation.JsonProperty
 
-sealed class Event(val type: Int) {
+sealed class Event(val type: Int, val at: Long = SystemClock.elapsedRealtime()) {
     object StartEvent : Event(1)
     object EndEvent : Event(2)
 
@@ -54,11 +55,9 @@ sealed class Event(val type: Int) {
         override fun toString() = "VideoChunkEvent ${data.substring(0, 8)}"
     }
 
-    data class FrameRateEvent(
-        @get:JsonProperty("frame_rate") val frameRate: Float
-    ) : Event(12)
-
     data class EventsList(
-        val events: List<SessionEvent>
-    ) : Event(13)
+        @get:JsonProperty("recording_id") val recordingId: Long,
+        @get:JsonProperty("session_id") val sessionId: String,
+        val events: List<Event>
+    ) : Event(12)
 }

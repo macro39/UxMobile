@@ -32,11 +32,12 @@ object Stats {
         append("API key: ${UxMobile.apiKey}\n")
         append("Connected to server: ${if (connected) "yes" else "no"}\n")
         append("Current session ID: ${UxMobile.sessionManager.sessionId}\n")
-        append("Events in memory: ${UxMobile.sessionManager.persister.eventsCount} (in cache: ${UxMobile.sessionManager.persister.cachedEventsCount})\n")
+        append("Is recording: yes/no (Recording ID: ${UxMobile.sessionManager.persister.recordingId})\n")
+        append("Events in memory: ${UxMobile.sessionManager.persister.eventsCount}\n")
         append("Video time: $videoTime\n")
         append("Frames encoded: $framesEncoded (Key frames: $keyFrames)\n")
-        append("\nDatabase sessions:\n${UxMobile.sessionManager.persister.fetchDatabaseStats().joinToString("\n", postfix = "\n")}")
-        append("\nVideo sessions:\n${videoSession()}\n")
+        append("\nDatabase recordings:\n${UxMobile.sessionManager.persister.fetchDatabaseStats().joinToString("\n", postfix = "\n")}")
+        append("\nVideo recordings:\n${videoSession()}\n")
     }
 
     fun onConnected() {

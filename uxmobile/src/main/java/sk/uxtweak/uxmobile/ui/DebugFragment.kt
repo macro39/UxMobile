@@ -22,8 +22,6 @@ class DebugFragment : Fragment() {
     ): View? = inflater.inflate(R.layout.debug_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        eventRecorderSwitch.setOnClickListener { viewModel.eventRecorderClicked(eventRecorderSwitch.isChecked) }
-        screenRecorderSwitch.setOnClickListener { viewModel.screenRecorderClicked(screenRecorderSwitch.isChecked) }
         connectionManagerSwitch.setOnClickListener { viewModel.connectionManagerClicked(connectionManagerSwitch.isChecked) }
         persisterSwitch.setOnClickListener { viewModel.persisterClicked(persisterSwitch.isChecked) }
         senderSwitch.setOnClickListener { viewModel.senderClicked(senderSwitch.isChecked) }

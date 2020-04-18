@@ -10,6 +10,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.core.view.children
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import java.nio.ByteBuffer
@@ -94,3 +96,8 @@ fun Long.toHumanUnit(): String {
 }
 
 fun Int.toHumanUnit() = toLong().toHumanUnit()
+
+fun <T> LiveData<T>.refreshLiveData(observer: Observer<T>) {
+    removeObserver(observer)
+    observeForever(observer)
+}
