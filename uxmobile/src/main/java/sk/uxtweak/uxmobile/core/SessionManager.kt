@@ -21,7 +21,7 @@ import sk.uxtweak.uxmobile.recorder.screen.VideoFormat
 import sk.uxtweak.uxmobile.sender.EventSender
 import sk.uxtweak.uxmobile.util.TAG
 import sk.uxtweak.uxmobile.util.logd
-import java.util.concurrent.ThreadLocalRandom
+import kotlin.random.Random
 
 class SessionManager(application: Application) {
     private val socket = WebSocketClient(BuildConfig.COLLECTOR_URL)
@@ -66,7 +66,11 @@ class SessionManager(application: Application) {
     }
 
     private fun startAll() {
-        persister.start("f1550b42-ecd5-45d8-b2ee-1e4f222e06fc")
+        if (Random.nextBoolean()) {
+            persister.start(Random.nextInt(70))
+        } else {
+            persister.start()
+        }
     }
 
     private fun stopAll() {

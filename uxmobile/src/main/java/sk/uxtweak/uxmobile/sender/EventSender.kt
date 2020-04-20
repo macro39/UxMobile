@@ -144,7 +144,7 @@ class EventSender(
         }
     }
 
-    private suspend fun sendFile(file: File, recordingId: Long, studyId: String?, sessionId: String) {
+    private suspend fun sendFile(file: File, recordingId: Long, studyId: Int?, sessionId: String) {
         val data = FileInputStream(file).use { it.readBytes() }
         val encoded = Base64.encodeToString(data, Base64.DEFAULT)
         val event = Event.VideoChunkEvent(file.nameWithoutExtension, encoded)

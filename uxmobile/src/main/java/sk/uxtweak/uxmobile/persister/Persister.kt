@@ -35,7 +35,7 @@ class Persister(
         private set
 
     var recordingId = 0L
-    var studyId: String? = null
+    var studyId: Int? = null
     private val chunkMuxer = ChunkMuxer(keyFramesInOneChunk = 2)
     private val events = ArrayList<Event>(EVENT_LOCAL_LIMIT)
     private var onEventsFlushedListener: suspend (ArrayList<Event>) -> Boolean = { false }
@@ -52,7 +52,7 @@ class Persister(
         chunkMuxer.doOnFileMuxed(::onFileMuxed)
     }
 
-    fun start(studyId: String? = null) {
+    fun start(studyId: Int? = null) {
         logi(TAG, "Starting persister")
         reusableContext = MainContext()
         isRunning = true
@@ -107,7 +107,6 @@ class Persister(
     }
 
     private fun onEventReceived(event: Event) {
-        logd(TAG, "Sending event to local queue")
         events += event
 
         if (events.size >= EVENT_LOCAL_LIMIT) {

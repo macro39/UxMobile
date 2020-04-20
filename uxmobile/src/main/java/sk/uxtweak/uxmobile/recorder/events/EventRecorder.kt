@@ -21,6 +21,7 @@ class EventRecorder(
     private val motionEventConverter = MotionEventConverter(::onEvent)
     private val gestureDetector = GestureDetector(context, motionEventConverter)
     private val connector = WindowCallbackConnector()
+    private val throttler = EventThrottler(THROTTLE_DELAY)
 
     private val eventListeners = mutableListOf<(Event) -> Unit>()
 
@@ -70,11 +71,13 @@ class EventRecorder(
     }
 
     private fun onEvent(event: Event) {
+        if (event is Event.ScrollEvent && throttler.throttle()) {
+            return
+        }
         dispatchEvent(event)
     }
 
     private fun dispatchEvent(event: Event) {
-        logd(TAG, "Dispatching event")
         eventListeners.forEach { it(event) }
     }
 
@@ -92,4 +95,8 @@ class EventRecorder(
 
     private fun onConfigurationChanged(configuration: Configuration) =
         dispatchEvent(Event.OrientationEvent(configuration.orientation))
+
+    companion object {
+        private const val THROTTLE_DELAY = 75L
+    }
 }

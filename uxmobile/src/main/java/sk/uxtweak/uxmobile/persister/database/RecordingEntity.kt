@@ -8,5 +8,5 @@ import androidx.room.PrimaryKey
 data class RecordingEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
     @ColumnInfo(name = "session_id") val sessionId: String,
-    @ColumnInfo(name = "study_id") val studyId: String?
+    @ColumnInfo(name = "study_id") val studyId: Int?
 )

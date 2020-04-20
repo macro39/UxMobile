@@ -108,7 +108,7 @@ fun buildJsonObject(action: JSONObject.() -> Unit) = JSONObject().apply {
     action(this)
 }.toString()
 
-fun List<EventEntity>.toJson(recordingId: String, studyId: String?, sessionId: String): String {
+fun List<EventEntity>.toJson(recordingId: String, studyId: Int?, sessionId: String): String {
     val array = buildJsonArray {
         for (event in this@toJson) {
             put(JSONObject(event.json))
