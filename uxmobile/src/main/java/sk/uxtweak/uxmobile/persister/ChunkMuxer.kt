@@ -40,7 +40,7 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
                 when (val command = queue.take()) {
                     is MuxerCommand.MuxFrame -> {
                         if (!filesPath!!.exists() && !filesPath!!.mkdirs()) {
-                            logw(TAG, "Cannot create session directory ${filesPath!!.path}")
+                            logw(TAG, "Cannot create recording directory ${filesPath!!.path}")
                         }
                         if (command.frame.isKeyFrame) {
                             if (++currentKeyFrame >= keyFramesInOneChunk) {
@@ -91,6 +91,7 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
         }
         index = if (filesPath != null) 0 else -1
         currentKeyFrame = keyFramesInOneChunk
+        queue.clear()
         executor = Executors.newSingleThreadExecutor(NamedThreadFactory("Muxer"))
         future = executor.submit(job)
     }

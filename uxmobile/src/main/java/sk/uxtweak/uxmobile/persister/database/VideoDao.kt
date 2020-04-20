@@ -14,6 +14,9 @@ interface VideoDao {
     @Delete
     fun delete(videoEntity: VideoEntity)
 
+    @Query("SELECT * FROM videos WHERE recording_id = :recordingId")
+    fun getByRecordingId(recordingId: Long): VideoEntity?
+
     @Query("SELECT * FROM videos")
-    fun getAll(): LiveData<List<VideoEntity>>
+    fun getAll(): List<VideoEntity>
 }

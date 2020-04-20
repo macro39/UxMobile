@@ -19,8 +19,10 @@ class ScreenRecorder(private val videoFormat: VideoFormat) {
     private var format: MediaFormat? = null
     private var wasKeyFrame = false
     private lateinit var job: Job
+    private var firstFrame = true
     private var onEncodedFrameListener: (EncodedFrame) -> Unit = {}
     private var onOutputFormatChangedListener: (MediaFormat) -> Unit = {}
+    private var onFirstFrameListener: () -> Unit = {}
 
     private val recordingJob: suspend CoroutineScope.() -> Unit = {
         while (isActive) {
@@ -52,6 +54,7 @@ class ScreenRecorder(private val videoFormat: VideoFormat) {
         wasKeyFrame = false
         format = null
         isRunning = false
+        firstFrame = true
         Stats.onStopRecording()
     }
 
@@ -65,6 +68,10 @@ class ScreenRecorder(private val videoFormat: VideoFormat) {
         if (format != null) {
             onOutputFormatChangedListener(format!!)
         }
+    }
+
+    fun setOnFirstFrameDrawListener(listener: () -> Unit) {
+        onFirstFrameListener = listener
     }
 
     private fun onOutputFormatChanged(format: MediaFormat) {
@@ -86,6 +93,10 @@ class ScreenRecorder(private val videoFormat: VideoFormat) {
         val rootLayout = activity.window.decorView
         if (rootLayout.width == 0 && rootLayout.height == 0) {
             return
+        }
+        if (firstFrame) {
+            firstFrame = false
+            onFirstFrameListener()
         }
         encoder.drawFrame {
             screenBuffer.drawToCanvas(rootLayout, it)

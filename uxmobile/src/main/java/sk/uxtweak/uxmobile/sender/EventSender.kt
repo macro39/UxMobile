@@ -1,24 +1,23 @@
 package sk.uxtweak.uxmobile.sender
 
 import android.util.Base64
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONObject
 import sk.uxtweak.uxmobile.concurrency.IOContext
 import sk.uxtweak.uxmobile.core.SessionManager
+import sk.uxtweak.uxmobile.core.toJson
 import sk.uxtweak.uxmobile.model.Event
-import sk.uxtweak.uxmobile.model.SessionEvent
+import sk.uxtweak.uxmobile.model.EventsList
 import sk.uxtweak.uxmobile.net.ConnectionManager
 import sk.uxtweak.uxmobile.persister.Persister
 import sk.uxtweak.uxmobile.persister.database.AppDatabase
 import sk.uxtweak.uxmobile.persister.database.EventEntity
-import sk.uxtweak.uxmobile.persister.database.VideoEntity
 import sk.uxtweak.uxmobile.util.*
 import java.io.File
 import java.io.FileInputStream
 import kotlin.coroutines.CoroutineContext
+import kotlin.system.measureTimeMillis
 
 class EventSender(
     private val sessionManager: SessionManager,
@@ -33,62 +32,46 @@ class EventSender(
     var isRunning: Boolean = false
         private set
 
-    private var changedSendJob: Job? = null
-
-    private lateinit var videoLiveData: LiveData<List<VideoEntity>>
-    private lateinit var eventsLiveData: LiveData<List<EventEntity>>
-
-    private val eventsChangedObserver = Observer<List<EventEntity>> { events ->
-        launch {
-            connection.emit(EVENT_CHANNEL, events.toJson())
-            database.eventDao().delete(events)
-        }
-    }
-
-    private val videoChangedObserver = Observer<List<VideoEntity>> { videos ->
-        launch {
-            changedSendJob?.join()
-            changedSendJob = launch {
-                videos.forEach {
-                    val file = File(it.path)
-                    if (file.exists()) {
-                        val sessionId = database.recordingDao().getById(it.recordingId).sessionId
-                        logd(TAG, "Sending file ${it.recordingId} with session ID $sessionId")
-                        sendFile(
-                            file,
-                            it.recordingId.toString(),
-                            sessionId
-                        )
-                        file.delete()
-                    } else {
-                        logw(TAG, "File ${file.path} does not exists!")
-                    }
-                    database.videoDao().delete(it)
-                }
-            }
-        }
-    }
-
     fun start() {
+        logd(TAG, "Starting sender")
         reusableContext = IOContext()
         isRunning = true
         connection.setOnConnected(::onConnected)
-        connection.setOnDisconnected(::onDisconnected)
-        persister.doOnEventsFlush(this, ::onEventsFlush)
+        persister.doOnEventsFlush(::onEventsFlush)
+        persister.doOnFileMuxed(::onFileMuxed)
     }
 
     fun stop() {
-        cancel()
+        val time = measureTimeMillis {
+            cancel()
+        }
+        logd(TAG, "Stopped sender (cancelling scope took $time ms)")
+        persister.clearFileMuxedListener()
         persister.clearFlushListener()
         connection.setOnConnected {}
-        connection.setOnDisconnected {}
         isRunning = false
     }
 
     private fun onConnected() {
-        videoLiveData = database.videoDao().getAll()
-        videoLiveData.observeForever(videoChangedObserver)
-        changedSendJob = connection.launch {
+        launch(Dispatchers.IO + NonCancellable) {
+            val videos = database.videoDao().getAll()
+            logd(TAG, "Sending all stored videos (${videos.size})")
+            videos.forEach {
+                val video = File(IOUtils.filesDir, it.path)
+                if (video.exists()) {
+                    val recording = database.recordingDao().getById(it.recordingId)
+                    logd(TAG, "Sending file ${video.path} (${it.recordingId} - ${recording.sessionId})")
+                    sendFile(video, it.recordingId, recording.studyId, recording.sessionId)
+                    logd(TAG, "File sent successfully, deleting from internal storage and database")
+                    video.delete()
+                    database.videoDao().delete(it)
+                } else {
+                    logw(TAG, "Video file $video does not exists")
+                }
+            }
+        }
+
+        launch(Dispatchers.IO + NonCancellable) {
             while (isActive) {
                 try {
                     logd(TAG, "Trying to send events and screen from DB")
@@ -101,15 +84,6 @@ class EventSender(
                 }
             }
         }
-        if (persister.isRunning) {
-            eventsLiveData = database.eventDao().getForRecordingLive(persister.recordingId)
-            eventsLiveData.observeForever(eventsChangedObserver)
-        }
-    }
-
-    private fun onDisconnected() {
-        videoLiveData.removeObserver(videoChangedObserver)
-        eventsLiveData.removeObserver(eventsChangedObserver)
     }
 
     private suspend fun sendStoredEvents() {
@@ -119,12 +93,18 @@ class EventSender(
             database.recordingDao().getAll()
         }
 
+        logd(TAG, "Got ${recordings.size} recordings")
         recordings.forEach {
             val events = database.eventDao().getForRecording(it.id)
+            logd(TAG, "Got ${events.size} for recording ${it.id} (${it.sessionId}) and study ${it.studyId}")
             if (events.isNotEmpty()) {
-                connection.emit(EVENT_CHANNEL, events.toJson())
+                val json = events.toJson(it.id.toString(), it.studyId, it.sessionId)
+                connection.emit(EVENT_CHANNEL, json)
             }
-            database.recordingDao().delete(it)
+            if (database.videoDao().getByRecordingId(it.id) == null) {
+                logd(TAG, "No more events or videos for recording ${it.id}, removing from database")
+                database.recordingDao().delete(it)
+            }
         }
     }
 
@@ -133,11 +113,17 @@ class EventSender(
             return false
         }
         return try {
+            logd(TAG, "Sending flushed events (${events.size})")
             connection.emit(
                 EVENT_CHANNEL,
-                Event.EventsList(persister.recordingId, sessionManager.sessionId, events).toJson()
+                EventsList(
+                    persister.recordingId,
+                    sessionManager.sessionId,
+                    persister.studyId,
+                    events
+                ).toJson()
             )
-            logd(TAG, "Sent events to server")
+            logd(TAG, "Sent flushed events to server")
             true
         } catch (exception: Exception) {
             logd(TAG, "Could not send events to server, storing to database")
@@ -145,32 +131,27 @@ class EventSender(
         }
     }
 
-    private suspend fun sendFile(file: File, recordingId: String, sessionId: String) {
+    private suspend fun onFileMuxed(video: File): Boolean {
+        if (!connection.isConnected) {
+            return false
+        }
+        return try {
+            sendFile(video, persister.recordingId, persister.studyId, sessionManager.sessionId)
+            true
+        } catch (exception: Exception) {
+            logd(TAG, "Cannot send muxed file to server ($exception)")
+            false
+        }
+    }
+
+    private suspend fun sendFile(file: File, recordingId: Long, studyId: String?, sessionId: String) {
         val data = FileInputStream(file).use { it.readBytes() }
         val encoded = Base64.encodeToString(data, Base64.DEFAULT)
         val event = Event.VideoChunkEvent(file.nameWithoutExtension, encoded)
-        val sessionEvent = SessionEvent(recordingId, sessionId, event)
-        connection.emit(EVENT_CHANNEL, sessionEvent.toJson())
+        val eventsList = EventsList(recordingId, sessionId, studyId, listOf(event))
+        logd(TAG, "Sending file ${file.path}")
+        connection.emit(EVENT_CHANNEL, eventsList.toJson())
     }
-
-    private fun List<EventEntity>.toJson(): String {
-        val array = buildJsonArray {
-            for (event in this@toJson) {
-                put(JSONObject(event.json))
-            }
-        }
-        return buildJsonObject {
-            put("events", array)
-        }
-    }
-
-    private fun buildJsonArray(action: JSONArray.() -> Unit) = JSONArray().apply {
-        action(this)
-    }.toString()
-
-    private fun buildJsonObject(action: JSONObject.() -> Unit) = JSONObject().apply {
-        action(this)
-    }.toString()
 
     companion object {
         private const val RETRY_ATTEMPT_DELAY = 5000L

@@ -55,9 +55,5 @@ sealed class Event(val type: Int, val at: Long = SystemClock.elapsedRealtime()) 
         override fun toString() = "VideoChunkEvent ${data.substring(0, 8)}"
     }
 
-    data class EventsList(
-        @get:JsonProperty("recording_id") val recordingId: Long,
-        @get:JsonProperty("session_id") val sessionId: String,
-        val events: List<Event>
-    ) : Event(12)
+    object VideoStartEvent : Event(12)
 }

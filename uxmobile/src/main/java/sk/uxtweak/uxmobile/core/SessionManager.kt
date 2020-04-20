@@ -3,8 +3,12 @@ package sk.uxtweak.uxmobile.core
 import android.app.Activity
 import android.app.Application
 import com.fasterxml.uuid.Generators
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import sk.uxtweak.uxmobile.BuildConfig
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
+import sk.uxtweak.uxmobile.lifecycle.ForegroundScope
 import sk.uxtweak.uxmobile.lifecycle.LifecycleObserverAdapter
 import sk.uxtweak.uxmobile.model.Event
 import sk.uxtweak.uxmobile.net.ConnectionManager
@@ -17,6 +21,7 @@ import sk.uxtweak.uxmobile.recorder.screen.VideoFormat
 import sk.uxtweak.uxmobile.sender.EventSender
 import sk.uxtweak.uxmobile.util.TAG
 import sk.uxtweak.uxmobile.util.logd
+import java.util.concurrent.ThreadLocalRandom
 
 class SessionManager(application: Application) {
     private val socket = WebSocketClient(BuildConfig.COLLECTOR_URL)
@@ -33,14 +38,16 @@ class SessionManager(application: Application) {
         override fun onFirstActivityStarted(activity: Activity) {
             generateSessionId()
             logd(TAG, "Session started (generated session ID: $sessionId)")
-            startAll()
+            ForegroundScope.launch(Dispatchers.Main) {
+                startAll()
+            }
         }
 
         override fun onLastActivityStopped(activity: Activity) {
             super.onLastActivityStopped(activity)
-            stopAll()
-            // Maybe make session ID null when all modules are stopped
-            // Check which modules use session ID (Only persister?)
+            GlobalScope.launch(Dispatchers.Main) {
+                stopAll()
+            }
         }
     }
 
@@ -53,16 +60,13 @@ class SessionManager(application: Application) {
         database = AppDatabase.create(application)
         persister = Persister(this, eventRecorder, screenRecorder, database)
         sender = EventSender(this, connectionManager, persister, database)
+
+        sender.start()
+        connectionManager.start()
     }
 
     private fun startAll() {
-//        persister.start()
-//        if (!sender.isRunning) {
-//            sender.start()
-//        }
-//        if (!connectionManager.isRunning) {
-//            connectionManager.start()
-//        }
+        persister.start("f1550b42-ecd5-45d8-b2ee-1e4f222e06fc")
     }
 
     private fun stopAll() {

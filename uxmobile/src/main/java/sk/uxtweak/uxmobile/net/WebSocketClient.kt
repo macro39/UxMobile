@@ -50,11 +50,11 @@ class WebSocketClient(url: String) : BasicListenerAdapter() {
     }
 
     fun setOnConnected(onConnected: () -> Unit) {
-        this.onConnectedListener = onConnected
+        onConnectedListener = onConnected
     }
 
     fun setOnDisconnected(onDisconnected: () -> Unit) {
-        this.onDisconnectedListener = onDisconnected
+        onDisconnectedListener = onDisconnected
     }
 
     suspend fun connect() = withContext(Dispatchers.IO) { socket.connect() }

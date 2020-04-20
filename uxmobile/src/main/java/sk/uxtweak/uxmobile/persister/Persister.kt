@@ -2,9 +2,7 @@ package sk.uxtweak.uxmobile.persister
 
 import android.media.MediaFormat
 import androidx.annotation.MainThread
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import sk.uxtweak.uxmobile.concurrency.MainContext
 import sk.uxtweak.uxmobile.concurrency.requireMainThread
 import sk.uxtweak.uxmobile.core.SessionManager
@@ -19,6 +17,8 @@ import sk.uxtweak.uxmobile.recorder.screen.ScreenRecorder
 import sk.uxtweak.uxmobile.recorder.screen.isKeyFrame
 import sk.uxtweak.uxmobile.util.*
 import java.io.File
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.coroutines.CoroutineContext
 
 class Persister(
@@ -35,16 +35,18 @@ class Persister(
         private set
 
     var recordingId = 0L
+    var studyId: String? = null
     private val chunkMuxer = ChunkMuxer(keyFramesInOneChunk = 2)
     private val events = ArrayList<Event>(EVENT_LOCAL_LIMIT)
     private var onEventsFlushedListener: suspend (ArrayList<Event>) -> Boolean = { false }
-    private var listenerScope: CoroutineScope? = null
+    private var onFileMuxedListener: suspend (File) -> Boolean = { false }
 
     val eventsCount: Int
         get() = events.size
 
     init {
         eventRecorder.addOnEventListener(::onEventReceived)
+        screenRecorder.setOnFirstFrameDrawListener(::onFirstFrameDraw)
         screenRecorder.setOnOutputFormatChangedListener(::onOutputFormatChanged)
         screenRecorder.setOnEncodedFrameListener(::onEncodedFrame)
         chunkMuxer.doOnFileMuxed(::onFileMuxed)
@@ -54,12 +56,13 @@ class Persister(
         logi(TAG, "Starting persister")
         reusableContext = MainContext()
         isRunning = true
+        this.studyId = studyId
         events += Event.StartEvent
-        startChunkMuxer()
         eventRecorder.start()
-        screenRecorder.start()
-        launch {
+        launch(Dispatchers.IO + NonCancellable) {
             recordingId = database.recordingDao().insert(RecordingEntity(0, sessionManager.sessionId, studyId))
+            startChunkMuxer()
+            screenRecorder.start()
         }
     }
 
@@ -82,19 +85,25 @@ class Persister(
 
     fun persist(eventList: List<Event>) {
         val eventsEntity = eventList.map { EventEntity(0, recordingId.toString(), it.toJson()) }
-        launch {
+        launch(Dispatchers.IO + NonCancellable) {
             database.eventDao().insert(eventsEntity)
         }
     }
 
-    fun doOnEventsFlush(scope: CoroutineScope, listener: suspend (ArrayList<Event>) -> Boolean) {
-        listenerScope = scope
+    fun doOnEventsFlush(listener: suspend (ArrayList<Event>) -> Boolean) {
         onEventsFlushedListener = listener
     }
 
     fun clearFlushListener() {
-        listenerScope = null
         onEventsFlushedListener = { false }
+    }
+
+    fun doOnFileMuxed(listener: suspend (File) -> Boolean) {
+        onFileMuxedListener = listener
+    }
+
+    fun clearFileMuxedListener() {
+        onFileMuxedListener = { false }
     }
 
     private fun onEventReceived(event: Event) {
@@ -108,13 +117,23 @@ class Persister(
 
     @MainThread
     private fun flush() {
+        logd(TAG, "Flushing events")
         val eventsCopy = ArrayList(events)
         events.clear()
-        listenerScope?.launch {
+        launch(Dispatchers.IO + NonCancellable) {
             if (!onEventsFlushedListener(eventsCopy)) {
+                logd(TAG, "Flushed events not sent, storing into database")
                 persist(eventsCopy)
+                logd(TAG, "Flushed events stored into database")
+            } else {
+                logd(TAG, "Flushed events send to server")
             }
         }
+    }
+
+    private fun onFirstFrameDraw() {
+        logd(TAG, "Before first frame is drawn")
+        events += Event.VideoStartEvent
     }
 
     private fun onEncodedFrame(frame: EncodedFrame) {
@@ -130,10 +149,18 @@ class Persister(
     }
 
     private fun onFileMuxed(muxedFile: File) {
-        database.videoDao().insert(VideoEntity(
-            recordingId = recordingId,
-            chunkId = muxedFile.nameWithoutExtension.toInt())
-        )
+        launch(Dispatchers.IO + NonCancellable) {
+            if (!onFileMuxedListener(muxedFile)) {
+                logd(TAG, "File ${muxedFile.path} muxed and not sent, inserting into database")
+                database.videoDao().insert(VideoEntity(
+                    recordingId = recordingId,
+                    chunkId = muxedFile.nameWithoutExtension.toInt())
+                )
+            } else {
+                logd(TAG, "File ${muxedFile.path} muxed and sent to server")
+                muxedFile.delete()
+            }
+        }
     }
 
     suspend fun fetchDatabaseStats(): List<String> {
@@ -143,7 +170,7 @@ class Persister(
             val sessionId = database.recordingDao().getById(it.recordingId.toLong()).sessionId
             recordings[it.recordingId] = sessionId to eventCount
         }
-        return recordings.map { "${it.key} (${it.value.first} Events: ${it.value.second})" }
+        return recordings.toSortedMap(Collections.reverseOrder()).map { "${it.key} (${it.value.first} Events: ${it.value.second})" }
     }
 
     private fun startChunkMuxer() {

@@ -72,8 +72,8 @@ object Stats {
     }
 
     private fun videoSession() = buildString {
-        context.filesDir.listFiles()?.forEach { file ->
-            append("${file.name} (${file.list()?.size ?: 0})\n")
+        context.filesDir.listFiles()?.sortedDescending()?.forEach { file ->
+            append("${file.name} (${file.list()?.size ?: 0}) (${file.listFiles()?.sorted()?.joinToString { it.name }})\n")
         }
     }
 }
