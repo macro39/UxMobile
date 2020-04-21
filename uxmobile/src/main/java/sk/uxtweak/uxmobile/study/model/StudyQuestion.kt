@@ -1,6 +1,7 @@
 package sk.uxtweak.uxmobile.study.model
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import com.google.gson.annotations.SerializedName
+import sk.uxtweak.uxmobile.study.Constants
 
 
 /**
@@ -8,27 +9,27 @@ import com.fasterxml.jackson.annotation.JsonProperty
  */
 data class StudyQuestion(
 
-    @JsonProperty("id")
-    val id: Int,
+    @SerializedName("id")
+    val id: Int = 0,
 
-    @JsonProperty("name")
-    val name: String,
+    @SerializedName("name")
+    val name: String = "QUESTION",
 
-    @JsonProperty("question_required")
-    val questionRequired: Boolean,
+    @SerializedName("question_required")
+    val questionRequired: Boolean = false,
 
-    @JsonProperty("description")
-    val description: String,
+    @SerializedName("description")
+    val description: String = "DESCRIPTION",
 
-    @JsonProperty("answer_type")
-    val answerType: String,
+    @SerializedName("answer_type")
+    val answerType: String = Constants.Constants.QUESTION_TYPE_INPUT,
 
-    @JsonProperty("answer_required")
-    val answerRequired: Boolean,
+    @SerializedName("answer_required")
+    val answerRequired: Boolean = false,
 
-    @JsonProperty("reason_needed")
-    val reasonNeeded: Boolean,
+    @SerializedName("reason_needed")
+    val reasonNeeded: Boolean = false,
 
-    @JsonProperty("question_options")
-    val questionOptions: ArrayList<QuestionOption> = arrayListOf()
+    @SerializedName("options")
+    val questionOptions: ArrayList< QuestionOption> = arrayListOf()
 )

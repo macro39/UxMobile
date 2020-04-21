@@ -1,6 +1,6 @@
 package sk.uxtweak.uxmobile.study.model
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import com.google.gson.annotations.SerializedName
 
 
 /**
@@ -8,9 +8,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
  */
 data class QuestionOption(
 
-    @JsonProperty("id")
+    @SerializedName("id")
     val id: Int,
 
-    @JsonProperty("option")
+    @SerializedName("option")
     val option: String
 )

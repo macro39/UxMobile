@@ -50,7 +50,7 @@ open class QuestionnaireBaseFragment : Fragment() {
             childFragmentManager.fragments.first() as QuestionnaireOptionsBaseFragment
 
         return if (childFragment.isQuestionAnsweredCorrectly()) {
-            questionAnswers.add(childFragment.getAnswer())
+            questionAnswers.addAll(childFragment.getAnswer())
 
             if (questionsToAnswers.size != 0) {
                 showNextQuestion()

@@ -2,20 +2,37 @@ package sk.uxtweak.uxmobile
 
 import android.Manifest
 import android.app.Application
+import android.content.Context.WIFI_SERVICE
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorManager
+import android.net.wifi.WifiInfo
+import android.net.wifi.WifiManager
 import android.os.Environment
+import android.text.format.Formatter
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
+import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.json.JSONException
+import org.json.JSONObject
 import sk.uxtweak.uxmobile.UxMobile.start
 import sk.uxtweak.uxmobile.core.SessionManager
 import sk.uxtweak.uxmobile.core.Stats
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
 import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
+import sk.uxtweak.uxmobile.lifecycle.ForegroundScope
+import sk.uxtweak.uxmobile.study.Constants
 import sk.uxtweak.uxmobile.study.StudyFlowController
+import sk.uxtweak.uxmobile.study.model.Study
+import sk.uxtweak.uxmobile.study.model.StudyQuestionnaire
+import sk.uxtweak.uxmobile.study.net.AdonisWebSocketClient
+import sk.uxtweak.uxmobile.study.net.JsonBuilder
+import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 import sk.uxtweak.uxmobile.ui.DebugActivity
 import sk.uxtweak.uxmobile.ui.ShakeDetector
 import sk.uxtweak.uxmobile.util.IOUtils
@@ -32,6 +49,8 @@ object UxMobile {
     private lateinit var studyFlowController: StudyFlowController
     lateinit var sessionManager: SessionManager
     var apiKey: String? = null
+
+    lateinit var adonisWebSocketClient: AdonisWebSocketClient
 
     /**
      * Application Context. Initialized by
@@ -63,7 +82,10 @@ object UxMobile {
         try {
             startInternal(loadApiKeyFromManifest())
         } catch (exception: IllegalStateException) {
-            Log.e(TAG, "Cannot load API key! Check if you have your API key declared in Android Manifest")
+            Log.e(
+                TAG,
+                "Cannot load API key! Check if you have your API key declared in Android Manifest"
+            )
         }
     }
 
@@ -90,8 +112,89 @@ object UxMobile {
 
         ForegroundActivityHolder.register(ApplicationLifecycle)
 
+        adonisWebSocketClient = AdonisWebSocketClient(BuildConfig.MAIN_URL)
+
         sessionManager = SessionManager(application)
         studyFlowController = StudyFlowController(application.applicationContext, sessionManager)
+
+        val wifiMgr: WifiManager = application.getSystemService(WIFI_SERVICE) as WifiManager
+        val wifiInfo: WifiInfo = wifiMgr.connectionInfo
+        val ip: Int = wifiInfo.ipAddress
+        val ipAddress: String = Formatter.formatIpAddress(ip)
+
+        ForegroundScope.launch {
+            adonisWebSocketClient.waitForConnect()
+
+            val initializeJson = JsonBuilder(
+                "sessionId" to sessionManager.persister.sessionId,
+                "token" to "plugin_initialization_demo_token_new",
+                "location" to "demo location",
+                "brandOfDevice" to "demo brand",
+                "ip" to "demo ip",
+                "operatingSystem" to "demo operating system"
+            ).toJsonObject()
+
+//            val initialize = JsonBuilder(
+//            "sessionId" to sessionManager.persister.sessionId,
+//            "token" to "plugin_initialization_demo_token_new",
+//            "location" to "demo location",
+//            "brandOfDevice" to (Build.MANUFACTURER + " " + Build.MODEL),
+//            "ip" to ipAddress,
+//            "operatingSystem" to Build.VERSION.SDK_INT
+//            ).toJsonObject()
+
+            try {
+                val response =
+                    adonisWebSocketClient.sendData(
+                        Constants.ADONIS_EVENT_INITIALIZE,
+                        initializeJson
+                    )
+
+                try {
+                    val jsonResponse = JSONObject(response.toString())
+
+                    when (jsonResponse.optString("event")) {
+                        Constants.ADONIS_EVENT_SEND_QUESTIONNAIRE -> {
+                            val gson = Gson()
+                            val studyQuestionnaire = gson.fromJson(
+                                jsonResponse.optJSONObject("data").optJSONObject("data").toString(),
+                                StudyQuestionnaire::class.java
+                            )
+
+                            StudyDataHolder.screeningQuestionnaire = studyQuestionnaire
+
+                            startStudyFlow()
+                        }
+                        Constants.ADONIS_EVENT_SEND_STUDY -> {
+                            val gson = Gson()
+                            val study = gson.fromJson(
+                                jsonResponse.optJSONObject("data").optJSONObject("data").toString(),
+                                Study::class.java
+                            )
+
+                            StudyDataHolder.setNewStudy(study)
+
+                            startStudyFlow()
+                        }
+                        Constants.ADONIS_EVENT_QUIT -> {
+                            Log.e(TAG, jsonResponse.optJSONObject("data").optString("error"))
+                            return@launch
+                        }
+                        else -> {
+                            Log.e(TAG, "Unexpected error when sending initialize: $jsonResponse")
+                            return@launch
+                        }
+                    }
+                } catch (e: JSONException) {
+                    Log.e(
+                        TAG,
+                        "Cannot parse response: " + e.message
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Can't send initialize, no internet connection!")
+            }
+        }
 
         val sensorManager = ContextCompat.getSystemService(application, SensorManager::class.java)
         val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -108,6 +211,12 @@ object UxMobile {
         })
 
         sensorManager?.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI)
+    }
+
+    private fun startStudyFlow() {
+        GlobalScope.launch(Dispatchers.Main) {
+            studyFlowController.start()
+        }
     }
 
     /**

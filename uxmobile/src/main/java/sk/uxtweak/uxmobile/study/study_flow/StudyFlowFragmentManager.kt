@@ -268,13 +268,20 @@ class StudyFlowFragmentManager : AppCompatActivity() {
      * Controlling study flow based on specific requirements set by user
      */
     fun showNextFragment(actualFragment: Fragment) {
-        // TODO add if statements, because not every fragment is required (345689 are optional)
         when (actualFragment) {
             is ConsentFragment -> {
                 StudyDataHolder.agreedWithTerms = true
                 showGlobalMessage()
             }
-            is GlobalMessageFragment -> showFragment(ScreeningQuestionnaire())
+            is GlobalMessageFragment -> {
+                if (StudyDataHolder.study != null) {
+                    setColorFromStudyConfig = true
+                    setColorFromConfig()
+                    showFragment(WelcomeMessage())
+                } else {
+                    showFragment(ScreeningQuestionnaire())
+                }
+            }
             is ScreeningQuestionnaire -> {
                 setColorFromStudyConfig = true
                 setColorFromConfig()
@@ -287,7 +294,11 @@ class StudyFlowFragmentManager : AppCompatActivity() {
                 if (isOnlyInstructionsDisplayed) {
                     onBackPressed()
                 } else {
-                    showFragment(PreStudyQuestionnaire())
+                    if (StudyDataHolder.study?.preStudyQuestionnaire != null) {
+                        showFragment(PreStudyQuestionnaire())
+                    } else {
+                        showNextFragment(PreStudyQuestionnaire())
+                    }
                 }
             }
             is PreStudyQuestionnaire -> {

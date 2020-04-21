@@ -8,18 +8,19 @@ import android.content.IntentFilter
 import android.content.res.Configuration
 import android.os.Handler
 import android.util.Log
-import sk.uxtweak.uxmobile.lifecycle.LifecycleObserver
+import sk.uxtweak.uxmobile.UxMobile
 import sk.uxtweak.uxmobile.core.SessionManager
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
+import sk.uxtweak.uxmobile.lifecycle.LifecycleObserver
 import sk.uxtweak.uxmobile.model.Event
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENABLED
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetClickObserver
 import sk.uxtweak.uxmobile.study.float_widget.FloatWidgetService
-import sk.uxtweak.uxmobile.study.model.StudyQuestionnaire
 import sk.uxtweak.uxmobile.study.model.StudyTask
+import sk.uxtweak.uxmobile.study.persister.QuestionAnswerDatabase
+import sk.uxtweak.uxmobile.study.sender.QuestionAnswerSender
 import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
 import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 
@@ -31,15 +32,20 @@ class StudyFlowController(
     val sessionManager: SessionManager
 ) : LifecycleObserver, FloatWidgetClickObserver {
 
+    companion object {
+        lateinit var database: QuestionAnswerDatabase
+    }
+
     private val TAG = this::class.java.simpleName
 
     private var isInStudy = false
     private var studyEnded = false
     private var minimizedWhenInStudyFlow = false
 
-    // TODO should replace this true value with value from server
+    private var isStarted = false
     private var isStudySet = true
 
+    private val sender: QuestionAnswerSender
     private val floatWidgetService: FloatWidgetService
 
     private lateinit var broadcastReceiver: BroadcastReceiver
@@ -55,128 +61,22 @@ class StudyFlowController(
 
         floatWidgetService = FloatWidgetService(context, this)
         floatWidgetService.onInit()
-        setupBroadcastReceiver()
-        Log.d(TAG, "Configured")
 
-        setDummyQuestionnaireRules()
+        setupBroadcastReceiver()
+
+        database = QuestionAnswerDatabase.create(context)
+        sender = QuestionAnswerSender(UxMobile.adonisWebSocketClient, database)
+
+        if (!sender.isRunning) {
+            sender.start()
+        }
+
+        Log.d(TAG, "Configured")
     }
 
-    private fun setDummyQuestionnaireRules() {
-        val questionnaireRules = "{\n" +
-            "    \"name\": \"SCREENING QUESTIONNAIRE\",\n" +
-            "    \"instructions\": \"Please answers this question\",\n" +
-            "    \"questions\": [\n" +
-            "        {\n" +
-            "            \"id\": \"1\",\n" +
-            "            \"name\": \"What's your gender?\",\n" +
-            "            \"question_required\": true,\n" +
-            "            \"description\": \"Please choose your gender\",\n" +
-            "            \"answer_type\": \"radio_button\",\n" +
-            "            \"answer_required\": true,\n" +
-            "            \"reason_needed\": true,\n" +
-            "            \"question_options\": [\n" +
-            "                {\n" +
-            "                    \"id\": \"1\",\n" +
-            "                    \"option\": \"man\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"id\": \"2\",\n" +
-            "                    \"option\": \"women\"\n" +
-            "                }\n" +
-            "            ]\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": \"2\",\n" +
-            "            \"name\": \"What's your gender?\",\n" +
-            "            \"question_required\": true,\n" +
-            "            \"description\": \"How old are you?\",\n" +
-            "            \"answer_type\": \"dropdown_select\",\n" +
-            "            \"answer_required\": true,\n" +
-            "            \"reason_needed\": false,\n" +
-            "            \"question_options\": [\n" +
-            "                {\n" +
-            "                    \"id\": \"1\",\n" +
-            "                    \"option\": \">18\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"id\": \"2\",\n" +
-            "                    \"option\": \"<18\"\n" +
-            "                }\n" +
-            "            ]\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": \"3\",\n" +
-            "            \"name\": \"What's your gender?\",\n" +
-            "            \"question_required\": true,\n" +
-            "            \"description\": \"Where are you from?\",\n" +
-            "            \"answer_type\": \"single_line\",\n" +
-            "            \"answer_required\": true,\n" +
-            "            \"reason_needed\": false\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": \"4\",\n" +
-            "            \"name\": \"What's your gender?\",\n" +
-            "            \"question_required\": true,\n" +
-            "            \"description\": \"What's your favourite song?\",\n" +
-            "            \"answer_type\": \"multi_line\",\n" +
-            "            \"answer_required\": true,\n" +
-            "            \"reason_needed\": false\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": \"5\",\n" +
-            "            \"name\": \"What's your gender?\",\n" +
-            "            \"question_required\": true,\n" +
-            "            \"description\": \"Are you only child?\",\n" +
-            "            \"answer_type\": \"checkbox_select\",\n" +
-            "            \"answer_required\": true,\n" +
-            "            \"reason_needed\": false,\n" +
-            "            \"question_options\": [\n" +
-            "                {\n" +
-            "                    \"id\": \"1\",\n" +
-            "                    \"option\": \"yes\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"id\": \"2\",\n" +
-            "                    \"option\": \"no\"\n" +
-            "                }\n" +
-            "            ]\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": \"6\",\n" +
-            "            \"name\": \"What's your gender?\",\n" +
-            "            \"question_required\": true,\n" +
-            "            \"description\": \"Do you agree - Cancer is the worst disease?\",\n" +
-            "            \"answer_type\": \"5_point_linker_scale\",\n" +
-            "            \"answer_required\": true,\n" +
-            "            \"reason_needed\": false\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": \"7\",\n" +
-            "            \"name\": \"What's your gender?\",\n" +
-            "            \"question_required\": true,\n" +
-            "            \"description\": \"Do you agree - BMW is the best car producer?\",\n" +
-            "            \"answer_type\": \"7_point_linker_scale\",\n" +
-            "            \"answer_required\": true,\n" +
-            "            \"reason_needed\": false\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": \"8\",\n" +
-            "            \"name\": \"What's your gender?\",\n" +
-            "            \"question_required\": true,\n" +
-            "            \"description\": \"Do you agree - 70% of people will have corona in one year?\",\n" +
-            "            \"answer_type\": \"net_promoter_score\",\n" +
-            "            \"answer_required\": true,\n" +
-            "            \"reason_needed\": false\n" +
-            "        }\n" +
-            "    ]\n" +
-            "}"
-
-        val mapper = jacksonObjectMapper()
-
-        val dummyStudyQuestionnaire: StudyQuestionnaire =
-            mapper.readValue(questionnaireRules, StudyQuestionnaire::class.java)
-
-        StudyDataHolder.screeningQuestionnaire = dummyStudyQuestionnaire
+    fun start() {
+        isStarted = true
+        studyStateResolver()
     }
 
     private fun setupBroadcastReceiver() {
@@ -252,6 +152,10 @@ class StudyFlowController(
         studyEnded = true
         floatWidgetService.onDestroy()
         registerBroadcastReciever(false)
+
+        UxMobile.adonisWebSocketClient.closeConnection()
+        sender.stop()
+
         Log.d(TAG, "STUDY ENDED")
     }
 
@@ -263,7 +167,7 @@ class StudyFlowController(
 
         // set executed task as accomplished
         val selectedStudyTask: StudyTask =
-            StudyDataHolder.tasks.single { s -> s.name == StudyDataHolder.doingTaskWithName }
+            StudyDataHolder.tasks?.single { s -> s.name == StudyDataHolder.doingTaskWithName }!!
         selectedStudyTask.accomplished = true
         selectedStudyTask.endedSuccessful = successfully
 
@@ -321,7 +225,9 @@ class StudyFlowController(
     }
 
     override fun onFirstActivityStarted(activity: Activity) {
-        studyStateResolver()
+        if (isStarted) {
+            studyStateResolver()
+        }
     }
 
     override fun onAnyActivityStarted(activity: Activity) {

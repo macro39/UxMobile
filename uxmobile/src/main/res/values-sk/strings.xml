@@ -29,4 +29,7 @@
     <string name="reason_empty">Dôvod musí byť vyplnený!</string>
     <string name="reason_title">Prosím, udajte dôvod, prečo ste si zvolili túto možnosť</string>
     <string name="answer_empty">Prosím, odpovedzte na otázku</string>
+    <string name="error_no_internet_conn">Žiadne internetové pripojenie. Prosím, zapnite WIFI/moiblné dáta a stlačte \"Skúsiť znova\".</string>
+    <string name="cancel_and_end_study">Zrušiť a ukončiť štúdiu</string>
+    <string name="try_again">Skúsiť znova</string>
 </resources>

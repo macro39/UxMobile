@@ -29,4 +29,7 @@
     <string name="reason_empty">Reason cannot be empty!</string>
     <string name="reason_title">Please, put some reason, why you choose this answer</string>
     <string name="answer_empty">Please, answer this question!</string>
+    <string name="error_no_internet_conn">No internet connection. Please, enable wifi/data and click \"Try again\".</string>
+    <string name="cancel_and_end_study">Cancel and end study</string>
+    <string name="try_again">Try again</string>
 </resources>

@@ -31,5 +31,13 @@ open class Constants {
         const val WELCOME_MESSAGE_TITLE = "Welcome!"
         const val INSTRUCTION_TITLE = "Instructions"
         const val THANK_YOU_MESSAGE_TITLE = "Thank you, that's all!"
+
+        const val ADONIS_TOPIC = "plugin"
+        const val ADONIS_EVENT_INITIALIZE = "initialize"
+        const val ADONIS_EVENT_SEND_ANSWERS = "send_answers"
+        const val ADONIS_EVENT_SEND_STUDY_ANSWERS = "send_study_answers"
+        const val ADONIS_EVENT_QUIT = "quit"
+        const val ADONIS_EVENT_SEND_QUESTIONNAIRE = "send_questionnaire"
+        const val ADONIS_EVENT_SEND_STUDY = "send_study"
     }
 }
