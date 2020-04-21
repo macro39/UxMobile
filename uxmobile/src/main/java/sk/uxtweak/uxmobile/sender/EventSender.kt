@@ -2,8 +2,6 @@ package sk.uxtweak.uxmobile.sender
 
 import android.util.Base64
 import kotlinx.coroutines.*
-import org.json.JSONArray
-import org.json.JSONObject
 import sk.uxtweak.uxmobile.concurrency.IOContext
 import sk.uxtweak.uxmobile.core.SessionManager
 import sk.uxtweak.uxmobile.core.toJson
@@ -12,7 +10,6 @@ import sk.uxtweak.uxmobile.model.EventsList
 import sk.uxtweak.uxmobile.net.ConnectionManager
 import sk.uxtweak.uxmobile.persister.Persister
 import sk.uxtweak.uxmobile.persister.database.AppDatabase
-import sk.uxtweak.uxmobile.persister.database.EventEntity
 import sk.uxtweak.uxmobile.util.*
 import java.io.File
 import java.io.FileInputStream
@@ -87,11 +84,7 @@ class EventSender(
     }
 
     private suspend fun sendStoredEvents() {
-        val recordings = if (persister.isRunning) {
-            database.recordingDao().getAllExcept(persister.recordingId)
-        } else {
-            database.recordingDao().getAll()
-        }
+        val recordings = database.recordingDao().getAll()
 
         logd(TAG, "Got ${recordings.size} recordings")
         recordings.forEach {
@@ -100,8 +93,10 @@ class EventSender(
             if (events.isNotEmpty()) {
                 val json = events.toJson(it.id.toString(), it.studyId, it.sessionId)
                 connection.emit(EVENT_CHANNEL, json)
+                logd(TAG, "Events sent, removing from database")
+                database.eventDao().deleteEvents(events)
             }
-            if (database.videoDao().getByRecordingId(it.id) == null) {
+            if (it.id != persister.recordingId && database.videoDao().getByRecordingId(it.id) == null) {
                 logd(TAG, "No more events or videos for recording ${it.id}, removing from database")
                 database.recordingDao().delete(it)
             }

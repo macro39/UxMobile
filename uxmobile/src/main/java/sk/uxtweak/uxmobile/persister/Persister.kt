@@ -63,6 +63,7 @@ class Persister(
             recordingId = database.recordingDao().insert(RecordingEntity(0, sessionManager.sessionId, studyId))
             startChunkMuxer()
             screenRecorder.start()
+            deleteEmptyDirectories()
         }
     }
 
@@ -176,6 +177,15 @@ class Persister(
         chunkMuxer.filesPath = File(IOUtils.filesDir, recordingId.toString())
         logd(TAG, "Starting video chunk muxer")
         chunkMuxer.start()
+    }
+
+    private fun deleteEmptyDirectories() {
+        IOUtils.filesDir.listFiles()
+            ?.filter { it.name != recordingId.toString() && it.isDirectory && it.list().isNullOrEmpty() }
+            ?.forEach {
+                logd(TAG, "Deleting empty directory: ${it.name}")
+                it.delete()
+            }
     }
 
     companion object {

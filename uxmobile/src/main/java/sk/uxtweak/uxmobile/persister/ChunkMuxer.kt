@@ -15,6 +15,13 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
             if (field != value) {
                 index = 0
             }
+            value?.let {
+                if (!it.exists() && !it.mkdirs()) {
+                    logw(TAG, "Cannot create recording directory ${filesPath!!.path}")
+                } else {
+                    logd(TAG, "Created directory ${it.path}")
+                }
+            }
             field = value
         }
 
@@ -39,9 +46,6 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
             loop@ while (true) {
                 when (val command = queue.take()) {
                     is MuxerCommand.MuxFrame -> {
-                        if (!filesPath!!.exists() && !filesPath!!.mkdirs()) {
-                            logw(TAG, "Cannot create recording directory ${filesPath!!.path}")
-                        }
                         if (command.frame.isKeyFrame) {
                             if (++currentKeyFrame >= keyFramesInOneChunk) {
                                 currentKeyFrame = 0
