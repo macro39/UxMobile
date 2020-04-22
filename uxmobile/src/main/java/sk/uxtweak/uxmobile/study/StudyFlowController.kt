@@ -153,8 +153,8 @@ class StudyFlowController(
         floatWidgetService.onDestroy()
         registerBroadcastReciever(false)
 
-        UxMobile.adonisWebSocketClient.closeConnection()
-        sender.stop()
+//        UxMobile.adonisWebSocketClient.closeConnection()
+//        sender.stop()
 
         Log.d(TAG, "STUDY ENDED")
     }

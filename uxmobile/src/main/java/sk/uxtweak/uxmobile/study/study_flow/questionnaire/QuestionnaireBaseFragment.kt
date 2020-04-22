@@ -7,6 +7,7 @@ import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.Constants
 import sk.uxtweak.uxmobile.study.model.QuestionAnswer
 import sk.uxtweak.uxmobile.study.model.StudyQuestion
+import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
 import sk.uxtweak.uxmobile.study.study_flow.questionnaire_option.*
 
 
@@ -32,6 +33,8 @@ open class QuestionnaireBaseFragment : Fragment() {
         questions: List<StudyQuestion>,
         fragment: Fragment
     ) {
+        (activity as StudyFlowFragmentManager).setLastVisibleElement(button_questionnaire_next)
+
         currentFragment = fragment
 
         textView_questionnaire_title.text = title
@@ -64,6 +67,9 @@ open class QuestionnaireBaseFragment : Fragment() {
     }
 
     private fun showNextQuestion() {
+        (activity as StudyFlowFragmentManager).isScrolling = false
+
+
         answeringQuestionNo++
         updateQuestionIndicator()
 

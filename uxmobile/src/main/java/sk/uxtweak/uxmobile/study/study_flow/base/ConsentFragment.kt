@@ -32,6 +32,8 @@ class ConsentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        (activity as StudyFlowFragmentManager).setLastVisibleElement(button_consent_yes)
+
         button_consent_terms.paintFlags = Paint.UNDERLINE_TEXT_FLAG
 
         button_consent_terms.setOnClickListener {

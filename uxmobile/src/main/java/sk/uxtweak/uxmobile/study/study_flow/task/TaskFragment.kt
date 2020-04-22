@@ -28,6 +28,8 @@ class TaskFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        (activity as StudyFlowFragmentManager).setLastVisibleElement(button_task_admit)
+
         val tasks = (activity as StudyFlowFragmentManager).getData(this) as List<StudyTask>
 
         val currentTask = tasks.first() { !it.accomplished }

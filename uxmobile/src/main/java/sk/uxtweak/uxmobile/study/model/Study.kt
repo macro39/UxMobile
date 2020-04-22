@@ -23,10 +23,10 @@ data class Study(
     val respondentLimit: Int = 0,
 
     @SerializedName("welcome_message")
-    val welcomeMessage: String = "Welcome to this study, and thank you for agreeing to participate! The activity shouldn't take longer than 30 to 60 minutes to complete. Your response will help us to better understand how people behave in our app.",
+    var welcomeMessage: String = "Welcome to this study, and thank you for agreeing to participate! The activity shouldn't take longer than 30 to 60 minutes to complete. Your response will help us to better understand how people behave in our app.",
 
     @SerializedName("introduction")
-    val instruction: String = "<b>Here's how it works:</b><ol><li>You will be presented with a task.</li><li>After reading the task, you will be redirected to a website.</li><li>Click through the website as you naturally would in order to fulfill the task.</li><li>Once you arrive at the intended destination, click <b>Task done</b> and the task will end.</li><li>Repeat the previous steps for all the studyTasks to complete the RePlay study.</li></ol><em>This is not a test of your ability, there are no right or wrong answers.</em><br><b>That's it, let's get started!</b></div>",
+    var instruction: String = "### **Here's how it works:**\n* You will be presented with a task.\n* After reading the task, you will be redirected to a website.\n* Click through the website as you naturally would in order to fulfill the task.\n* Once you arrive at the intended destination, click Task done and the task will end.\n * Repeat the previous steps for all the studyTasks to complete the RePlay study.\n* This is not a test of your ability, there are no right or wrong answers.\n\n**That's it, let's get started!**",
 
     @SerializedName("pre_study_questionnaire")
     val preStudyQuestionnaire: StudyQuestionnaire? = null,
@@ -34,11 +34,14 @@ data class Study(
     @SerializedName("tasks")
     val studyTasks: List<StudyTask> = arrayListOf(),
 
+    @SerializedName("messages")
+    val messages: List<StudyMessageJson> = arrayListOf(),
+
     @SerializedName("post_study_questionnaire")
     val postStudyQuestionnaire: StudyQuestionnaire? = null,
 
     @SerializedName("thank_you_message")
-    val thankYouMessage: String = "All done, awesome! Thanks again for your participation. Your feedback is incredibly useful in helping us understand how people interact with our app, so that we can make our application easier to use. You may now going back to your work!",
+    var thankYouMessage: String = "All done, awesome! Thanks again for your participation. Your feedback is incredibly useful in helping us understand how people interact with our app, so that we can make our application easier to use. You may now going back to your work!",
 
     @SerializedName("study_branding")
     val studyBranding: StudyBrandings = StudyBrandings()

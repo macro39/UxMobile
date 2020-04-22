@@ -39,5 +39,9 @@ open class Constants {
         const val ADONIS_EVENT_QUIT = "quit"
         const val ADONIS_EVENT_SEND_QUESTIONNAIRE = "send_questionnaire"
         const val ADONIS_EVENT_SEND_STUDY = "send_study"
+
+        const val MESSAGE_TYPE_CLOSING = "closing"
+        const val MESSAGE_TYPE_INSTRUCTIONS = "instructions"
+        const val MESSAGE_TYPE_WELCOME = "welcome"
     }
 }

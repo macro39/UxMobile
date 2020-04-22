@@ -11,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.activity_study_flow.*
 import sk.uxtweak.uxmobile.R
@@ -53,6 +54,10 @@ class StudyFlowFragmentManager : AppCompatActivity() {
 
     private var numberOfAvailableTasks = 0
 
+    private var lastVisibleElement: View? = null
+
+    var isScrolling = false
+
     // TODO should change this def value for study set
     private var isStudySet = true
 
@@ -68,16 +73,19 @@ class StudyFlowFragmentManager : AppCompatActivity() {
 
         // when content changed, check if can scroll and set action button to bottom visible
         scrollView_study_flow.viewTreeObserver.addOnGlobalLayoutListener {
-            if (scrollView_study_flow.canScrollVertically(1)) {
-                action_button_to_bottom.visibility = View.VISIBLE
-            } else {
-                action_button_to_bottom.visibility = View.GONE
+            if (!isScrolling) {
+                if (canEnableScroll()) {
+                    action_button_to_bottom.visibility = View.VISIBLE
+                } else {
+                    action_button_to_bottom.visibility = View.GONE
+                }
             }
         }
 
         // if user reach bottom with scroll, hide action button
         scrollView_study_flow.viewTreeObserver.addOnScrollChangedListener {
-            if (scrollView_study_flow.canScrollVertically(1)) {
+            isScrolling = true
+            if (canDisableSetActionButton()) {
                 action_button_to_bottom.visibility = View.VISIBLE
             } else {
                 action_button_to_bottom.visibility = View.GONE
@@ -138,6 +146,34 @@ class StudyFlowFragmentManager : AppCompatActivity() {
             sendBroadcastStudyAccepted(accepted = true, ended = false)
             finish()
         }
+    }
+
+    private fun canEnableScroll(): Boolean {
+        val displayHeight = scrollView_study_flow.height
+
+        val realScrollHeight = scrollView_study_flow.getChildAt(0).height
+
+        val exceededPixels = realScrollHeight - displayHeight
+
+        val elementMarginBottom = lastVisibleElement!!.marginBottom
+        val elementHeight = lastVisibleElement!!.height
+
+        return (exceededPixels) > (elementHeight / 2 + elementMarginBottom)
+    }
+
+    private fun canDisableSetActionButton(): Boolean {
+        val displayHeight = scrollView_study_flow.height
+
+        val realScrollHeight = scrollView_study_flow.getChildAt(0).height
+
+        val exceededPixels = realScrollHeight - displayHeight
+
+        val offset = scrollView_study_flow.scrollY
+
+        val elementMarginBottom = lastVisibleElement!!.marginBottom
+        val elementHeight = lastVisibleElement!!.height
+
+        return (exceededPixels - offset) > (elementHeight / 2 + elementMarginBottom)
     }
 
     private fun enableBackButton() {
@@ -211,11 +247,19 @@ class StudyFlowFragmentManager : AppCompatActivity() {
 //        showFragment(PostTaskQuestionnaire())
         // last task
         if (numberOfAvailableTasks == 0) {
-            showFragment(PostStudyQuestionnaire())
+            if (StudyDataHolder.study?.postStudyQuestionnaire != null) {
+                showFragment(PostStudyQuestionnaire())
+            } else {
+                showNextFragment(PostStudyQuestionnaire())
+            }
         } else {
             disableEveryBackAction()
             showFragment(TaskFragment())
         }
+    }
+
+    fun setLastVisibleElement(view: View) {
+        lastVisibleElement = view
     }
 
     /**
@@ -249,6 +293,8 @@ class StudyFlowFragmentManager : AppCompatActivity() {
      * Show specific fragment by replacing old one
      */
     private fun showFragment(fragment: Fragment) {
+        isScrolling = false
+
         val transaction = manager.beginTransaction()
         transaction.replace(R.id.fragment_base_holder, fragment)
         transaction.commit()
@@ -279,7 +325,11 @@ class StudyFlowFragmentManager : AppCompatActivity() {
                     setColorFromConfig()
                     showFragment(WelcomeMessage())
                 } else {
-                    showFragment(ScreeningQuestionnaire())
+                    if (StudyDataHolder.screeningQuestionnaire != null && StudyDataHolder.screeningQuestionnaire!!.questions.isNotEmpty()) {
+                        showFragment(ScreeningQuestionnaire())
+                    } else {
+                        showNextFragment(ScreeningQuestionnaire())
+                    }
                 }
             }
             is ScreeningQuestionnaire -> {
@@ -344,7 +394,11 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         finish()
     }
 
-    private fun sendBroadcastStudyAccepted(accepted: Boolean = false, ended: Boolean = false, later: Boolean = false) {
+    private fun sendBroadcastStudyAccepted(
+        accepted: Boolean = false,
+        ended: Boolean = false,
+        later: Boolean = false
+    ) {
         val intent = Intent(Constants.RECEIVER_IN_STUDY)
         intent.putExtra(Constants.RECEIVER_IN_STUDY, accepted)
         intent.putExtra(Constants.RECEIVER_STUDY_ENDED, ended)

@@ -31,5 +31,13 @@ object StudyDataHolder {
         this.study = study
         this.tasks = study.studyTasks
         this.numberOfTasks = tasks.size
+
+        for (studyMessage in this.study!!.messages) {
+            when(studyMessage.type) {
+                Constants.MESSAGE_TYPE_CLOSING -> this.study!!.thankYouMessage = studyMessage.text
+                Constants.MESSAGE_TYPE_INSTRUCTIONS -> this.study!!.instruction = studyMessage.text
+                Constants.MESSAGE_TYPE_WELCOME -> this.study!!.welcomeMessage = studyMessage.text
+            }
+        }
     }
 }

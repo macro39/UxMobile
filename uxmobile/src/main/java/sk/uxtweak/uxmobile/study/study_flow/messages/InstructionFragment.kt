@@ -28,7 +28,10 @@ class InstructionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val instructions : StudyMessage = (activity as StudyFlowFragmentManager).getData(this) as StudyMessage
+        (activity as StudyFlowFragmentManager).setLastVisibleElement(button_instruction_understand)
+
+        val instructions: StudyMessage =
+            (activity as StudyFlowFragmentManager).getData(this) as StudyMessage
 
         textView_instructions_title.text = instructions.title
 
@@ -37,7 +40,8 @@ class InstructionFragment : Fragment() {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            textView_instructions_content.text = Html.fromHtml(instructions.content, Html.FROM_HTML_MODE_COMPACT)
+            textView_instructions_content.text =
+                Html.fromHtml(instructions.content, Html.FROM_HTML_MODE_COMPACT)
         } else {
             textView_instructions_content.text = Html.fromHtml(instructions.content)
         }

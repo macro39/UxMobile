@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_message.*
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.model.StudyMessage
+import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
 
 
 /**
@@ -27,6 +28,8 @@ abstract class MessageBaseFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        (activity as StudyFlowFragmentManager).setLastVisibleElement(button_message_next)
 
         val message: StudyMessage = getData()
 
