@@ -164,6 +164,8 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
             }
         }
 
+        startPinging()
+
         val cont = connectContinuation
         connectContinuation = null
         cont?.resume("") {}
@@ -177,10 +179,10 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
 
         when (`object`.optInt("t")) {
             0 -> {
-                val data = `object`.optJSONObject("d")
-//                pingInterval = data.optLong("clientInterval")
-                pingAttempts = data.optInt("clientAttempts")
-                startPinging()
+//                val data = `object`.optJSONObject("d")
+////                pingInterval = data.optLong("clientInterval")
+//                pingAttempts = data.optInt("clientAttempts")
+//                startPinging()
             }
             3 -> {
                 isJoined = true
