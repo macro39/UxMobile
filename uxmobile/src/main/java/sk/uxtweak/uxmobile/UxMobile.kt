@@ -2,15 +2,11 @@ package sk.uxtweak.uxmobile
 
 import android.Manifest
 import android.app.Application
-import android.content.Context.WIFI_SERVICE
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorManager
-import android.net.wifi.WifiInfo
-import android.net.wifi.WifiManager
 import android.os.Environment
-import android.text.format.Formatter
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
@@ -32,7 +28,7 @@ import sk.uxtweak.uxmobile.study.model.Study
 import sk.uxtweak.uxmobile.study.model.StudyQuestionnaire
 import sk.uxtweak.uxmobile.study.net.AdonisWebSocketClient
 import sk.uxtweak.uxmobile.study.net.JsonBuilder
-import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
+import sk.uxtweak.uxmobile.study.utility.*
 import sk.uxtweak.uxmobile.ui.DebugActivity
 import sk.uxtweak.uxmobile.ui.ShakeDetector
 import sk.uxtweak.uxmobile.util.IOUtils
@@ -50,6 +46,9 @@ object UxMobile {
     lateinit var sessionManager: SessionManager
     var apiKey: String? = null
 
+    /**
+     * Adonis web socket client - communicator with server
+     */
     lateinit var adonisWebSocketClient: AdonisWebSocketClient
 
     /**
@@ -117,30 +116,35 @@ object UxMobile {
         sessionManager = SessionManager(application)
         studyFlowController = StudyFlowController(application.applicationContext, sessionManager)
 
-        val wifiMgr: WifiManager = application.getSystemService(WIFI_SERVICE) as WifiManager
-        val wifiInfo: WifiInfo = wifiMgr.connectionInfo
-        val ip: Int = wifiInfo.ipAddress
-        val ipAddress: String = Formatter.formatIpAddress(ip)
-
         ForegroundScope.launch {
             adonisWebSocketClient.waitForConnect()
 
+            this@UxMobile.apiKey = "f515d0cd7b88fbe502919395fa4c6c8d599e939d"   // my study
+
+            val location = getLocation()
+
+            // uncomment for Usability testing study
             val initializeJson = JsonBuilder(
                 "sessionId" to sessionManager.persister.sessionId,
-                "token" to "plugin_initialization_demo_token_new",
-                "location" to "demo location",
-                "brandOfDevice" to "demo brand",
-                "ip" to "demo ip",
-                "operatingSystem" to "demo operating system"
+                "token" to "f515d0cd7b88fbe502919395fa4c6c8d599e939d",
+                "location" to location,
+                "brandOfDevice" to getDeviceBrand(),
+                "ip" to getIpAddress(
+                    application
+                ),
+                "operatingSystem" to getOperatingSystem()
             ).toJsonObject()
 
-//            val initialize = JsonBuilder(
-//            "sessionId" to sessionManager.persister.sessionId,
-//            "token" to "plugin_initialization_demo_token_new",
-//            "location" to "demo location",
-//            "brandOfDevice" to (Build.MANUFACTURER + " " + Build.MODEL),
-//            "ip" to ipAddress,
-//            "operatingSystem" to Build.VERSION.SDK_INT
+//            this@UxMobile.apiKey = "plugin_initialization_demo_token_new"       // test study
+
+            // uncomment for test study
+//            val initializeJson = JsonBuilder(
+//                "sessionId" to sessionManager.persister.sessionId,
+//                "token" to this.apiKey,
+//                "location" to "demo location",
+//                "brandOfDevice" to "demo brand",
+//                "ip" to "demo ip",
+//                "operatingSystem" to "demo operating system"
 //            ).toJsonObject()
 
             try {
@@ -155,8 +159,7 @@ object UxMobile {
 
                     when (jsonResponse.optString("event")) {
                         Constants.ADONIS_EVENT_SEND_QUESTIONNAIRE -> {
-                            val gson = Gson()
-                            val studyQuestionnaire = gson.fromJson(
+                            val studyQuestionnaire = Gson().fromJson(
                                 jsonResponse.optJSONObject("data").optJSONObject("data").toString(),
                                 StudyQuestionnaire::class.java
                             )
@@ -166,8 +169,7 @@ object UxMobile {
                             startStudyFlow()
                         }
                         Constants.ADONIS_EVENT_SEND_STUDY -> {
-                            val gson = Gson()
-                            val study = gson.fromJson(
+                            val study = Gson().fromJson(
                                 jsonResponse.optJSONObject("data").optJSONObject("data").toString(),
                                 Study::class.java
                             )
@@ -213,6 +215,9 @@ object UxMobile {
         sensorManager?.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI)
     }
 
+    /**
+     * Starts study flow activity
+     */
     private fun startStudyFlow() {
         GlobalScope.launch(Dispatchers.Main) {
             studyFlowController.start()
