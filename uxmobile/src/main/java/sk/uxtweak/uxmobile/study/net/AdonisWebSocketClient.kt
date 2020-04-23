@@ -1,17 +1,13 @@
 package sk.uxtweak.uxmobile.study.net
 
 import android.util.Log
-import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.*
 import org.json.JSONException
 import org.json.JSONObject
 import sk.uxtweak.uxmobile.lifecycle.ForegroundScope
 import sk.uxtweak.uxmobile.study.Constants
 import tech.gusavila92.websocketclient.WebSocketClient
 import java.net.URI
-import java.util.*
 import kotlin.coroutines.resumeWithException
 
 
@@ -25,9 +21,9 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
     private var isConnected = false
     private var isJoined = false
 
-    private var pingRemainingAttempts = 0
-    private var pingAttempts = 0
-    private val timer = Timer()
+    private var pingRemainingAttempts = 3
+    private var pingAttempts = 3
+    private var pingInterval = 5000L
 
     private var connectContinuation: CancellableContinuation<Any>? = null
     private var joinContinuation: CancellableContinuation<Any>? = null
@@ -124,28 +120,35 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
         }
     }
 
-    private fun ping(pingInterval: Long) {
-        timer.scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                if (pingRemainingAttempts > 0) {
-                    try {
-                        val text = JSONObject()
-                        text.put("t", 8)
-                        Log.v(
-                            TAG,
-                            "Try to send data $text"
-                        )
-                        send(text.toString())
-                        pingRemainingAttempts--
-                    } catch (e: JSONException) {
-                        Log.e(
-                            TAG,
-                            "Try to send data with wrong JSON format, data: $e"
-                        )
+    fun startPinging() {
+        GlobalScope.launch {
+
+            async {
+
+                while (isConnected) {
+
+                    if (pingRemainingAttempts > 0) {
+                        try {
+                            val text = JSONObject()
+                            text.put("t", 8)
+                            Log.v(
+                                TAG,
+                                "Ping sended"
+                            )
+                            sendPing(text.toString().toByteArray())
+                            pingRemainingAttempts--
+
+                            delay(pingInterval)
+                        } catch (e: JSONException) {
+                            Log.e(
+                                TAG,
+                                "Try to send data with wrong JSON format, data: $e"
+                            )
+                        }
                     }
                 }
             }
-        }, 0, pingInterval)
+        }
     }
 
     @ExperimentalCoroutinesApi
@@ -172,18 +175,18 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
 
         when (`object`.optInt("t")) {
             0 -> {
-                        val data = `object`.optJSONObject("d")
-                        val pingInterval = data.optLong("clientInterval")
-                        pingAttempts = data.optInt("clientAttempts")
-                        ping(pingInterval);
-                    }
+                val data = `object`.optJSONObject("d")
+//                pingInterval = data.optLong("clientInterval")
+                pingAttempts = data.optInt("clientAttempts")
+                startPinging()
+            }
             3 -> {
                 isJoined = true
                 resumeJoinContinuation(message!!)
             }
             7 -> {
                 val data = `object`.getJSONObject("d")
-                when(data.optString("event")) {
+                when (data.optString("event")) {
                     Constants.ADONIS_EVENT_QUIT -> {
                         resumeContinuation(data)
                     }
@@ -197,9 +200,6 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
                         resumeSendAnswersContinuation(data)
                     }
                 }
-            }
-            9 -> {
-                pingRemainingAttempts = pingAttempts
             }
         }
     }
@@ -229,12 +229,13 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
     }
 
     override fun onPongReceived(data: ByteArray?) {
-        Log.d(TAG, "Pong " + data.toString())
+        Log.d(TAG, "Pong received")
+        pingRemainingAttempts = pingAttempts
     }
 
     @ExperimentalCoroutinesApi
     fun resumeContinuation(data: Any) {
-        val cont  = sendContinuation
+        val cont = sendContinuation
         sendContinuation = null
         cont?.resume(data) {}
     }
@@ -261,7 +262,7 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
 
     @ExperimentalCoroutinesApi
     fun resumeSendAnswersContinuation(data: Any) {
-        val cont  = sendAnswersContinuation
+        val cont = sendAnswersContinuation
         sendAnswersContinuation = null
         cont?.resume(data) {}
     }
