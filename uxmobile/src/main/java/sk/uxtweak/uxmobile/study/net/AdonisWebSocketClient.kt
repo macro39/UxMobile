@@ -39,7 +39,7 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
         this.connect()
     }
 
-    suspend fun joinChannel() = suspendCancellableCoroutine<Any> {
+    private suspend fun joinChannel() = suspendCancellableCoroutine<Any> {
         joinContinuation = it
 
         val data = JSONObject()
@@ -131,11 +131,13 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
                         try {
                             val text = JSONObject()
                             text.put("t", 8)
+
                             Log.v(
                                 TAG,
-                                "Ping sended"
+                                "Ping sent $text"
                             )
-                            sendPing(text.toString().toByteArray())
+
+                            send(text.toString())
                             pingRemainingAttempts--
 
                             delay(pingInterval)
@@ -201,11 +203,14 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
                     }
                 }
             }
+            9 -> {
+                pingRemainingAttempts = pingAttempts
+            }
         }
     }
 
     override fun onBinaryReceived(data: ByteArray?) {
-        Log.d(TAG, "Received " + data.toString())
+        Log.d(TAG, "Received binary " + data?.toString(Charsets.UTF_8))
     }
 
     @ExperimentalCoroutinesApi
@@ -225,12 +230,9 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
     }
 
     override fun onPingReceived(data: ByteArray?) {
-        Log.d(TAG, "Ping " + data.toString())
     }
 
     override fun onPongReceived(data: ByteArray?) {
-        Log.d(TAG, "Pong received")
-        pingRemainingAttempts = pingAttempts
     }
 
     @ExperimentalCoroutinesApi
