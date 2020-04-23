@@ -75,7 +75,11 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         scrollView_study_flow.viewTreeObserver.addOnGlobalLayoutListener {
             if (!isScrolling) {
                 if (canEnableScroll()) {
-                    action_button_to_bottom.visibility = View.VISIBLE
+                    if (canDisableSetActionButton()) {
+                        action_button_to_bottom.visibility = View.VISIBLE
+                    } else {
+                        action_button_to_bottom.visibility = View.GONE
+                    }
                 } else {
                     action_button_to_bottom.visibility = View.GONE
                 }
