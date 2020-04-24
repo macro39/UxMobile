@@ -1,15 +1,18 @@
 package sk.uxtweak.uxmobile.net
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.*
+import sk.uxtweak.uxmobile.concurrency.IOContext
 import sk.uxtweak.uxmobile.util.TAG
 import sk.uxtweak.uxmobile.util.logd
 import sk.uxtweak.uxmobile.util.loge
 import sk.uxtweak.uxmobile.util.logi
+import kotlin.coroutines.CoroutineContext
 
-class ConnectionManager(private val socket: WebSocketClient) {
+class ConnectionManager(private val socket: WebSocketClient) : CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = reusableContext
+    private lateinit var reusableContext: CoroutineContext
+
     var isRunning: Boolean = false
         private set
 
@@ -26,8 +29,9 @@ class ConnectionManager(private val socket: WebSocketClient) {
     }
 
     fun start() {
-        GlobalScope.launch(Dispatchers.IO) {
-            isRunning = true
+        reusableContext = IOContext()
+        isRunning = true
+        launch {
             try {
                 socket.autoReconnect = true
                 logi(TAG, "Connecting to events WebSocket server")
@@ -42,6 +46,7 @@ class ConnectionManager(private val socket: WebSocketClient) {
         logi(TAG, "Disconnecting from events WebSocket server")
         socket.autoReconnect = false
         socket.disconnect()
+        cancel()
         isRunning = false
     }
 

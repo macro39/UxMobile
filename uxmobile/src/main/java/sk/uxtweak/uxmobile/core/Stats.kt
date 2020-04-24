@@ -2,14 +2,11 @@ package sk.uxtweak.uxmobile.core
 
 import android.content.Context
 import android.os.SystemClock
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import sk.uxtweak.uxmobile.UxMobile
 import sk.uxtweak.uxmobile.recorder.screen.EncodedFrame
 import sk.uxtweak.uxmobile.recorder.screen.isKeyFrame
 import sk.uxtweak.uxmobile.util.logd
 import java.text.DecimalFormat
-import java.util.concurrent.TimeUnit
 
 object Stats {
     private const val TAG = "UxStats"
@@ -34,12 +31,13 @@ object Stats {
     suspend fun log() = buildString {
         append("API key: ${UxMobile.apiKey}\n")
         append("Connected to server: ${if (connected) "yes" else "no"}\n")
-        append("Current session ID: ${UxMobile.sessionManager.persister.sessionId ?: "None"}\n")
+        append("Current session ID: ${UxMobile.sessionManager.sessionId}\n")
+        append("Is recording: yes/no (Recording ID: ${UxMobile.sessionManager.persister.recordingId})\n")
         append("Events in memory: ${UxMobile.sessionManager.persister.eventsCount}\n")
         append("Video time: $videoTime\n")
         append("Frames encoded: $framesEncoded (Key frames: $keyFrames)\n")
-        append("\nDatabase sessions:\n${UxMobile.sessionManager.persister.fetchDatabaseStats().joinToString("\n", postfix = "\n")}")
-        append("\nVideo sessions:\n${videoSession()}\n")
+        append("\nDatabase recordings:\n${UxMobile.sessionManager.persister.fetchDatabaseStats().joinToString("\n", postfix = "\n")}")
+        append("\nVideo recordings:\n${videoSession()}\n")
     }
 
     fun onConnected() {
@@ -74,8 +72,8 @@ object Stats {
     }
 
     private fun videoSession() = buildString {
-        context.filesDir.listFiles()?.forEach { file ->
-            append("${file.name} (${file.list()?.size ?: 0})\n")
+        context.filesDir.listFiles()?.sortedDescending()?.forEach { file ->
+            append("${file.name} (${file.list()?.size ?: 0}) (${file.listFiles()?.sorted()?.joinToString { it.name }})\n")
         }
     }
 }

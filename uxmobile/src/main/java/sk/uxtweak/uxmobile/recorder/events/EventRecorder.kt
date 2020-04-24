@@ -10,8 +10,6 @@ import sk.uxtweak.uxmobile.model.Event
 import sk.uxtweak.uxmobile.util.TAG
 import sk.uxtweak.uxmobile.util.logd
 
-private typealias EventListener = (Event) -> Unit
-
 class EventRecorder(
     context: Context,
     private val lifecycle: Lifecycle
@@ -23,12 +21,13 @@ class EventRecorder(
     private val motionEventConverter = MotionEventConverter(::onEvent)
     private val gestureDetector = GestureDetector(context, motionEventConverter)
     private val connector = WindowCallbackConnector()
+    private val throttler = EventThrottler(THROTTLE_DELAY)
 
-    private val eventListeners = mutableListOf<EventListener>()
+    private val eventListeners = mutableListOf<(Event) -> Unit>()
 
     private val observer = object : LifecycleObserverAdapter() {
         override fun onAnyActivityStarted(activity: Activity) {
-            connector.onActivityChanged(activity)
+            connector.changeActivity(activity)
         }
     }
 
@@ -46,24 +45,24 @@ class EventRecorder(
         registerExceptionHandler()
         connector += ::onTouchEvent
         lifecycle += observer
-        connector.onActivityChanged(ForegroundActivityHolder.foregroundActivity)
+        connector.changeActivity(ForegroundActivityHolder.foregroundActivity)
     }
 
     fun stop() {
         logd(TAG, "Stopping event recorder")
         isRunning = false
-        connector.onActivityChanged(null)
+        connector.changeActivity(null)
         lifecycle -= observer
         connector -= ::onTouchEvent
         unregisterExceptionHandler()
         activityEventRecorder.stop()
     }
 
-    fun addOnEventListener(eventListener: EventListener) {
+    fun addOnEventListener(eventListener: (Event) -> Unit) {
         eventListeners += eventListener
     }
 
-    fun removeOnEventListener(eventListener: EventListener) {
+    fun removeOnEventListener(eventListener: (Event) -> Unit) {
         eventListeners -= eventListener
     }
 
@@ -72,11 +71,13 @@ class EventRecorder(
     }
 
     private fun onEvent(event: Event) {
+        if (event is Event.ScrollEvent && throttler.throttle()) {
+            return
+        }
         dispatchEvent(event)
     }
 
     private fun dispatchEvent(event: Event) {
-        logd(TAG, "Dispatching event")
         eventListeners.forEach { it(event) }
     }
 
@@ -94,4 +95,8 @@ class EventRecorder(
 
     private fun onConfigurationChanged(configuration: Configuration) =
         dispatchEvent(Event.OrientationEvent(configuration.orientation))
+
+    companion object {
+        private const val THROTTLE_DELAY = 75L
+    }
 }

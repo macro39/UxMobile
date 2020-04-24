@@ -5,14 +5,11 @@ import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.res.Configuration
 import android.os.Bundle
-import sk.uxtweak.uxmobile.util.logd
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.*
 
 object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
     ComponentCallbacks2 {
-    private const val TAG = "UxMobile"
-
-    private val observers = CopyOnWriteArrayList<LifecycleObserver>()
+    private val observers = Collections.synchronizedList(mutableListOf<LifecycleObserver>())
     private var foregroundScopeObserver: LifecycleObserver? = null
 
     private var resumed = false
@@ -51,20 +48,20 @@ object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
 
         if (isFirstActivity && !anyActivityStarted) {
             foregroundScopeObserver?.onFirstActivityStarted(activity)
-            observers.forEach { it.onFirstActivityStarted(activity) }
+            synchronized(observers) { observers.forEach { it.onFirstActivityStarted(activity) } }
             anyActivityStarted = true
         }
         foregroundScopeObserver?.onAnyActivityStarted(activity)
-        observers.forEach { it.onAnyActivityStarted(activity) }
+        synchronized(observers) { observers.forEach { it.onAnyActivityStarted(activity) } }
     }
 
     override fun onActivityStopped(activity: Activity) {
         activityCounter--
 
-        observers.forEach { it.onAnyActivityStopped(activity) }
+        synchronized(observers) { observers.forEach { it.onAnyActivityStopped(activity) } }
         foregroundScopeObserver?.onAnyActivityStopped(activity)
         if (isLastActivity && !pausedWithConfig) {
-            observers.forEach { it.onLastActivityStopped(activity) }
+            synchronized(observers) { observers.forEach { it.onLastActivityStopped(activity) } }
             foregroundScopeObserver?.onLastActivityStopped(activity)
             latestConfiguration = null
             anyActivityStarted = false
@@ -75,7 +72,7 @@ object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
         latestConfiguration = newConfig
         if (resumed) {
             foregroundScopeObserver?.onConfigurationChanged(newConfig)
-            observers.forEach { it.onConfigurationChanged(newConfig) }
+            synchronized(observers) { observers.forEach { it.onConfigurationChanged(newConfig) } }
         }
     }
 

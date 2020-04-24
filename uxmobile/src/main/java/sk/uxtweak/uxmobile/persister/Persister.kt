@@ -2,93 +2,141 @@ package sk.uxtweak.uxmobile.persister
 
 import android.media.MediaFormat
 import android.os.SystemClock
-import com.fasterxml.uuid.Generators
+import androidx.annotation.MainThread
 import kotlinx.coroutines.*
+import sk.uxtweak.uxmobile.concurrency.MainContext
+import sk.uxtweak.uxmobile.concurrency.requireMainThread
+import sk.uxtweak.uxmobile.core.SessionManager
 import sk.uxtweak.uxmobile.model.Event
-import sk.uxtweak.uxmobile.model.SessionEvent
-import sk.uxtweak.uxmobile.persister.room.AppDatabase
-import sk.uxtweak.uxmobile.persister.room.EventEntity
-import sk.uxtweak.uxmobile.persister.room.SessionEntity
+import sk.uxtweak.uxmobile.persister.database.AppDatabase
+import sk.uxtweak.uxmobile.persister.database.EventEntity
+import sk.uxtweak.uxmobile.persister.database.RecordingEntity
+import sk.uxtweak.uxmobile.persister.database.VideoEntity
 import sk.uxtweak.uxmobile.recorder.events.EventRecorder
 import sk.uxtweak.uxmobile.recorder.screen.EncodedFrame
 import sk.uxtweak.uxmobile.recorder.screen.ScreenRecorder
 import sk.uxtweak.uxmobile.recorder.screen.isKeyFrame
 import sk.uxtweak.uxmobile.util.*
 import java.io.File
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.coroutines.CoroutineContext
 
-class DatabaseSession(private val sessionId: String, private val eventCount: Int) {
-    override fun toString() = "$sessionId (Events: $eventCount)"
-}
-
-@OptIn(ExperimentalStdlibApi::class)
 class Persister(
-    private val recorder: EventRecorder,
+    private val sessionManager: SessionManager,
+    private val eventRecorder: EventRecorder,
     private val screenRecorder: ScreenRecorder,
     private val database: AppDatabase
-) {
-    var isRunning: Boolean = false
+): CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = reusableContext
+    private lateinit var reusableContext: CoroutineContext
+
+    var isRunning = false
         private set
 
+    private var startTime = 0L
+    var recordingId = 0L
+    var studyId: Int? = null
     private val chunkMuxer = ChunkMuxer(keyFramesInOneChunk = 2)
-    private val tempList = mutableListOf<SessionEvent>()
-
-    val localQueue = LocalQueue<SessionEvent>(100)
-    var sessionId: String? = null
+    private val events = ArrayList<Event>(EVENT_LOCAL_LIMIT)
+    private var onEventsFlushedListener: suspend (ArrayList<Event>) -> Boolean = { false }
+    private var onFileMuxedListener: suspend (File, Boolean) -> Boolean = { _, _ -> false }
 
     val eventsCount: Int
-        get() = localQueue.size + tempList.size
+        get() = events.size
 
-    fun start() {
-        logi(TAG, "Starting persister")
-        isRunning = true
-        localQueue.start()
-        recorder.addOnEventListener(::onEventReceived)
+    init {
+        eventRecorder.addOnEventListener(::onEventReceived)
+        screenRecorder.setOnFirstFrameDrawListener(::onFirstFrameDraw)
         screenRecorder.setOnOutputFormatChangedListener(::onOutputFormatChanged)
         screenRecorder.setOnEncodedFrameListener(::onEncodedFrame)
-        localQueue.doOnLimitReached(::onLocalQueueLimitReached)
-        startChunkMuxer()
+        chunkMuxer.doOnFileMuxed(::onFileMuxed)
+    }
+
+    fun start(studyId: Int? = null) {
+        logi(TAG, "Starting persister")
+        reusableContext = MainContext()
+        isRunning = true
+        this.studyId = studyId
+        startTime = SystemClock.elapsedRealtime()
+        insertEvent(Event.StartEvent)
+        eventRecorder.start()
+        launch(Dispatchers.IO + NonCancellable) {
+            recordingId = database.recordingDao().insert(RecordingEntity(0, sessionManager.sessionId, studyId))
+            startChunkMuxer()
+            screenRecorder.start()
+            deleteEmptyDirectories()
+        }
     }
 
     fun stop() {
         logi(TAG, "Stopping persister")
-        screenRecorder.setOnEncodedFrameListener {}
-        screenRecorder.setOnOutputFormatChangedListener {}
-        recorder.removeOnEventListener(::onEventReceived)
-        runBlocking { flushEvents() }
-        localQueue.stop()
+        screenRecorder.stop()
+        eventRecorder.stop()
+        insertEvent(Event.EndEvent)
+        flush()
         chunkMuxer.stopAndJoin()
+        cancel()
         isRunning = false
     }
 
-    fun generateNewSessionId(scope: CoroutineScope = GlobalScope) = scope.launch(Dispatchers.IO) {
-        logd(TAG, "Generating session ID")
-        sessionId = Generators.timeBasedGenerator().generate().toString()
-        database.sessionDao().insert(SessionEntity(sessionId!!))
-
-        logd(TAG, "Session ID ($sessionId) generated, sending temporary list (${tempList.size}) to LQ")
-        tempList.forEach { it.sessionId = sessionId }
-        tempList.forEach { localQueue.insert(it) }
-        tempList.clear()
-
-        startChunkMuxer()
+    @MainThread
+    fun flushEvents() {
+        requireMainThread()
+        flush()
     }
 
-    suspend fun flushEvents() {
-        localQueue.withLock {
-            insertEventsIntoDatabase(it)
+    fun persist(eventList: List<Event>) {
+        val eventsEntity = eventList.map { EventEntity(0, recordingId.toString(), it.toJson()) }
+        launch(Dispatchers.IO + NonCancellable) {
+            database.eventDao().insert(eventsEntity)
         }
+    }
+
+    fun doOnEventsFlush(listener: suspend (ArrayList<Event>) -> Boolean) {
+        onEventsFlushedListener = listener
+    }
+
+    fun clearFlushListener() {
+        onEventsFlushedListener = { false }
+    }
+
+    fun doOnFileMuxed(listener: suspend (File, Boolean) -> Boolean) {
+        onFileMuxedListener = listener
+    }
+
+    fun clearFileMuxedListener() {
+        onFileMuxedListener = { _, _ -> false }
     }
 
     private fun onEventReceived(event: Event) {
-        val sessionEvent = SessionEvent(null, SystemClock.elapsedRealtime(), event)
-        if (sessionId == null) {
-            logd(TAG, "Storing event to temporary list")
-            tempList += sessionEvent
-        } else {
-            logd(TAG, "Sending event to local queue")
-            sessionEvent.sessionId = sessionId.toString()
-            localQueue.insert(sessionEvent)
+        insertEvent(event)
+
+        if (events.size >= EVENT_LOCAL_LIMIT) {
+            flush()
         }
+    }
+
+    @MainThread
+    private fun flush() {
+        logd(TAG, "Flushing events")
+        val eventsCopy = ArrayList(events)
+        events.clear()
+        launch(Dispatchers.IO + NonCancellable) {
+            if (!onEventsFlushedListener(eventsCopy)) {
+                logd(TAG, "Flushed events not sent, storing into database")
+                persist(eventsCopy)
+                logd(TAG, "Flushed events stored into database")
+            } else {
+                logd(TAG, "Flushed events send to server")
+            }
+        }
+    }
+
+    private fun onFirstFrameDraw() {
+        logd(TAG, "Before first frame is drawn")
+        insertEvent(Event.VideoStartEvent)
     }
 
     private fun onEncodedFrame(frame: EncodedFrame) {
@@ -103,35 +151,52 @@ class Persister(
         chunkMuxer.postCommand(MuxerCommand.ChangeOutputFormat(format))
     }
 
-    private suspend fun onLocalQueueLimitReached(queue: ArrayDeque<SessionEvent>) {
-        logd(TAG, "Local queue limit reached, storing events into database")
-        insertEventsIntoDatabase(queue)
-        GlobalScope.launch {
-            logd(TAG, "Events in database ${database.eventDao().countForId(sessionId!!)}")
+    private fun onFileMuxed(muxedFile: File, isLast: Boolean) {
+        launch(Dispatchers.IO + NonCancellable) {
+            if (!onFileMuxedListener(muxedFile, isLast)) {
+                logd(TAG, "File ${muxedFile.path} muxed and not sent, inserting into database")
+                database.videoDao().insert(VideoEntity(
+                    recordingId = recordingId,
+                    chunkId = muxedFile.nameWithoutExtension.toInt())
+                )
+            } else {
+                logd(TAG, "File ${muxedFile.path} muxed and sent to server")
+                muxedFile.delete()
+            }
         }
     }
 
-    private suspend fun insertEventsIntoDatabase(queue: ArrayDeque<SessionEvent>) {
-        val events = queue.map { EventEntity(0, sessionId!!, it.toJson()) }
-        database.eventDao().insert(events)
-        queue.clear()
-    }
-
-    suspend fun fetchDatabaseStats(): List<DatabaseSession> {
-        val sessions = mutableMapOf<String, Int>()
+    suspend fun fetchDatabaseStats(): List<String> {
+        val recordings = mutableMapOf<String, Pair<String, Int>>()
         database.eventDao().getAll().forEach {
-            sessions[it.sessionId] = (sessions[it.sessionId] ?: 0) + 1
+            val eventCount = (recordings[it.recordingId]?.second ?: 0) + 1
+            val sessionId = database.recordingDao().getById(it.recordingId.toLong()).sessionId
+            recordings[it.recordingId] = sessionId to eventCount
         }
-        return sessions.map { DatabaseSession(it.key, it.value) }
+        return recordings.toSortedMap(Collections.reverseOrder()).map { "${it.key} (${it.value.first} Events: ${it.value.second})" }
     }
 
     private fun startChunkMuxer() {
-        if (sessionId != null) {
-            chunkMuxer.filesPath = File(IOUtils.filesDir, sessionId.toString())
-            if (!chunkMuxer.isRunning) {
-                logd(TAG, "Starting video chunk muxer")
-                chunkMuxer.start()
+        chunkMuxer.filesPath = File(IOUtils.filesDir, recordingId.toString())
+        logd(TAG, "Starting video chunk muxer")
+        chunkMuxer.start()
+    }
+
+    private fun deleteEmptyDirectories() {
+        IOUtils.filesDir.listFiles()
+            ?.filter { it.name != recordingId.toString() && it.isDirectory && it.list().isNullOrEmpty() }
+            ?.forEach {
+                logd(TAG, "Deleting empty directory: ${it.name}")
+                it.delete()
             }
-        }
+    }
+
+    private fun insertEvent(event: Event) {
+        event.at -= startTime
+        events += event
+    }
+
+    companion object {
+        private const val EVENT_LOCAL_LIMIT = 100
     }
 }

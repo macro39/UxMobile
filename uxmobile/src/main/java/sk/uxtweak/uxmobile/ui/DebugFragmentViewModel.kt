@@ -28,29 +28,7 @@ class DebugFragmentViewModel : ViewModel() {
         }
     }
 
-    fun eventRecorderCheckChanged(isChecked: Boolean) {
-        if (isChecked) {
-            UxMobile.sessionManager.eventRecorder.start()
-        } else {
-            UxMobile.sessionManager.eventRecorder.stop()
-        }
-        updateStates()
-    }
-
-    fun screenRecorderCheckChanged(isChecked: Boolean) {
-        if (isChecked) {
-            if (!UxMobile.sessionManager.screenRecorder.isRunning) {
-                UxMobile.sessionManager.screenRecorder.start()
-            }
-        } else {
-            if (UxMobile.sessionManager.screenRecorder.isRunning) {
-                UxMobile.sessionManager.screenRecorder.stop()
-            }
-        }
-        updateStates()
-    }
-
-    fun connectionManagerCheckChanged(isChecked: Boolean) {
+    fun connectionManagerClicked(isChecked: Boolean) {
         if (isChecked) {
             UxMobile.sessionManager.connectionManager.start()
         } else {
@@ -59,16 +37,18 @@ class DebugFragmentViewModel : ViewModel() {
         updateStates()
     }
 
-    fun persisterCheckChanged(isChecked: Boolean) {
+    fun persisterClicked(isChecked: Boolean) {
         if (isChecked) {
-            UxMobile.sessionManager.persister.start()
+            viewModelScope.launch(Dispatchers.IO) {
+                UxMobile.sessionManager.persister.start()
+            }
         } else {
             UxMobile.sessionManager.persister.stop()
         }
         updateStates()
     }
 
-    fun senderCheckChanged(isChecked: Boolean) {
+    fun senderClicked(isChecked: Boolean) {
         if (isChecked) {
             UxMobile.sessionManager.sender.start()
         } else {

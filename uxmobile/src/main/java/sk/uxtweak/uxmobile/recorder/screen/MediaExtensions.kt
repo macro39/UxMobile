@@ -29,10 +29,6 @@ suspend fun Surface.withLockedCanvas(block: suspend Canvas.() -> Unit) {
     }
 }
 
-fun Canvas.drawBitmap(bitmap: Bitmap) {
-    drawBitmap(bitmap, 0F, 0F, null)
-}
-
 fun newSingleCoroutineDispatcher(name: String) =
     Executors.newSingleThreadExecutor(NamedThreadFactory(name)).asCoroutineDispatcher()
 
@@ -40,10 +36,4 @@ operator fun ByteBuffer.plusAssign(buffer: ByteBuffer) {
     while (hasRemaining() && buffer.hasRemaining()) {
         put(buffer.get())
     }
-}
-
-fun ByteBuffer.flushBuffer(block: (ByteBuffer) -> Unit) {
-    flip()
-    block(this)
-    clear()
 }

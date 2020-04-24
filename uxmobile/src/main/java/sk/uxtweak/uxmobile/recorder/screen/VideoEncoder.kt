@@ -7,16 +7,14 @@ import android.view.Surface
 import kotlinx.coroutines.*
 import sk.uxtweak.uxmobile.core.copy
 
-private typealias OnEncodedListener = (EncodedFrame) -> Unit
-private typealias OnOutputFormatChanged = (MediaFormat) -> Unit
-
 class VideoEncoder(private val videoFormat: VideoFormat) {
+    private val dispatcher = newSingleCoroutineDispatcher(DISPATCHER_NAME)
     private var job: Job? = null
     private val encoder = MediaCodec.createEncoderByType(VideoFormat.VIDEO_FORMAT)
     private val info = MediaCodec.BufferInfo()
     private lateinit var surface: Surface
-    private var onEncodedListener: OnEncodedListener = {}
-    private var onOutputFormatChanged: OnOutputFormatChanged = {}
+    private var onEncodedListener: (EncodedFrame) -> Unit = {}
+    private var onOutputFormatChanged: (MediaFormat) -> Unit = {}
 
     private val encoderJob: suspend CoroutineScope.() -> Unit = {
         while (isActive) {
@@ -52,7 +50,7 @@ class VideoEncoder(private val videoFormat: VideoFormat) {
         }
         configure()
         encoder.start()
-        job = GlobalScope.launch(Dispatchers.IO, block = encoderJob)
+        job = GlobalScope.launch(dispatcher, block = encoderJob)
     }
 
     fun stop() = runBlocking {
@@ -60,7 +58,7 @@ class VideoEncoder(private val videoFormat: VideoFormat) {
     }
 
     suspend fun stopAndJoin() {
-        if (job == null || !job!!.isActive) {
+        if (job?.isActive == false) {
             throw IllegalStateException("Encoder must be started first")
         }
         job!!.cancelAndJoin()
@@ -79,15 +77,16 @@ class VideoEncoder(private val videoFormat: VideoFormat) {
         block(this)
     }
 
-    fun setOnEncodedListener(listener: OnEncodedListener) {
+    fun setOnEncodedListener(listener: (EncodedFrame) -> Unit) {
         onEncodedListener = listener
     }
 
-    fun setOnOutputFormatChanged(listener: OnOutputFormatChanged) {
+    fun setOnOutputFormatChanged(listener: (MediaFormat) -> Unit) {
         onOutputFormatChanged = listener
     }
 
     companion object {
         private const val DEFAULT_DEQUEUE_TIMEOUT = 10L * 1000L
+        private const val DISPATCHER_NAME = "Encoder"
     }
 }

@@ -2,23 +2,31 @@ package sk.uxtweak.uxmobile.persister
 
 import android.media.MediaFormat
 import android.media.MediaMuxer
+import android.os.Process
 import sk.uxtweak.uxmobile.recorder.screen.isKeyFrame
 import sk.uxtweak.uxmobile.util.*
 import java.io.File
 import java.util.concurrent.*
 
+// TODO: Replace with coroutines
 class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
     var filesPath: File? = null
         set(value) {
             if (field != value) {
                 index = 0
             }
+            value?.let {
+                if (!it.exists() && !it.mkdirs()) {
+                    logw(TAG, "Cannot create recording directory ${filesPath!!.path}")
+                } else {
+                    logd(TAG, "Created directory ${it.path}")
+                }
+            }
             field = value
         }
 
-    private val executor = Executors.newSingleThreadExecutor(
-        NamedThreadFactory("Muxer thread", Thread.MAX_PRIORITY)
-    )
+    private lateinit var executor: ExecutorService
+
     private val queue: BlockingQueue<MuxerCommand> = LinkedBlockingQueue()
     private var index = -1
     private var muxer: MediaMuxer? = null
@@ -27,17 +35,17 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
     private var future: Future<*>? = null
     private lateinit var format: MediaFormat
 
+    private var onFileMuxedListener: (File, Boolean) -> Unit = { _, _ -> }
+
     val isRunning: Boolean
         get() = future != null
 
     private val job = Runnable {
+        Process.setThreadPriority(THREAD_PRIORITY)
         try {
             loop@ while (true) {
                 when (val command = queue.take()) {
                     is MuxerCommand.MuxFrame -> {
-                        if (!filesPath!!.exists() && !filesPath!!.mkdirs()) {
-                            logw(TAG, "Cannot create session directory ${filesPath!!.path}")
-                        }
                         if (command.frame.isKeyFrame) {
                             if (++currentKeyFrame >= keyFramesInOneChunk) {
                                 currentKeyFrame = 0
@@ -59,6 +67,8 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
                         muxer?.stop()
                         muxer?.release()
                         muxer = null
+                        File(filesPath, TEMP_FILE_NAME).renameTo(getPath(index))
+                        onFileMuxedListener(getPath(index), true)
                         break@loop
                     }
                 }
@@ -85,6 +95,8 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
         }
         index = if (filesPath != null) 0 else -1
         currentKeyFrame = keyFramesInOneChunk
+        queue.clear()
+        executor = Executors.newSingleThreadExecutor(NamedThreadFactory("Muxer"))
         future = executor.submit(job)
     }
 
@@ -105,6 +117,10 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
         }
     }
 
+    fun doOnFileMuxed(listener: (File, Boolean) -> Unit) {
+        onFileMuxedListener = listener
+    }
+
     private fun shutdownExecutor() {
         executor.shutdown()
         if (!executor.awaitTermination(SHUTDOWN_TIMEOUT, SHUTDOWN_TIME_UNIT)) {
@@ -123,15 +139,26 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
         logd(TAG, "Saving old chunk and creating new chunk")
         muxer?.stop()
         muxer?.release()
-        muxer = MediaMuxer(getPath(++index), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+        if (muxer != null) {
+            File(filesPath, TEMP_FILE_NAME).renameTo(getPath(index))
+            onFileMuxedListener(getPath(index), false)
+        }
+        ++index
+        muxer = MediaMuxer(
+            File(filesPath, TEMP_FILE_NAME).path,
+            MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4
+        )
         trackIndex = muxer!!.addTrack(format)
         muxer!!.start()
     }
 
-    private fun getPath(index: Int) = File(filesPath, "$index.mp4").path
+    private fun getPath(index: Int) = File(filesPath, "$index.mp4")
 
     companion object {
+        const val TEMP_FILE_NAME = "Temp.mp4"
+
         private const val TAG = "UxMobile"
+        private const val THREAD_PRIORITY = -10
         private const val SHUTDOWN_TIMEOUT = 3L
         private val SHUTDOWN_TIME_UNIT = TimeUnit.SECONDS
     }

@@ -10,6 +10,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Event recorder (records events)"
+        android:enabled="false"
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
@@ -22,6 +23,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Screen recorder (records screen as video)"
+        android:enabled="false"
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
@@ -66,13 +68,13 @@
         app:layout_constraintTop_toBottomOf="@+id/persisterSwitch" />
 
     <Button
-        android:id="@+id/generateNewSessionIdButton"
+        android:id="@+id/regenerateSessionIdButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:text="Generate new session ID"
+        android:text="Regenerate session ID (experimental)"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/senderSwitch" />
@@ -87,7 +89,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/generateNewSessionIdButton"
+        app:layout_constraintTop_toBottomOf="@+id/regenerateSessionIdButton"
         tools:text="Information view" />
 
 

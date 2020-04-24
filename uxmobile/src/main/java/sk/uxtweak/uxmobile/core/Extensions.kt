@@ -10,8 +10,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.core.view.children
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import org.json.JSONArray
+import org.json.JSONObject
+import sk.uxtweak.uxmobile.persister.database.EventEntity
 import java.nio.ByteBuffer
 import java.text.DecimalFormat
 import kotlin.coroutines.CoroutineContext
@@ -94,3 +99,25 @@ fun Long.toHumanUnit(): String {
 }
 
 fun Int.toHumanUnit() = toLong().toHumanUnit()
+
+fun buildJsonArray(action: JSONArray.() -> Unit) = JSONArray().apply {
+    action(this)
+}
+
+fun buildJsonObject(action: JSONObject.() -> Unit) = JSONObject().apply {
+    action(this)
+}.toString()
+
+fun List<EventEntity>.toJson(recordingId: String, studyId: Int?, sessionId: String): String {
+    val array = buildJsonArray {
+        for (event in this@toJson) {
+            put(JSONObject(event.json))
+        }
+    }
+    return buildJsonObject {
+        put("recording_id", recordingId)
+        studyId?.let { put("study_id", it) }
+        put("session_id", sessionId)
+        put("events", array)
+    }
+}
