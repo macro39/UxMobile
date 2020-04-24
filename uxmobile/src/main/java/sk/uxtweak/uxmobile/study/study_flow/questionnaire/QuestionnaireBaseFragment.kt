@@ -1,5 +1,6 @@
 package sk.uxtweak.uxmobile.study.study_flow.questionnaire
 
+import `in`.uncod.android.bypass.Bypass
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_base_questionaire.*
@@ -7,6 +8,7 @@ import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.Constants
 import sk.uxtweak.uxmobile.study.model.QuestionAnswer
 import sk.uxtweak.uxmobile.study.model.StudyQuestion
+import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
 import sk.uxtweak.uxmobile.study.study_flow.questionnaire_option.*
 
 
@@ -32,10 +34,12 @@ open class QuestionnaireBaseFragment : Fragment() {
         questions: List<StudyQuestion>,
         fragment: Fragment
     ) {
+        (activity as StudyFlowFragmentManager).setLastVisibleElement(button_questionnaire_next)
+
         currentFragment = fragment
 
         textView_questionnaire_title.text = title
-        textView_questionnaire_description.text = description
+        textView_questionnaire_description.text = Bypass().markdownToSpannable(description)
 
         questionsToAnswers = questions.toMutableList()
         totalQuestions = questions.size
@@ -50,7 +54,7 @@ open class QuestionnaireBaseFragment : Fragment() {
             childFragmentManager.fragments.first() as QuestionnaireOptionsBaseFragment
 
         return if (childFragment.isQuestionAnsweredCorrectly()) {
-            questionAnswers.add(childFragment.getAnswer())
+            questionAnswers.addAll(childFragment.getAnswer())
 
             if (questionsToAnswers.size != 0) {
                 showNextQuestion()
@@ -64,6 +68,9 @@ open class QuestionnaireBaseFragment : Fragment() {
     }
 
     private fun showNextQuestion() {
+        (activity as StudyFlowFragmentManager).isScrolling = false
+
+
         answeringQuestionNo++
         updateQuestionIndicator()
 
@@ -71,7 +78,8 @@ open class QuestionnaireBaseFragment : Fragment() {
         questionsToAnswers.removeAt(0)
         currentQuestion = question
 
-        textView_question_description.text = question.description
+        textView_questionnaire_question.text = question.name
+        textView_question_description.text = Bypass().markdownToSpannable(question.description)
 
         findProperQuestionType(question.answerType)
     }

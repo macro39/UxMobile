@@ -29,4 +29,16 @@
     <string name="reason_empty">Reason cannot be empty!</string>
     <string name="reason_title">Please, put some reason, why you choose this answer</string>
     <string name="answer_empty">Please, answer this question!</string>
+    <string name="error_no_internet_conn">No internet connection. Please, enable wifi/data and click \"Try again\".</string>
+    <string name="cancel_and_end_study">Cancel and end study</string>
+    <string name="try_again">Try again</string>
+    <string name="welcome">Welcome to study</string>
+    <string name="thank_you">Thank you, that\'s all!</string>
+    <string name="reject_title">Thank you and hope we see you next time!</string>
+    <string name="reject_content">We are a little sad, but also next day is there a opportunity to change your favorite application by participating in study!</string>
+    <string name="consent">**When UXMobile is integrated as a service we collect the following information:**  1.  Consistent random pseudo ID for every end user 2.  After reading the task, you will be redirected to a website. 3.  Geographic location (Country only). 4.  Screens visited by the end user in an app using UXMobile only. 5.  Interaction patterns by the end user on your app (screen actions, gestures: taps, scrolls) 6.  Information provided by the customer (except information customer chooses to block from being sent to UXMobile)  We strictly adhere to a **non-recording policy of any PII** (Personally Identifiable Information) and contractually prohibits recording of sensitive information including ePHI, PCI or PII information. We provide API methods to hide PII and sensitive information.    **We require you, as a customer, to hide PII information and only process anonymized data and to mention the usage of UXCam on your privacy policy.**    As such the data UXMobile processes on behalf of its customers are anonymous.</string>
+    <string name="questionnaire_segmentation">Segmentation questionnaire</string>
+    <string name="questionnaire_post_study">Post-study questionnaire</string>
+    <string name="questionnaire_pre_study">Pre-study questionnaire</string>
+    <string name="appbar_title">UXMobile - study guide</string>
 </resources>

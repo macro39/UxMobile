@@ -28,6 +28,8 @@ class GlobalMessageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        (activity as StudyFlowFragmentManager).setLastVisibleElement(button_global_message_yes)
+
         button_global_message_yes.setOnClickListener {
             Log.d(TAG, "Going to next step in flow study")
             (activity as StudyFlowFragmentManager).showNextFragment(this)

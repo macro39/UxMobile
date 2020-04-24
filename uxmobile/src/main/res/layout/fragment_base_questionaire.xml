@@ -41,14 +41,27 @@
         app:layout_constraintVertical_bias="0.05" />
 
     <TextView
+        android:id="@+id/textView_questionnaire_question"
+        style="@style/TextView.Description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView_questionnaire_indicator"
+        app:layout_constraintVertical_bias="0.05" />
+
+    <TextView
         android:id="@+id/textView_question_description"
         style="@style/TextView.Description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_questionnaire_indicator"
+        app:layout_constraintTop_toBottomOf="@+id/textView_questionnaire_question"
         app:layout_constraintVertical_bias="0" />
 
     <FrameLayout

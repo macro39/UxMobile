@@ -77,7 +77,7 @@ class SessionManager(application: Application) {
         persister.stop()
     }
 
-    fun startRecording() {
+    fun startRecording(studyId: Int) {
 
     }
 

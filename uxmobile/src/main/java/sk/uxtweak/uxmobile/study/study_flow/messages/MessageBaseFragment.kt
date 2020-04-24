@@ -1,8 +1,7 @@
 package sk.uxtweak.uxmobile.study.study_flow.messages
 
-import android.os.Build
+import `in`.uncod.android.bypass.Bypass
 import android.os.Bundle
-import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +9,7 @@ import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_message.*
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.study.model.StudyMessage
+import sk.uxtweak.uxmobile.study.study_flow.StudyFlowFragmentManager
 
 
 /**
@@ -28,18 +28,13 @@ abstract class MessageBaseFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        (activity as StudyFlowFragmentManager).setLastVisibleElement(button_message_next)
+
         val message: StudyMessage = getData()
 
         textView_message_title.text = message.title
 
-//        textVIew_message_content.movementMethod = ScrollingMovementMethod()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            textView_message_text.text =
-                Html.fromHtml(message.content, Html.FROM_HTML_MODE_COMPACT)
-        } else {
-            textView_message_text.text = Html.fromHtml(message.content)
-        }
+        textView_message_text.text = Bypass().markdownToSpannable(message.content)
 
         button_message_next.setOnClickListener {
             buttonOnClick()

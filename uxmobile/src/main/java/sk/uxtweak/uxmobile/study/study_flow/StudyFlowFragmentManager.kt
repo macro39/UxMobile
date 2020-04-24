@@ -5,12 +5,18 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.activity_study_flow.*
 import sk.uxtweak.uxmobile.R
@@ -18,7 +24,6 @@ import sk.uxtweak.uxmobile.study.Constants
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENABLED
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
-import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
 import sk.uxtweak.uxmobile.study.model.StudyMessage
 import sk.uxtweak.uxmobile.study.study_flow.base.ConsentFragment
 import sk.uxtweak.uxmobile.study.study_flow.base.GlobalMessageFragment
@@ -38,14 +43,14 @@ import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 /**
  * Created by Kamil Macek on 1.2.2020.
  */
-class StudyFlowFragmentManager : AppCompatActivity() {
+class StudyFlowFragmentManager : AppCompatActivity(),
+    ActivityCompat.OnRequestPermissionsResultCallback {
 
     companion object {
         private var setColorFromStudyConfig = false
     }
 
     private val manager = supportFragmentManager
-    private lateinit var permissionChecker: PermissionChecker
 
     private var isOnlyInstructionsDisplayed = false
     private var backNavEnabled = true
@@ -53,31 +58,41 @@ class StudyFlowFragmentManager : AppCompatActivity() {
 
     private var numberOfAvailableTasks = 0
 
+    private var lastVisibleElement: View? = null
+
+    var isScrolling = false
+
     // TODO should change this def value for study set
     private var isStudySet = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        title = getString(R.string.plugin_name)
+        title = getString(R.string.appbar_title)
         setTheme(R.style.Theme_Base)
         setContentView(R.layout.activity_study_flow)
 
 
         numberOfAvailableTasks = StudyDataHolder.numberOfTasks
-        permissionChecker = PermissionChecker(this)
 
         // when content changed, check if can scroll and set action button to bottom visible
         scrollView_study_flow.viewTreeObserver.addOnGlobalLayoutListener {
-            if (scrollView_study_flow.canScrollVertically(1)) {
-                action_button_to_bottom.visibility = View.VISIBLE
-            } else {
-                action_button_to_bottom.visibility = View.GONE
+            if (!isScrolling) {
+                if (canEnableScroll()) {
+                    if (canDisableSetActionButton()) {
+                        action_button_to_bottom.visibility = View.VISIBLE
+                    } else {
+                        action_button_to_bottom.visibility = View.GONE
+                    }
+                } else {
+                    action_button_to_bottom.visibility = View.GONE
+                }
             }
         }
 
         // if user reach bottom with scroll, hide action button
         scrollView_study_flow.viewTreeObserver.addOnScrollChangedListener {
-            if (scrollView_study_flow.canScrollVertically(1)) {
+            isScrolling = true
+            if (canDisableSetActionButton()) {
                 action_button_to_bottom.visibility = View.VISIBLE
             } else {
                 action_button_to_bottom.visibility = View.GONE
@@ -123,10 +138,10 @@ class StudyFlowFragmentManager : AppCompatActivity() {
     }
 
     /**
-     * Default en language set
+     * Set lang from constants
      */
     override fun attachBaseContext(newBase: Context?) {
-        super.attachBaseContext(ApplicationLanguageHelper.wrap(newBase!!, "en"))
+        super.attachBaseContext(ApplicationLanguageHelper.wrap(newBase!!, Constants.LANGUAGE))
     }
 
     /**
@@ -138,6 +153,34 @@ class StudyFlowFragmentManager : AppCompatActivity() {
             sendBroadcastStudyAccepted(accepted = true, ended = false)
             finish()
         }
+    }
+
+    private fun canEnableScroll(): Boolean {
+        val displayHeight = scrollView_study_flow.height
+
+        val realScrollHeight = scrollView_study_flow.getChildAt(0).height
+
+        val exceededPixels = realScrollHeight - displayHeight
+
+        val elementMarginBottom = lastVisibleElement!!.marginBottom
+        val elementHeight = lastVisibleElement!!.height
+
+        return (exceededPixels) > (elementHeight / 2 + elementMarginBottom)
+    }
+
+    private fun canDisableSetActionButton(): Boolean {
+        val displayHeight = scrollView_study_flow.height
+
+        val realScrollHeight = scrollView_study_flow.getChildAt(0).height
+
+        val exceededPixels = realScrollHeight - displayHeight
+
+        val offset = scrollView_study_flow.scrollY
+
+        val elementMarginBottom = lastVisibleElement!!.marginBottom
+        val elementHeight = lastVisibleElement!!.height
+
+        return (exceededPixels - offset) > (elementHeight / 2 + elementMarginBottom)
     }
 
     private fun enableBackButton() {
@@ -211,11 +254,19 @@ class StudyFlowFragmentManager : AppCompatActivity() {
 //        showFragment(PostTaskQuestionnaire())
         // last task
         if (numberOfAvailableTasks == 0) {
-            showFragment(PostStudyQuestionnaire())
+            if (StudyDataHolder.study?.postStudyQuestionnaire != null) {
+                showFragment(PostStudyQuestionnaire())
+            } else {
+                showNextFragment(PostStudyQuestionnaire())
+            }
         } else {
             disableEveryBackAction()
             showFragment(TaskFragment())
         }
+    }
+
+    fun setLastVisibleElement(view: View) {
+        lastVisibleElement = view
     }
 
     /**
@@ -249,6 +300,8 @@ class StudyFlowFragmentManager : AppCompatActivity() {
      * Show specific fragment by replacing old one
      */
     private fun showFragment(fragment: Fragment) {
+        isScrolling = false
+
         val transaction = manager.beginTransaction()
         transaction.replace(R.id.fragment_base_holder, fragment)
         transaction.commit()
@@ -268,13 +321,24 @@ class StudyFlowFragmentManager : AppCompatActivity() {
      * Controlling study flow based on specific requirements set by user
      */
     fun showNextFragment(actualFragment: Fragment) {
-        // TODO add if statements, because not every fragment is required (345689 are optional)
         when (actualFragment) {
             is ConsentFragment -> {
                 StudyDataHolder.agreedWithTerms = true
                 showGlobalMessage()
             }
-            is GlobalMessageFragment -> showFragment(ScreeningQuestionnaire())
+            is GlobalMessageFragment -> {
+                if (StudyDataHolder.study != null) {
+                    setColorFromStudyConfig = true
+                    setColorFromConfig()
+                    showFragment(WelcomeMessage())
+                } else {
+                    if (StudyDataHolder.screeningQuestionnaire != null && StudyDataHolder.screeningQuestionnaire!!.questions.isNotEmpty()) {
+                        showFragment(ScreeningQuestionnaire())
+                    } else {
+                        showNextFragment(ScreeningQuestionnaire())
+                    }
+                }
+            }
             is ScreeningQuestionnaire -> {
                 setColorFromStudyConfig = true
                 setColorFromConfig()
@@ -287,7 +351,11 @@ class StudyFlowFragmentManager : AppCompatActivity() {
                 if (isOnlyInstructionsDisplayed) {
                     onBackPressed()
                 } else {
-                    showFragment(PreStudyQuestionnaire())
+                    if (StudyDataHolder.study?.preStudyQuestionnaire != null) {
+                        showFragment(PreStudyQuestionnaire())
+                    } else {
+                        showNextFragment(PreStudyQuestionnaire())
+                    }
                 }
             }
             is PreStudyQuestionnaire -> {
@@ -319,12 +387,39 @@ class StudyFlowFragmentManager : AppCompatActivity() {
 
     fun studyAccepted(accepted: Boolean) {
         if (accepted) {
-            permissionChecker.canDrawOverlay()
-            sendBroadcastStudyAccepted(accepted = true, ended = false)
-            finish()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (!Settings.canDrawOverlays(this)) {
+                    val intent = Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:$packageName")
+                    )
+                    startActivityForResult(intent, Constants.CODE_DRAW_OVER_OTHER_APP_PERMISSION)
+                } else {
+                    sendBroadcastStudyAccepted(accepted = true, ended = false)
+                    finish()
+                }
+            } else {
+                sendBroadcastStudyAccepted(accepted = true, ended = false)
+                finish()
+            }
         } else {
             sendBroadcastStudyAccepted(accepted = false, ended = true)
             finish()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == Constants.CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
+            if (Settings.canDrawOverlays(this)) {
+                Log.d("HAHA", "GRANTED")
+                sendBroadcastStudyAccepted(accepted = true, ended = false)
+                finish()
+            } else {
+                Log.d("HAHA", "REJECTED")
+                showRejectedFragment()
+            }
         }
     }
 
@@ -333,7 +428,11 @@ class StudyFlowFragmentManager : AppCompatActivity() {
         finish()
     }
 
-    private fun sendBroadcastStudyAccepted(accepted: Boolean = false, ended: Boolean = false, later: Boolean = false) {
+    private fun sendBroadcastStudyAccepted(
+        accepted: Boolean = false,
+        ended: Boolean = false,
+        later: Boolean = false
+    ) {
         val intent = Intent(Constants.RECEIVER_IN_STUDY)
         intent.putExtra(Constants.RECEIVER_IN_STUDY, accepted)
         intent.putExtra(Constants.RECEIVER_STUDY_ENDED, ended)
@@ -358,17 +457,20 @@ class StudyFlowFragmentManager : AppCompatActivity() {
                 return StudyDataHolder.study?.postStudyQuestionnaire!!
             }
             is RejectedMessage -> {
-                return StudyDataHolder.rejectMessage
+                return StudyMessage(
+                    getString(R.string.reject_title),
+                    getString(R.string.reject_content)
+                )
             }
             is WelcomeMessage -> {
                 return StudyMessage(
-                    Constants.WELCOME_MESSAGE_TITLE,
+                    getString(R.string.welcome) + " " + StudyDataHolder.study?.name,
                     StudyDataHolder.study?.welcomeMessage!!
                 )
             }
             is InstructionFragment -> {
                 return StudyMessage(
-                    Constants.INSTRUCTION_TITLE,
+                    getString(R.string.instructions),
                     StudyDataHolder.study?.instruction!!
                 )
             }
@@ -377,7 +479,7 @@ class StudyFlowFragmentManager : AppCompatActivity() {
             }
             is ThankYouMessage -> {
                 return StudyMessage(
-                    Constants.THANK_YOU_MESSAGE_TITLE,
+                    getString(R.string.thank_you),
                     StudyDataHolder.study?.thankYouMessage!!
                 )
             }

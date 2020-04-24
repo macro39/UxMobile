@@ -73,8 +73,12 @@ abstract class QuestionnaireOptionsBaseFragment : Fragment() {
         }
     }
 
-    fun getAnswer(): QuestionAnswer {
-        return QuestionAnswer(question.id, questionAnswers)
+    fun getAnswer(): ArrayList<QuestionAnswer> {
+        val questionAnswerList = ArrayList<QuestionAnswer>()
+        for (answer in questionAnswers) {
+            questionAnswerList.add(QuestionAnswer(questionId = question.id, answer = answer))
+        }
+        return questionAnswerList
     }
 
     private fun checkReasonNeeded(): Boolean {

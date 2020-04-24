@@ -61,7 +61,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:padding="10dp"
-                    android:text="Instructions" />
+                    android:text="@string/instructions" />
 
                 <Button
                     android:id="@+id/button_float_widget_skip"
@@ -69,7 +69,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:padding="10sp"
-                    android:text="Skip" />
+                    android:text="@string/skip" />
             </LinearLayout>
 
             <Button
@@ -78,7 +78,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:padding="10dp"
-                android:text="End task" />
+                android:text="@string/task_end" />
         </LinearLayout>
 
         <ImageView
