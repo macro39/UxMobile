@@ -10,6 +10,7 @@ import sk.uxtweak.uxmobile.model.EventsList
 import sk.uxtweak.uxmobile.net.ConnectionManager
 import sk.uxtweak.uxmobile.persister.Persister
 import sk.uxtweak.uxmobile.persister.database.AppDatabase
+import sk.uxtweak.uxmobile.persister.database.VideoEntity
 import sk.uxtweak.uxmobile.util.*
 import java.io.File
 import java.io.FileInputStream
@@ -53,17 +54,29 @@ class EventSender(
         launch(Dispatchers.IO + NonCancellable) {
             val videos = database.videoDao().getAll()
             logd(TAG, "Sending all stored videos (${videos.size})")
+
+            val videoRecordings = mutableMapOf<Long, MutableList<VideoEntity>>()
             videos.forEach {
-                val video = File(IOUtils.filesDir, it.path)
-                if (video.exists()) {
-                    val recording = database.recordingDao().getById(it.recordingId)
-                    logd(TAG, "Sending file ${video.path} (${it.recordingId} - ${recording.sessionId})")
-                    sendFile(video, it.recordingId, recording.studyId, recording.sessionId)
-                    logd(TAG, "File sent successfully, deleting from internal storage and database")
-                    video.delete()
-                    database.videoDao().delete(it)
-                } else {
-                    logw(TAG, "Video file $video does not exists")
+                if (videoRecordings[it.recordingId] == null) {
+                    videoRecordings[it.recordingId] = mutableListOf()
+                }
+                videoRecordings[it.recordingId]!! += it
+            }
+
+            videoRecordings.forEach {
+                it.value.forEachIndexed { index, videoEntity ->
+                    val video = File(IOUtils.filesDir, videoEntity.path)
+                    if (video.exists()) {
+                        val recording = database.recordingDao().getById(videoEntity.recordingId)
+                        val isLast = persister.recordingId != videoEntity.recordingId && index == it.value.size - 1
+                        logd(TAG, "Sending file ${video.path} (${videoEntity.recordingId} - ${recording.sessionId})")
+                        sendFile(video, videoEntity.recordingId, recording.studyId, recording.sessionId, isLast)
+                        logd(TAG, "File sent successfully, deleting from internal storage and database")
+                        video.delete()
+                        database.videoDao().delete(videoEntity)
+                    } else {
+                        logw(TAG, "Video file $video does not exists")
+                    }
                 }
             }
         }
@@ -126,12 +139,12 @@ class EventSender(
         }
     }
 
-    private suspend fun onFileMuxed(video: File): Boolean {
+    private suspend fun onFileMuxed(video: File, isLast: Boolean): Boolean {
         if (!connection.isConnected) {
             return false
         }
         return try {
-            sendFile(video, persister.recordingId, persister.studyId, sessionManager.sessionId)
+            sendFile(video, persister.recordingId, persister.studyId, sessionManager.sessionId, isLast)
             true
         } catch (exception: Exception) {
             logd(TAG, "Cannot send muxed file to server ($exception)")
@@ -139,12 +152,12 @@ class EventSender(
         }
     }
 
-    private suspend fun sendFile(file: File, recordingId: Long, studyId: Int?, sessionId: String) {
+    private suspend fun sendFile(file: File, recordingId: Long, studyId: Int?, sessionId: String, isLast: Boolean) {
         val data = FileInputStream(file).use { it.readBytes() }
         val encoded = Base64.encodeToString(data, Base64.DEFAULT)
-        val event = Event.VideoChunkEvent(file.nameWithoutExtension, encoded)
+        val event = Event.VideoChunkEvent(file.nameWithoutExtension, isLast, encoded)
         val eventsList = EventsList(recordingId, sessionId, studyId, listOf(event))
-        logd(TAG, "Sending file ${file.path}")
+        logd(TAG, "Sending file ${file.path} ${if (isLast) "(Last)" else ""}")
         connection.emit(EVENT_CHANNEL, eventsList.toJson())
     }
 

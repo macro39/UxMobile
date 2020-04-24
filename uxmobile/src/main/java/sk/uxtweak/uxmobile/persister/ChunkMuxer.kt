@@ -35,7 +35,7 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
     private var future: Future<*>? = null
     private lateinit var format: MediaFormat
 
-    private var onFileMuxedListener: (File) -> Unit = {}
+    private var onFileMuxedListener: (File, Boolean) -> Unit = { _, _ -> }
 
     val isRunning: Boolean
         get() = future != null
@@ -68,7 +68,7 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
                         muxer?.release()
                         muxer = null
                         File(filesPath, TEMP_FILE_NAME).renameTo(getPath(index))
-                        onFileMuxedListener(getPath(index))
+                        onFileMuxedListener(getPath(index), true)
                         break@loop
                     }
                 }
@@ -117,7 +117,7 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
         }
     }
 
-    fun doOnFileMuxed(listener: (File) -> Unit) {
+    fun doOnFileMuxed(listener: (File, Boolean) -> Unit) {
         onFileMuxedListener = listener
     }
 
@@ -141,7 +141,7 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
         muxer?.release()
         if (muxer != null) {
             File(filesPath, TEMP_FILE_NAME).renameTo(getPath(index))
-            onFileMuxedListener(getPath(index))
+            onFileMuxedListener(getPath(index), false)
         }
         ++index
         muxer = MediaMuxer(

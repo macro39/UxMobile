@@ -1,6 +1,7 @@
 package sk.uxtweak.uxmobile.persister
 
 import android.media.MediaFormat
+import android.os.SystemClock
 import androidx.annotation.MainThread
 import kotlinx.coroutines.*
 import sk.uxtweak.uxmobile.concurrency.MainContext
@@ -31,15 +32,16 @@ class Persister(
         get() = reusableContext
     private lateinit var reusableContext: CoroutineContext
 
-    var isRunning: Boolean = false
+    var isRunning = false
         private set
 
+    private var startTime = 0L
     var recordingId = 0L
     var studyId: Int? = null
     private val chunkMuxer = ChunkMuxer(keyFramesInOneChunk = 2)
     private val events = ArrayList<Event>(EVENT_LOCAL_LIMIT)
     private var onEventsFlushedListener: suspend (ArrayList<Event>) -> Boolean = { false }
-    private var onFileMuxedListener: suspend (File) -> Boolean = { false }
+    private var onFileMuxedListener: suspend (File, Boolean) -> Boolean = { _, _ -> false }
 
     val eventsCount: Int
         get() = events.size
@@ -57,7 +59,8 @@ class Persister(
         reusableContext = MainContext()
         isRunning = true
         this.studyId = studyId
-        events += Event.StartEvent
+        startTime = SystemClock.elapsedRealtime()
+        insertEvent(Event.StartEvent)
         eventRecorder.start()
         launch(Dispatchers.IO + NonCancellable) {
             recordingId = database.recordingDao().insert(RecordingEntity(0, sessionManager.sessionId, studyId))
@@ -71,7 +74,7 @@ class Persister(
         logi(TAG, "Stopping persister")
         screenRecorder.stop()
         eventRecorder.stop()
-        events += Event.EndEvent
+        insertEvent(Event.EndEvent)
         flush()
         chunkMuxer.stopAndJoin()
         cancel()
@@ -99,16 +102,16 @@ class Persister(
         onEventsFlushedListener = { false }
     }
 
-    fun doOnFileMuxed(listener: suspend (File) -> Boolean) {
+    fun doOnFileMuxed(listener: suspend (File, Boolean) -> Boolean) {
         onFileMuxedListener = listener
     }
 
     fun clearFileMuxedListener() {
-        onFileMuxedListener = { false }
+        onFileMuxedListener = { _, _ -> false }
     }
 
     private fun onEventReceived(event: Event) {
-        events += event
+        insertEvent(event)
 
         if (events.size >= EVENT_LOCAL_LIMIT) {
             flush()
@@ -133,7 +136,7 @@ class Persister(
 
     private fun onFirstFrameDraw() {
         logd(TAG, "Before first frame is drawn")
-        events += Event.VideoStartEvent
+        insertEvent(Event.VideoStartEvent)
     }
 
     private fun onEncodedFrame(frame: EncodedFrame) {
@@ -148,9 +151,9 @@ class Persister(
         chunkMuxer.postCommand(MuxerCommand.ChangeOutputFormat(format))
     }
 
-    private fun onFileMuxed(muxedFile: File) {
+    private fun onFileMuxed(muxedFile: File, isLast: Boolean) {
         launch(Dispatchers.IO + NonCancellable) {
-            if (!onFileMuxedListener(muxedFile)) {
+            if (!onFileMuxedListener(muxedFile, isLast)) {
                 logd(TAG, "File ${muxedFile.path} muxed and not sent, inserting into database")
                 database.videoDao().insert(VideoEntity(
                     recordingId = recordingId,
@@ -186,6 +189,11 @@ class Persister(
                 logd(TAG, "Deleting empty directory: ${it.name}")
                 it.delete()
             }
+    }
+
+    private fun insertEvent(event: Event) {
+        event.at -= startTime
+        events += event
     }
 
     companion object {
