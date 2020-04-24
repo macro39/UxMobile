@@ -9,6 +9,7 @@ import android.hardware.SensorManager
 import android.os.Environment
 import android.util.Log
 import androidx.annotation.MainThread
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
@@ -31,8 +32,10 @@ import sk.uxtweak.uxmobile.study.net.JsonBuilder
 import sk.uxtweak.uxmobile.study.utility.*
 import sk.uxtweak.uxmobile.ui.DebugActivity
 import sk.uxtweak.uxmobile.ui.ShakeDetector
+import sk.uxtweak.uxmobile.util.DialogUtils
 import sk.uxtweak.uxmobile.util.IOUtils
 import sk.uxtweak.uxmobile.util.logi
+import sk.uxtweak.uxmobile.util.logw
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -81,10 +84,25 @@ object UxMobile {
         try {
             startInternal(loadApiKeyFromManifest())
         } catch (exception: IllegalStateException) {
-            Log.e(
-                TAG,
-                "Cannot load API key! Check if you have your API key declared in Android Manifest"
-            )
+            Log.e(TAG, "Cannot load API key! Check if you have your API key declared in Android Manifest")
+        }
+    }
+
+    @JvmStatic
+    @MainThread
+    fun startExternal() {
+        try {
+            startInternal(loadApiKeyFromStorage())
+        } catch (exception: IllegalStateException) {
+            logw(TAG, "Permission to read from external storage is not granted! (${exception.message})")
+            ForegroundActivityHolder.register(ApplicationLifecycle)
+            DialogUtils.showDialog("Permission denied", "Please grant permission to read from external storage and then restart application.") {
+                ActivityCompat.requestPermissions(it, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSION_REQUEST_CODE)
+            }
+        } catch (exception: FileNotFoundException) {
+            logw(TAG, "File with API key not found! ((${exception.message}))")
+            ForegroundActivityHolder.register(ApplicationLifecycle)
+            DialogUtils.showDialog("API key not found", "File with API key not found, please create it and restart application. (${File(Environment.getExternalStorageDirectory(), API_KEY_FILE).absolutePath})")
         }
     }
 
@@ -106,6 +124,7 @@ object UxMobile {
         }
         started = true
         this.apiKey = apiKey
+        logi(TAG, "Initializing with API key $apiKey")
 
         IOUtils.initialize(application)
 
@@ -119,19 +138,17 @@ object UxMobile {
         ForegroundScope.launch {
             adonisWebSocketClient.waitForConnect()
 
-            this@UxMobile.apiKey = "f515d0cd7b88fbe502919395fa4c6c8d599e939d"   // my study
+//            this@UxMobile.apiKey = "f515d0cd7b88fbe502919395fa4c6c8d599e939d"   // my study
 
             val location = getLocation()
 
             // uncomment for Usability testing study
             val initializeJson = JsonBuilder(
-                "sessionId" to sessionManager.persister.sessionId,
-                "token" to "f515d0cd7b88fbe502919395fa4c6c8d599e939d",
+                "sessionId" to sessionManager.sessionId,
+                "token" to this@UxMobile.apiKey,
                 "location" to location,
                 "brandOfDevice" to getDeviceBrand(),
-                "ip" to getIpAddress(
-                    application
-                ),
+                "ip" to getIpAddress(application),
                 "operatingSystem" to getOperatingSystem()
             ).toJsonObject()
 
@@ -188,31 +205,14 @@ object UxMobile {
                         }
                     }
                 } catch (e: JSONException) {
-                    Log.e(
-                        TAG,
-                        "Cannot parse response: " + e.message
-                    )
+                    Log.e(TAG, "Cannot parse response: " + e.message)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Can't send initialize, no internet connection!")
             }
         }
 
-        val sensorManager = ContextCompat.getSystemService(application, SensorManager::class.java)
-        val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-
-        val shakeDetector = ShakeDetector()
-        shakeDetector.setOnShakeListener(object : ShakeDetector.OnShakeListener {
-            override fun onShake(count: Int) {
-                if (count == 3) {
-                    val intent = Intent(application, DebugActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    ContextCompat.startActivity(application, intent, null)
-                }
-            }
-        })
-
-        sensorManager?.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI)
+        registerDebugMenu()
     }
 
     /**
@@ -259,10 +259,29 @@ object UxMobile {
         if (!apiKeyFile.exists()) {
             throw FileNotFoundException("File with API key not found!")
         }
-        return apiKeyFile.readText()
+        return apiKeyFile.readText().trim()
+    }
+
+    private fun registerDebugMenu() {
+        val sensorManager = ContextCompat.getSystemService(application, SensorManager::class.java)
+        val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+        val shakeDetector = ShakeDetector()
+        shakeDetector.setOnShakeListener(object : ShakeDetector.OnShakeListener {
+            override fun onShake(count: Int) {
+                if (count == 3) {
+                    val intent = Intent(application, DebugActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    ContextCompat.startActivity(application, intent, null)
+                }
+            }
+        })
+
+        sensorManager?.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI)
     }
 
     private const val TAG = "UxMobile"
     private const val API_KEY = "UxMobileApiKey"
     private const val API_KEY_FILE = "UxMobile/api.key"
+    private const val PERMISSION_REQUEST_CODE = 1000
 }

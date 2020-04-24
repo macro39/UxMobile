@@ -38,16 +38,6 @@ class SessionManager(application: Application) {
         override fun onFirstActivityStarted(activity: Activity) {
             generateSessionId()
             logd(TAG, "Session started (generated session ID: $sessionId)")
-            ForegroundScope.launch(Dispatchers.Main) {
-                startAll()
-            }
-        }
-
-        override fun onLastActivityStopped(activity: Activity) {
-            super.onLastActivityStopped(activity)
-            GlobalScope.launch(Dispatchers.Main) {
-                stopAll()
-            }
         }
     }
 
@@ -65,24 +55,14 @@ class SessionManager(application: Application) {
         connectionManager.start()
     }
 
-    private fun startAll() {
-        if (Random.nextBoolean()) {
-            persister.start(Random.nextInt(70))
-        } else {
-            persister.start()
-        }
+    fun startRecording(studyId: Int) = ForegroundScope.launch(Dispatchers.Main) {
+        logd(TAG, "Starting recording")
+        persister.start(studyId)
     }
 
-    private fun stopAll() {
+    fun stopRecording() = GlobalScope.launch(Dispatchers.Main) {
+        logd(TAG,"Stopping recording")
         persister.stop()
-    }
-
-    fun startRecording(studyId: Int) {
-
-    }
-
-    fun stopRecording() {
-
     }
 
     fun addEventListener(function: (Event) -> Unit) = eventRecorder.addOnEventListener(function)

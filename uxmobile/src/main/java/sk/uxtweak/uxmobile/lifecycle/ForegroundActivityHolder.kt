@@ -8,14 +8,22 @@ object ForegroundActivityHolder : LifecycleObserverAdapter() {
     val foregroundActivity: Activity?
         get() = foregroundActivityReference?.get()
 
+    private var onActivityChanged: (Activity) -> Unit = {}
+
     fun register(lifecycle: Lifecycle) = lifecycle.addObserver(this)
 
     override fun onAnyActivityStarted(activity: Activity) {
         foregroundActivityReference = WeakReference(activity)
+        onActivityChanged(activity)
+        onActivityChanged = {}
     }
 
     override fun onLastActivityStopped(activity: Activity) {
         foregroundActivityReference = null
+    }
+
+    fun doOnActivity(action: (Activity) -> Unit) {
+        onActivityChanged = action
     }
 }
 
