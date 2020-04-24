@@ -93,6 +93,7 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:2.10.2"
     implementation "com.fasterxml.jackson.core:jackson-databind:2.10.2"
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.commit451:bypasses:1.0.1'
 
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0-alpha01'
 

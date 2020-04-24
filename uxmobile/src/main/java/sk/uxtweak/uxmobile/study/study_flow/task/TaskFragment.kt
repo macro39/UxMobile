@@ -1,5 +1,6 @@
 package sk.uxtweak.uxmobile.study.study_flow.task
 
+import `in`.uncod.android.bypass.Bypass
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -38,7 +39,7 @@ class TaskFragment : Fragment() {
         textView_task_name.text = currentTask.name
         textView_task_number.text =
             "Task " + (tasks.size - StudyDataHolder.numberOfTasks + 1) + "/" + tasks.size
-        textView_task_description.text = currentTask.description
+        textView_task_description.text = Bypass().markdownToSpannable(currentTask.description)
 
         button_task_admit.setOnClickListener {
 

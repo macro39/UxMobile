@@ -1,5 +1,6 @@
 package sk.uxtweak.uxmobile.study.study_flow.base
 
+import `in`.uncod.android.bypass.Bypass
 import android.graphics.Paint
 import android.os.Bundle
 import android.text.Html
@@ -39,7 +40,8 @@ class ConsentFragment : Fragment() {
         button_consent_terms.setOnClickListener {
             val builder = activity?.let { it1 -> AlertDialog.Builder(it1, R.style.DialogTheme) }
             builder?.setTitle(getString(R.string.plugin_name) + " - " + getString(R.string.terms_of_use))
-            builder?.setMessage(Html.fromHtml(Constants.CONSENT_STRING))
+            builder?.setMessage(
+                Bypass().markdownToSpannable(getString(R.string.consent)))
 
             builder?.setNegativeButton(getString(R.string.no)) { dialog, which ->
                 (activity as StudyFlowFragmentManager).showRejectedFragment()

@@ -1,5 +1,6 @@
 package sk.uxtweak.uxmobile.study.study_flow.questionnaire
 
+import `in`.uncod.android.bypass.Bypass
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_base_questionaire.*
@@ -38,7 +39,7 @@ open class QuestionnaireBaseFragment : Fragment() {
         currentFragment = fragment
 
         textView_questionnaire_title.text = title
-        textView_questionnaire_description.text = description
+        textView_questionnaire_description.text = Bypass().markdownToSpannable(description)
 
         questionsToAnswers = questions.toMutableList()
         totalQuestions = questions.size
@@ -77,7 +78,8 @@ open class QuestionnaireBaseFragment : Fragment() {
         questionsToAnswers.removeAt(0)
         currentQuestion = question
 
-        textView_question_description.text = question.description
+        textView_questionnaire_question.text = question.name
+        textView_question_description.text = Bypass().markdownToSpannable(question.description)
 
         findProperQuestionType(question.answerType)
     }

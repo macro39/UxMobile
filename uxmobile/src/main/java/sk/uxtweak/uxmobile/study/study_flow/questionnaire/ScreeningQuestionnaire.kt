@@ -45,7 +45,7 @@ class ScreeningQuestionnaire : QuestionnaireBaseFragment() {
             (activity as StudyFlowFragmentManager).getData(this) as StudyQuestionnaire
 
         configure(
-            screeningQuestionnaire.name,
+            getString(R.string.questionnaire_segmentation),
             screeningQuestionnaire.instructions,
             screeningQuestionnaire.questions,
             this

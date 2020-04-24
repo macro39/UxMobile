@@ -14,7 +14,10 @@ import android.widget.LinearLayout
 import com.devs.vectorchildfinder.VectorChildFinder
 import com.devs.vectorchildfinder.VectorDrawableCompat
 import sk.uxtweak.uxmobile.R
+import sk.uxtweak.uxmobile.study.Constants
+import sk.uxtweak.uxmobile.study.utility.LocalizedContextWrapper
 import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
+import java.util.*
 
 
 /**
@@ -27,8 +30,7 @@ class FloatWidgetService(
 
     private var addedToView = false
 
-    private val mLayoutInflater: LayoutInflater
-        get() = LayoutInflater.from(context)
+    private lateinit var mLayoutInflater: LayoutInflater
 
     private val mWindowManager: WindowManager
         get() = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -44,6 +46,8 @@ class FloatWidgetService(
     private var positionY = 100
 
     fun onInit() {
+        mLayoutInflater = LayoutInflater.from(LocalizedContextWrapper.wrap(context, Locale(Constants.LANGUAGE)))
+
         mFloatView = mLayoutInflater.inflate(R.layout.float_widget, null)
     }
 

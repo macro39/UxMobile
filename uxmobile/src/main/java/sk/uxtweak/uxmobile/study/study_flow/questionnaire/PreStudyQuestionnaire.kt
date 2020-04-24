@@ -39,7 +39,7 @@ class PreStudyQuestionnaire : QuestionnaireBaseFragment() {
             (activity as StudyFlowFragmentManager).getData(this) as StudyQuestionnaire
 
         configure(
-            question.name,
+            getString(R.string.questionnaire_pre_study),
             question.instructions,
             question.questions,
             this

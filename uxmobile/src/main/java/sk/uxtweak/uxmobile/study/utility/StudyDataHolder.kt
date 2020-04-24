@@ -16,8 +16,6 @@ object StudyDataHolder {
     lateinit var tasks: List<StudyTask>
     var study: Study? = null
     var screeningQuestionnaire: StudyQuestionnaire? = null
-    var rejectMessage: StudyMessage =
-        StudyMessage(Constants.REJECT_MESSAGE_TITLE, Constants.REJECT_MESSAGE_CONTENT)
 
     fun getBackgroundColorPrimary(): String {
         return study?.studyBranding?.primaryColor!!

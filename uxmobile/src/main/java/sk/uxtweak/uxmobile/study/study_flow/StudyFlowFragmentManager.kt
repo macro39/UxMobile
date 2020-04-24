@@ -63,7 +63,7 @@ class StudyFlowFragmentManager : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        title = getString(R.string.plugin_name)
+        title = getString(R.string.appbar_title)
         setTheme(R.style.Theme_Base)
         setContentView(R.layout.activity_study_flow)
 
@@ -135,10 +135,10 @@ class StudyFlowFragmentManager : AppCompatActivity() {
     }
 
     /**
-     * Default en language set
+     * Set lang from constants
      */
     override fun attachBaseContext(newBase: Context?) {
-        super.attachBaseContext(ApplicationLanguageHelper.wrap(newBase!!, "en"))
+        super.attachBaseContext(ApplicationLanguageHelper.wrap(newBase!!, Constants.LANGUAGE))
     }
 
     /**
@@ -427,17 +427,20 @@ class StudyFlowFragmentManager : AppCompatActivity() {
                 return StudyDataHolder.study?.postStudyQuestionnaire!!
             }
             is RejectedMessage -> {
-                return StudyDataHolder.rejectMessage
+                return StudyMessage(
+                    getString(R.string.reject_title),
+                    getString(R.string.reject_content)
+                )
             }
             is WelcomeMessage -> {
                 return StudyMessage(
-                    Constants.WELCOME_MESSAGE_TITLE,
+                    getString(R.string.welcome) + " " + StudyDataHolder.study?.name,
                     StudyDataHolder.study?.welcomeMessage!!
                 )
             }
             is InstructionFragment -> {
                 return StudyMessage(
-                    Constants.INSTRUCTION_TITLE,
+                    getString(R.string.instructions),
                     StudyDataHolder.study?.instruction!!
                 )
             }
@@ -446,7 +449,7 @@ class StudyFlowFragmentManager : AppCompatActivity() {
             }
             is ThankYouMessage -> {
                 return StudyMessage(
-                    Constants.THANK_YOU_MESSAGE_TITLE,
+                    getString(R.string.thank_you),
                     StudyDataHolder.study?.thankYouMessage!!
                 )
             }

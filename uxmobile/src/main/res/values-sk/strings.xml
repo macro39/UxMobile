@@ -3,7 +3,7 @@
     <string name="global_message_title">Chceli by ste sa zucastnit studie?</string>
     <string name="yes">Áno</string>
     <string name="no">Nie</string>
-    <string name="later">Opytaj sa neskor</string>
+    <string name="later">Opýtaj sa neskôr</string>
     <string name="consent_title">Súhlasite s podmienkami používania?</string>
     <string name="next">Ďalej</string>
     <string name="question">"Otázka "</string>
@@ -32,4 +32,13 @@
     <string name="error_no_internet_conn">Žiadne internetové pripojenie. Prosím, zapnite WIFI/moiblné dáta a stlačte \"Skúsiť znova\".</string>
     <string name="cancel_and_end_study">Zrušiť a ukončiť štúdiu</string>
     <string name="try_again">Skúsiť znova</string>
+    <string name="welcome">Vitajte v štúdii</string>
+    <string name="thank_you">Ďakujeme, to je všetko!</string>
+    <string name="reject_title">Ďakujeme a dúfame, že sa stretneme znova!</string>
+    <string name="reject_content">Sme smutní, že odchádzate. Stále sa k nám môžete vrátiť, ak dostanete chuť na pomoc, ktorá dokáže zlepšiť túto aplikáciu!</string>
+    <string name="consent">**Pri integrácii UXMobile rozšírenia sa zbierajú tieto informácie:**</string>
+    <string name="questionnaire_segmentation">Segmentačný dotazník</string>
+    <string name="questionnaire_post_study">Dotazník po štúdii</string>
+    <string name="questionnaire_pre_study">Dotazník pred štúdiou</string>
+    <string name="appbar_title">UXMobile - sprievodca štúdiou</string>
 </resources>

@@ -130,7 +130,7 @@ class StudyFlowController(
         Log.d(TAG, "STUDY ACCEPTED - $accepted")
         if (accepted) {
             Log.d(TAG, "Accepted taking a part in study")
-            sessionManager.startRecording()
+            sessionManager.startRecording(StudyDataHolder.study?.studyId!!)
             // for first time
             if (!isInStudy) {
                 isInStudy = true
@@ -217,7 +217,7 @@ class StudyFlowController(
                 if (!isInStudy) {
                     showStudyFlow(onlyInstructions = false, endOfTask = false)
                 } else {
-                    sessionManager.startRecording()
+                    sessionManager.startRecording(StudyDataHolder.study?.studyId!!)
                     floatWidgetService.onCreate()
                 }
             }
