@@ -6,6 +6,7 @@ package sk.uxtweak.uxmobile.study
 open class Constants {
     companion object Constants {
         const val LANGUAGE = "sk"   // or en
+        const val CODE_DRAW_OVER_OTHER_APP_PERMISSION = 5469
         const val RECEIVER_IN_STUDY = "IN_STUDY"
         const val RECEIVER_STUDY_ENDED = "STUDY_ENDED"
         const val RECEIVER_STUDY_RESUME_AFTER_ONLY_INSTRUCTIONS_ENABLED =

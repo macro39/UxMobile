@@ -5,12 +5,17 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.activity_study_flow.*
@@ -19,7 +24,6 @@ import sk.uxtweak.uxmobile.study.Constants
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_END_OF_TASK
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_INSTRUCTIONS_ONLY_ENABLED
 import sk.uxtweak.uxmobile.study.Constants.Constants.EXTRA_IS_STUDY_SET
-import sk.uxtweak.uxmobile.study.float_widget.PermissionChecker
 import sk.uxtweak.uxmobile.study.model.StudyMessage
 import sk.uxtweak.uxmobile.study.study_flow.base.ConsentFragment
 import sk.uxtweak.uxmobile.study.study_flow.base.GlobalMessageFragment
@@ -39,14 +43,14 @@ import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
 /**
  * Created by Kamil Macek on 1.2.2020.
  */
-class StudyFlowFragmentManager : AppCompatActivity() {
+class StudyFlowFragmentManager : AppCompatActivity(),
+    ActivityCompat.OnRequestPermissionsResultCallback {
 
     companion object {
         private var setColorFromStudyConfig = false
     }
 
     private val manager = supportFragmentManager
-    private lateinit var permissionChecker: PermissionChecker
 
     private var isOnlyInstructionsDisplayed = false
     private var backNavEnabled = true
@@ -69,7 +73,6 @@ class StudyFlowFragmentManager : AppCompatActivity() {
 
 
         numberOfAvailableTasks = StudyDataHolder.numberOfTasks
-        permissionChecker = PermissionChecker(this)
 
         // when content changed, check if can scroll and set action button to bottom visible
         scrollView_study_flow.viewTreeObserver.addOnGlobalLayoutListener {
@@ -384,12 +387,39 @@ class StudyFlowFragmentManager : AppCompatActivity() {
 
     fun studyAccepted(accepted: Boolean) {
         if (accepted) {
-            permissionChecker.canDrawOverlay()
-            sendBroadcastStudyAccepted(accepted = true, ended = false)
-            finish()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (!Settings.canDrawOverlays(this)) {
+                    val intent = Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:$packageName")
+                    )
+                    startActivityForResult(intent, Constants.CODE_DRAW_OVER_OTHER_APP_PERMISSION)
+                } else {
+                    sendBroadcastStudyAccepted(accepted = true, ended = false)
+                    finish()
+                }
+            } else {
+                sendBroadcastStudyAccepted(accepted = true, ended = false)
+                finish()
+            }
         } else {
             sendBroadcastStudyAccepted(accepted = false, ended = true)
             finish()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == Constants.CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
+            if (Settings.canDrawOverlays(this)) {
+                Log.d("HAHA", "GRANTED")
+                sendBroadcastStudyAccepted(accepted = true, ended = false)
+                finish()
+            } else {
+                Log.d("HAHA", "REJECTED")
+                showRejectedFragment()
+            }
         }
     }
 
