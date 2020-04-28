@@ -9,8 +9,8 @@ import com.google.gson.annotations.SerializedName
 data class StudyMessageJson(
 
     @SerializedName("type")
-    val type: String = "type",
+    val type: String = "",
 
     @SerializedName("text")
-    val text: String = "text"
+    val text: String = ""
 )

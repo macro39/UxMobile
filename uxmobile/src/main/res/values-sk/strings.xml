@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="global_message_title">Chceli by ste sa zucastnit studie?</string>
+    <string name="global_message_title">Chceli by ste sa zúčastniť štúdie?</string>
     <string name="yes">Áno</string>
     <string name="no">Nie</string>
     <string name="later">Opýtaj sa neskôr</string>
-    <string name="consent_title">Súhlasite s podmienkami používania?</string>
+    <string name="consent_title">Súhlasíte s podmienkami používania?</string>
     <string name="next">Ďalej</string>
     <string name="question">"Otázka "</string>
     <string name="instructions">Inštrukcie</string>

@@ -1,6 +1,7 @@
 package sk.uxtweak.uxmobile.study.study_flow.questionnaire_option
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -34,6 +35,7 @@ class QuestionnaireOptionsCheckbox : QuestionnaireOptionsBaseFragment(),
     override fun addOptions() {
         for (i in question.questionOptions.indices) {
             val checkBox = CheckBox(activity as Context?)
+            checkBox.setTextColor(Color.BLACK)
 
             checkBox.id = i
             checkBox.text = question.questionOptions[i].option

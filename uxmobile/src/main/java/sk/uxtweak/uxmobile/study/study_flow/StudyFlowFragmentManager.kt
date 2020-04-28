@@ -32,7 +32,6 @@ import sk.uxtweak.uxmobile.study.study_flow.messages.RejectedMessage
 import sk.uxtweak.uxmobile.study.study_flow.messages.ThankYouMessage
 import sk.uxtweak.uxmobile.study.study_flow.messages.WelcomeMessage
 import sk.uxtweak.uxmobile.study.study_flow.questionnaire.PostStudyQuestionnaire
-import sk.uxtweak.uxmobile.study.study_flow.questionnaire.PostTaskQuestionnaire
 import sk.uxtweak.uxmobile.study.study_flow.questionnaire.PreStudyQuestionnaire
 import sk.uxtweak.uxmobile.study.study_flow.questionnaire.ScreeningQuestionnaire
 import sk.uxtweak.uxmobile.study.study_flow.task.TaskFragment
@@ -200,9 +199,7 @@ class StudyFlowFragmentManager : AppCompatActivity(),
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-
-        when (id) {
+        when (item.itemId) {
             R.id.button_reject_study_flow_action_bar -> {
                 val builder = AlertDialog.Builder(this, R.style.DialogTheme)
                 builder.setTitle(getString(R.string.plugin_name))
@@ -340,18 +337,26 @@ class StudyFlowFragmentManager : AppCompatActivity(),
                 }
             }
             is ScreeningQuestionnaire -> {
-                setColorFromStudyConfig = true
-                setColorFromConfig()
-                showFragment(WelcomeMessage())
+                if (StudyDataHolder.study?.welcomeMessage!!.isNotEmpty()) {
+                    setColorFromStudyConfig = true
+                    setColorFromConfig()
+                    showFragment(WelcomeMessage())
+                } else {
+                    showNextFragment(WelcomeMessage())
+                }
             }
             is WelcomeMessage -> {
-                showInstructions()
+                if (StudyDataHolder.study?.instruction!!.isNotEmpty()) {
+                    showInstructions()
+                } else {
+                    showNextFragment(InstructionFragment())
+                }
             }
             is InstructionFragment -> {
                 if (isOnlyInstructionsDisplayed) {
                     onBackPressed()
                 } else {
-                    if (StudyDataHolder.study?.preStudyQuestionnaire != null) {
+                    if (StudyDataHolder.study?.preStudyQuestionnaire != null && StudyDataHolder.study?.preStudyQuestionnaire!!.questions.isNotEmpty()) {
                         showFragment(PreStudyQuestionnaire())
                     } else {
                         showNextFragment(PreStudyQuestionnaire())
@@ -360,18 +365,12 @@ class StudyFlowFragmentManager : AppCompatActivity(),
             }
             is PreStudyQuestionnaire -> {
                 disableEveryBackAction()
-                showFragment(TaskFragment())
-            }
-            is TaskFragment -> {
-                enableBackButton()
-                showFragment(PostStudyQuestionnaire())
-            }
-            is PostTaskQuestionnaire -> {
-                // last task
-                if (numberOfAvailableTasks == 0) {
-                    showFragment(PostStudyQuestionnaire())
-                } else {
+
+                // TODO what to do when no tasks?
+                if (StudyDataHolder.tasks.isNotEmpty()) {
                     showFragment(TaskFragment())
+                } else {
+                    onTaskCompletion()
                 }
             }
             is PostStudyQuestionnaire -> {

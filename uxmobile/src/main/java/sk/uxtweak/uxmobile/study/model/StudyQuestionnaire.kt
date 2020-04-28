@@ -9,10 +9,10 @@ import com.google.gson.annotations.SerializedName
 data class StudyQuestionnaire(
 
     @SerializedName("name")
-    val name: String,
+    val name: String = "",
 
     @SerializedName("instructions")
-    val instructions: String,
+    val instructions: String = "",
 
     @SerializedName("questions")
     val questions: List<StudyQuestion>

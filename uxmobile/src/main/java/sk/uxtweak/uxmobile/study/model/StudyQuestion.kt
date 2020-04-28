@@ -13,16 +13,16 @@ data class StudyQuestion(
     val id: Int = 0,
 
     @SerializedName("name")
-    val name: String = "QUESTION",
+    val name: String = "",
 
     @SerializedName("question_required")
     val questionRequired: Boolean = false,
 
     @SerializedName("description")
-    val description: String = "DESCRIPTION",
+    val description: String = "",
 
     @SerializedName("answer_type")
-    val answerType: String = Constants.Constants.QUESTION_TYPE_INPUT,
+    val answerType: String = Constants.QUESTION_TYPE_INPUT,
 
     @SerializedName("answer_required")
     val answerRequired: Boolean = false,
