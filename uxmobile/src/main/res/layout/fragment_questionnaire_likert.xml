@@ -12,6 +12,7 @@
 
         <RadioButton
             android:id="@+id/radioButton_disagree"
+            style="@style/Theme.Base"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -24,6 +25,7 @@
 
         <RadioButton
             android:id="@+id/radioButton_strong_disagree"
+            style="@style/Theme.Base"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -36,6 +38,7 @@
 
         <RadioButton
             android:id="@+id/radioButton_more_or_less_disagree"
+            style="@style/Theme.Base"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -48,6 +51,7 @@
 
         <RadioButton
             android:id="@+id/radioButton_neutral"
+            style="@style/Theme.Base"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -61,6 +65,7 @@
 
         <RadioButton
             android:id="@+id/radioButton_more_or_less_agree"
+            style="@style/Theme.Base"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -73,6 +78,7 @@
 
         <RadioButton
             android:id="@+id/radioButton_agree"
+            style="@style/Theme.Base"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -85,6 +91,7 @@
 
         <RadioButton
             android:id="@+id/radioButton_strong_agree"
+            style="@style/Theme.Base"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
