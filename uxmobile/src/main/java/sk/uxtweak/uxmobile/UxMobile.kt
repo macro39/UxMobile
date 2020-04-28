@@ -38,6 +38,7 @@ import sk.uxtweak.uxmobile.util.logi
 import sk.uxtweak.uxmobile.util.logw
 import java.io.File
 import java.io.FileNotFoundException
+import java.lang.NullPointerException
 
 /**
  * Main class that initializes agent for tracking events. To start the module, call [start].
@@ -84,7 +85,10 @@ object UxMobile {
         try {
             startInternal(loadApiKeyFromManifest())
         } catch (exception: IllegalStateException) {
-            Log.e(TAG, "Cannot load API key! Check if you have your API key declared in Android Manifest")
+            Log.e(
+                TAG,
+                "Cannot load API key! Check if you have your API key declared in Android Manifest"
+            )
         }
     }
 
@@ -94,15 +98,31 @@ object UxMobile {
         try {
             startInternal(loadApiKeyFromStorage())
         } catch (exception: IllegalStateException) {
-            logw(TAG, "Permission to read from external storage is not granted! (${exception.message})")
+            logw(
+                TAG,
+                "Permission to read from external storage is not granted! (${exception.message})"
+            )
             ForegroundActivityHolder.register(ApplicationLifecycle)
-            DialogUtils.showDialog("Permission denied", "Please grant permission to read from external storage and then restart application.") {
-                ActivityCompat.requestPermissions(it, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSION_REQUEST_CODE)
+            DialogUtils.showDialog(
+                "Permission denied",
+                "Please grant permission to read from external storage and then restart application."
+            ) {
+                ActivityCompat.requestPermissions(
+                    it,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    PERMISSION_REQUEST_CODE
+                )
             }
         } catch (exception: FileNotFoundException) {
             logw(TAG, "File with API key not found! ((${exception.message}))")
             ForegroundActivityHolder.register(ApplicationLifecycle)
-            DialogUtils.showDialog("API key not found", "File with API key not found, please create it and restart application. (${File(Environment.getExternalStorageDirectory(), API_KEY_FILE).absolutePath})")
+            DialogUtils.showDialog(
+                "API key not found",
+                "File with API key not found, please create it and restart application. (${File(
+                    Environment.getExternalStorageDirectory(),
+                    API_KEY_FILE
+                ).absolutePath})"
+            )
         }
     }
 
@@ -171,44 +191,46 @@ object UxMobile {
                         initializeJson
                     )
 
-                try {
-                    val jsonResponse = JSONObject(response.toString())
+                val jsonResponse = JSONObject(response.toString())
 
-                    when (jsonResponse.optString("event")) {
-                        Constants.ADONIS_EVENT_SEND_QUESTIONNAIRE -> {
-                            val studyQuestionnaire = Gson().fromJson(
-                                jsonResponse.optJSONObject("data").optJSONObject("data").toString(),
-                                StudyQuestionnaire::class.java
-                            )
+                when (jsonResponse.optString("event")) {
+                    Constants.ADONIS_EVENT_SEND_QUESTIONNAIRE -> {
+                        val studyQuestionnaire = Gson().fromJson(
+                            jsonResponse.optJSONObject("data").optJSONObject("data").toString(),
+                            StudyQuestionnaire::class.java
+                        )
 
-                            StudyDataHolder.screeningQuestionnaire = studyQuestionnaire
+                        StudyDataHolder.screeningQuestionnaire = studyQuestionnaire
 
-                            startStudyFlow()
-                        }
-                        Constants.ADONIS_EVENT_SEND_STUDY -> {
-                            val study = Gson().fromJson(
-                                jsonResponse.optJSONObject("data").optJSONObject("data").toString(),
-                                Study::class.java
-                            )
-
-                            StudyDataHolder.setNewStudy(study)
-
-                            startStudyFlow()
-                        }
-                        Constants.ADONIS_EVENT_QUIT -> {
-                            Log.e(TAG, jsonResponse.optJSONObject("data").optString("error"))
-                            return@launch
-                        }
-                        else -> {
-                            Log.e(TAG, "Unexpected error when sending initialize: $jsonResponse")
-                            return@launch
-                        }
+                        startStudyFlow()
                     }
-                } catch (e: JSONException) {
-                    Log.e(TAG, "Cannot parse response: " + e.message)
+                    Constants.ADONIS_EVENT_SEND_STUDY -> {
+                        val study = Gson().fromJson(
+                            jsonResponse.optJSONObject("data").optJSONObject("data").toString(),
+                            Study::class.java
+                        )
+
+                        StudyDataHolder.setNewStudy(study)
+
+                        startStudyFlow()
+                    }
+                    Constants.ADONIS_EVENT_QUIT -> {
+                        Log.e(TAG, jsonResponse.optJSONObject("data").optString("error"))
+                        adonisWebSocketClient.closeConnection()
+                        return@launch
+                    }
+                    else -> {
+                        Log.e(TAG, "Unexpected error when sending initialize: $jsonResponse")
+                        adonisWebSocketClient.closeConnection()
+                        return@launch
+                    }
                 }
+            } catch (e: NullPointerException) {
+                Log.e(TAG, "Cannot parse response: " + e.message)
+                adonisWebSocketClient.closeConnection()
             } catch (e: Exception) {
-                Log.e(TAG, "Can't send initialize, no internet connection!")
+                Log.e(TAG, "Error occurred: " + e.message)
+                adonisWebSocketClient.closeConnection()
             }
         }
 

@@ -16,6 +16,7 @@ object StudyDataHolder {
     lateinit var tasks: List<StudyTask>
     var study: Study? = null
     var screeningQuestionnaire: StudyQuestionnaire? = null
+    var rejectMessage: String? = null
 
     fun getBackgroundColorPrimary(): String {
         return study?.studyBranding?.primaryColor!!

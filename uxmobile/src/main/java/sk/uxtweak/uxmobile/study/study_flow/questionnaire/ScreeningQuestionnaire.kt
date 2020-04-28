@@ -17,6 +17,7 @@ import org.json.JSONObject
 import sk.uxtweak.uxmobile.R
 import sk.uxtweak.uxmobile.UxMobile
 import sk.uxtweak.uxmobile.study.Constants
+import sk.uxtweak.uxmobile.study.StudyFlowController
 import sk.uxtweak.uxmobile.study.model.QuestionAnswer
 import sk.uxtweak.uxmobile.study.model.Study
 import sk.uxtweak.uxmobile.study.model.StudyQuestionnaire
@@ -137,11 +138,27 @@ class ScreeningQuestionnaire : QuestionnaireBaseFragment() {
                     } catch (e: Exception) {
                         Log.e(TAG, "Error: " + jsonResponse.optJSONObject("data").optString("error"))
 
+                        val sender = StudyFlowController.sender
+
+                        if (sender.isRunning) {
+                            sender.stop()
+                        }
+
                         GlobalScope.launch(Dispatchers.Main) {
                             (activity as StudyFlowFragmentManager).showRejectedFragment()
                         }
                         return
                     }
+                }
+                Constants.ADONIS_EVENT_QUIT -> {
+                    val message = jsonResponse.optJSONObject("data").optJSONObject("data").getString("message")
+
+                    StudyDataHolder.rejectMessage = message
+
+                    GlobalScope.launch(Dispatchers.Main) {
+                        (activity as StudyFlowFragmentManager).showRejectedFragment()
+                    }
+                    return
                 }
                 else -> {
                     GlobalScope.launch(Dispatchers.Main) {
@@ -153,6 +170,12 @@ class ScreeningQuestionnaire : QuestionnaireBaseFragment() {
         } catch (e: JSONException) {
             Log.e(TAG, "Error occurred: " + e.message)
             (activity as StudyFlowFragmentManager).showRejectedFragment()
+
+            val sender = StudyFlowController.sender
+
+            if (sender.isRunning) {
+                sender.stop()
+            }
         }
     }
 }

@@ -15,10 +15,9 @@ abstract class QuestionAnswerDatabase : RoomDatabase() {
 
     companion object {
         fun create(context: Context): QuestionAnswerDatabase {
-            return Room.databaseBuilder(
+            return Room.inMemoryDatabaseBuilder(
                     context,
-                    QuestionAnswerDatabase::class.java,
-                    "AnswerQuestionDatabase"
+                    QuestionAnswerDatabase::class.java
                 )
                 .build()
         }

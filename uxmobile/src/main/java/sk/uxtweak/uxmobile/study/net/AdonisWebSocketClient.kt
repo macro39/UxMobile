@@ -117,6 +117,7 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
             isConnected = false
             isJoined = false
             this.close()
+            Log.d(TAG, "Socket closed")
         }
     }
 
@@ -146,6 +147,8 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
                                 TAG,
                                 "Try to send data with wrong JSON format, data: $e"
                             )
+                        } catch (e: java.lang.Exception) {
+                            Log.d("HAHA", e.message)
                         }
                     }
                 }
@@ -195,10 +198,26 @@ class AdonisWebSocketClient(url: String) : WebSocketClient(URI(url)) {
                         resumeContinuation(data)
                     }
                     Constants.ADONIS_EVENT_SEND_QUESTIONNAIRE -> {
-                        resumeContinuation(data)
+                        try {
+                            if (data.getJSONObject("data")
+                                    .getString("error") == "no questionnaire"
+                            ) {
+                                Log.d(TAG, "No questionnaire found")
+                            }
+                        } catch (e: java.lang.Exception) {
+                            Log.d(TAG, e.message)
+                            resumeContinuation(data)
+                        }
                     }
                     Constants.ADONIS_EVENT_SEND_STUDY -> {
-                        resumeContinuation(data)
+                        try {
+                            if (data.getJSONObject("data").getString("error") == "no studies") {
+                                Log.d(TAG, "No studies found")
+                            }
+                        } catch (e: java.lang.Exception) {
+                            Log.d(TAG, e.message)
+                            resumeContinuation(data)
+                        }
                     }
                     Constants.ADONIS_EVENT_SEND_STUDY_ANSWERS -> {
                         resumeSendAnswersContinuation(data)

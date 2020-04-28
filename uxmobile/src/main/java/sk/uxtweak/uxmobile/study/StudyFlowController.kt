@@ -34,6 +34,7 @@ class StudyFlowController(
 
     companion object {
         lateinit var database: QuestionAnswerDatabase
+        lateinit var sender: QuestionAnswerSender
     }
 
     private val TAG = this::class.java.simpleName
@@ -45,7 +46,6 @@ class StudyFlowController(
     private var isStarted = false
     private var isStudySet = true
 
-    private val sender: QuestionAnswerSender
     private val floatWidgetService: FloatWidgetService
 
     private lateinit var broadcastReceiver: BroadcastReceiver
@@ -67,15 +67,16 @@ class StudyFlowController(
         database = QuestionAnswerDatabase.create(context)
         sender = QuestionAnswerSender(UxMobile.adonisWebSocketClient, database)
 
-        if (!sender.isRunning) {
-            sender.start()
-        }
-
         Log.d(TAG, "Configured")
     }
 
     fun start() {
         isStarted = true
+
+        if (!sender.isRunning) {
+            sender.start()
+        }
+
         studyStateResolver()
     }
 
@@ -153,8 +154,7 @@ class StudyFlowController(
         floatWidgetService.onDestroy()
         registerBroadcastReciever(false)
 
-//        UxMobile.adonisWebSocketClient.closeConnection()
-//        sender.stop()
+        sender.lastDataToSend = true
 
         Log.d(TAG, "STUDY ENDED")
     }

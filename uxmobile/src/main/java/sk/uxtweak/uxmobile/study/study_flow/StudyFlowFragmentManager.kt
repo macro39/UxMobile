@@ -251,7 +251,7 @@ class StudyFlowFragmentManager : AppCompatActivity(),
 //        showFragment(PostTaskQuestionnaire())
         // last task
         if (numberOfAvailableTasks == 0) {
-            if (StudyDataHolder.study?.postStudyQuestionnaire != null) {
+            if (StudyDataHolder.study?.postStudyQuestionnaire != null && !StudyDataHolder.study?.postStudyQuestionnaire!!.questions.isNullOrEmpty()) {
                 showFragment(PostStudyQuestionnaire())
             } else {
                 showNextFragment(PostStudyQuestionnaire())
@@ -356,7 +356,7 @@ class StudyFlowFragmentManager : AppCompatActivity(),
                 if (isOnlyInstructionsDisplayed) {
                     onBackPressed()
                 } else {
-                    if (StudyDataHolder.study?.preStudyQuestionnaire != null && StudyDataHolder.study?.preStudyQuestionnaire!!.questions.isNotEmpty()) {
+                    if (StudyDataHolder.study?.preStudyQuestionnaire != null && !StudyDataHolder.study?.preStudyQuestionnaire!!.questions.isNullOrEmpty()) {
                         showFragment(PreStudyQuestionnaire())
                     } else {
                         showNextFragment(PreStudyQuestionnaire())
@@ -456,10 +456,19 @@ class StudyFlowFragmentManager : AppCompatActivity(),
                 return StudyDataHolder.study?.postStudyQuestionnaire!!
             }
             is RejectedMessage -> {
-                return StudyMessage(
-                    getString(R.string.reject_title),
-                    getString(R.string.reject_content)
-                )
+                val message = StudyDataHolder.rejectMessage
+
+                return if (message != null) {
+                    StudyMessage(
+                        getString(R.string.reject_title),
+                        message
+                    )
+                } else {
+                    StudyMessage(
+                        getString(R.string.reject_title),
+                        getString(R.string.reject_content)
+                    )
+                }
             }
             is WelcomeMessage -> {
                 return StudyMessage(

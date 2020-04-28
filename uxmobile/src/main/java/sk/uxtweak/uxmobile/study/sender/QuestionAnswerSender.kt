@@ -3,6 +3,7 @@ package sk.uxtweak.uxmobile.study.sender
 import android.util.Log
 import kotlinx.coroutines.*
 import org.json.JSONObject
+import sk.uxtweak.uxmobile.UxMobile
 import sk.uxtweak.uxmobile.core.withFixedDelay
 import sk.uxtweak.uxmobile.study.net.AdonisWebSocketClient
 import sk.uxtweak.uxmobile.study.persister.QuestionAnswerDatabase
@@ -23,16 +24,21 @@ class QuestionAnswerSender(
 
     private lateinit var job: Job
 
+    var lastDataToSend = false
+
     private val senderJob: suspend CoroutineScope.() -> Unit = {
         sendQuestionAnswers()
     }
 
     fun start() {
         isRunning = true
+        Log.d(TAG, "Sender start")
         job = GlobalScope.withFixedDelay(Dispatchers.IO, 10000, senderJob)
     }
 
     fun stop() = runBlocking {
+        Log.d(TAG, "Sender stop")
+        UxMobile.adonisWebSocketClient.closeConnection()
         stopAndJoin()
     }
 
@@ -46,6 +52,11 @@ class QuestionAnswerSender(
 
         if (questionAnswers.isEmpty()) {
             Log.d(TAG, "No data to send")
+
+            if (lastDataToSend) {
+                stop()
+            }
+
             return
         }
 
@@ -69,6 +80,10 @@ class QuestionAnswerSender(
             } catch (e: Exception) {
                 Log.e(TAG, "Cant't send answers from db")
             }
+        }
+
+        if (lastDataToSend) {
+            stop()
         }
     }
 }

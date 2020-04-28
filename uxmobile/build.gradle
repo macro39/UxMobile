@@ -31,12 +31,12 @@ android {
             consumerProguardFiles "proguard-rules.pro"
 //            buildConfigField("String", "COLLECTOR_URL", "\"ws://192.168.0.106:8000/socketcluster/\"")
             buildConfigField("String", "COLLECTOR_URL", "\"wss://plugin.mobeux.tk/socketcluster\"")
-            buildConfigField("String", "MAIN_URL", "\"wss://dev-backend.mobeux.tk/adonis-ws\"")
+            buildConfigField("String", "MAIN_URL", "\"wss://backend.mobeux.tk/adonis-ws\"")
         }
         debug {
 //            buildConfigField("String", "COLLECTOR_URL", "\"ws://192.168.0.106:8000/socketcluster/\"")
             buildConfigField("String", "COLLECTOR_URL", "\"wss://plugin.mobeux.tk/socketcluster\"")
-            buildConfigField("String", "MAIN_URL", "\"wss://dev-backend.mobeux.tk/adonis-ws\"")
+            buildConfigField("String", "MAIN_URL", "\"wss://backend.mobeux.tk/adonis-ws\"")
         }
     }
     compileOptions {
