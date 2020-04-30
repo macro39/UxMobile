@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="net_promoter_below_text">
+        <item>Vôbec nie</item>
+        <item></item>
+        <item></item>
+        <item></item>
+        <item></item>
+        <item>Neutrálny</item>
+        <item></item>
+        <item></item>
+        <item></item>
+        <item></item>
+        <item>Určite áno</item>
+    </string-array>
+</resources>
