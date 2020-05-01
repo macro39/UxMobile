@@ -29,22 +29,27 @@ import sk.uxtweak.uxmobile.study.utility.StudyDataHolder
  */
 class StudyFlowController(
     val context: Context,
-    val sessionManager: SessionManager
+    private val sessionManager: SessionManager
 ) : LifecycleObserver, FloatWidgetClickObserver {
 
     companion object {
         lateinit var database: QuestionAnswerDatabase
         lateinit var sender: QuestionAnswerSender
+        var isStudySet = true                   // when no tasks in study
     }
 
     private val TAG = this::class.java.simpleName
 
-    private var isInStudy = false
-    private var studyEnded = false
-    private var minimizedWhenInStudyFlow = false
+    private var isOnlyRecording = false         // when recording, no tasks in study
 
-    private var isStarted = false
-    private var isStudySet = true
+    private var isTakingPartInStudy = false
+    private var studyAlreadyEnded = false
+
+    private var isMinimizedWhenInStudyFlow = false
+
+    private var isControllerStarted = false
+
+    private var isWaitingForNextAskForTakingPartInStudy = false
 
     private val floatWidgetService: FloatWidgetService
 
@@ -71,10 +76,15 @@ class StudyFlowController(
     }
 
     fun start() {
-        isStarted = true
+        isControllerStarted = true
 
-        if (!sender.isRunning) {
-            sender.start()
+        if (StudyDataHolder.study != null && StudyDataHolder.tasks.isNullOrEmpty()) {
+            isStudySet = false
+        } else {
+            isStudySet = true
+            if (!sender.isRunning) {
+                sender.start()
+            }
         }
 
         studyStateResolver()
@@ -83,8 +93,6 @@ class StudyFlowController(
     private fun setupBroadcastReceiver() {
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(contxt: Context?, intent: Intent?) {
-                Log.d(TAG, "BROADCAST RECEIVED")
-
                 val action = intent?.action
 
                 if (Constants.RECEIVER_IN_STUDY == action) {
@@ -107,7 +115,12 @@ class StudyFlowController(
                         return
                     }
                     if (intent.getBooleanExtra(Constants.RECEIVER_IN_STUDY, true)) {
-                        studyAccepted(true)
+                        if (!isStudySet) {
+                            startOnlyRecording()
+                            return
+                        } else {
+                            studyAccepted(true)
+                        }
                     } else {
                         studyAccepted(false)
                     }
@@ -116,12 +129,25 @@ class StudyFlowController(
         }
     }
 
-    private fun registerBroadcastReciever(register: Boolean) {
+    private fun registerBroadcastReceiver(register: Boolean) {
         if (register) {
             context.registerReceiver(broadcastReceiver, IntentFilter(Constants.RECEIVER_IN_STUDY))
         } else {
             context.unregisterReceiver(broadcastReceiver)
         }
+    }
+
+    private fun startOnlyRecording() {
+        Log.d(TAG, "Only recording, no tasks found")
+        isOnlyRecording = true
+
+        // end sender and close socket
+        if (sender.isRunning) {
+            sender.stop()
+        }
+        UxMobile.adonisWebSocketClient.closeConnection()
+
+        startOnlyRecording(true)
     }
 
     /**
@@ -133,8 +159,8 @@ class StudyFlowController(
             Log.d(TAG, "Accepted taking a part in study")
             sessionManager.startRecording(StudyDataHolder.study?.studyId!!)
             // for first time
-            if (!isInStudy) {
-                isInStudy = true
+            if (!isTakingPartInStudy) {
+                isTakingPartInStudy = true
                 floatWidgetService.onCreate()
                 floatWidgetService.setVisibility(true)
             } else {
@@ -149,12 +175,16 @@ class StudyFlowController(
     }
 
     private fun studyEnded() {
-        isInStudy = false
-        studyEnded = true
+        isTakingPartInStudy = false
+        studyAlreadyEnded = true
         floatWidgetService.onDestroy()
-        registerBroadcastReciever(false)
+        registerBroadcastReceiver(false)
 
-        sender.lastDataToSend = true
+        if (sender.isRunning) {
+            sender.lastDataToSend = true
+        } else {
+            UxMobile.adonisWebSocketClient.closeConnection()
+        }
 
         Log.d(TAG, "STUDY ENDED")
     }
@@ -167,7 +197,7 @@ class StudyFlowController(
 
         // set executed task as accomplished
         val selectedStudyTask: StudyTask =
-            StudyDataHolder.tasks?.single { s -> s.name == StudyDataHolder.doingTaskWithName }!!
+            StudyDataHolder.tasks.single { s -> s.name == StudyDataHolder.doingTaskWithName }
         selectedStudyTask.accomplished = true
         selectedStudyTask.endedSuccessful = successfully
 
@@ -186,13 +216,13 @@ class StudyFlowController(
     }
 
     override fun onClick() {
-        if (isInStudy) {
+        if (isTakingPartInStudy) {
             floatWidgetService.changeFloatButtonState(false)
         }
     }
 
     private fun showStudyFlow(onlyInstructions: Boolean, endOfTask: Boolean) {
-        registerBroadcastReciever(true)
+        registerBroadcastReceiver(true)
         val intent = Intent(context, StudyFlowFragmentManager::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         intent.putExtra(EXTRA_IS_STUDY_SET, isStudySet)
@@ -202,19 +232,21 @@ class StudyFlowController(
     }
 
     private fun waitForNextAskForTakingPartInStudy() {
+        isWaitingForNextAskForTakingPartInStudy = true
         Handler().postDelayed({
+            isWaitingForNextAskForTakingPartInStudy = false
             studyStateResolver()
         }, 3000)
     }
 
     private fun studyStateResolver() {
-        if (!studyEnded) {
-            registerBroadcastReciever(true)
+        if (!studyAlreadyEnded) {
+            registerBroadcastReceiver(true)
 
-            if (minimizedWhenInStudyFlow) {
-                minimizedWhenInStudyFlow = false
+            if (isMinimizedWhenInStudyFlow) {
+                isMinimizedWhenInStudyFlow = false
             } else {
-                if (!isInStudy) {
+                if (!isTakingPartInStudy) {
                     showStudyFlow(onlyInstructions = false, endOfTask = false)
                 } else {
                     sessionManager.startRecording(StudyDataHolder.study?.studyId!!)
@@ -224,8 +256,25 @@ class StudyFlowController(
         }
     }
 
+    private fun startOnlyRecording(start: Boolean) {
+        if (start) {
+            sessionManager.startRecording(null)
+        } else {
+            sessionManager.stopRecording()
+        }
+    }
+
     override fun onFirstActivityStarted(activity: Activity) {
-        if (isStarted) {
+        if (isWaitingForNextAskForTakingPartInStudy) {
+            return
+        }
+
+        if (!isStudySet && isOnlyRecording) {
+            startOnlyRecording(true)
+            return
+        }
+
+        if (isControllerStarted) {
             studyStateResolver()
         }
     }
@@ -237,16 +286,25 @@ class StudyFlowController(
     }
 
     override fun onLastActivityStopped(activity: Activity) {
-        // if user minimize app when study flow is on
-        if (StudyFlowFragmentManager::class.qualifiedName.equals(activity.localClassName)) {
-            minimizedWhenInStudyFlow = true
+        if (isWaitingForNextAskForTakingPartInStudy) {
             return
         }
 
-        if (!studyEnded && isInStudy) {
+        if (!isStudySet && isOnlyRecording) {
+            startOnlyRecording(false)
+            return
+        }
+
+        // if user minimize app when study flow is on
+        if (StudyFlowFragmentManager::class.qualifiedName.equals(activity.localClassName)) {
+            isMinimizedWhenInStudyFlow = true
+            return
+        }
+
+        if (isTakingPartInStudy && !studyAlreadyEnded) {
             sessionManager.stopRecording()
             floatWidgetService.onDestroy()
-            registerBroadcastReciever(false)
+            registerBroadcastReceiver(false)
         }
     }
 
