@@ -133,7 +133,12 @@ class ScreeningQuestionnaire : QuestionnaireBaseFragment() {
 
                         progressBar_questionnaire.visibility = View.GONE
 
-                        (activity as StudyFlowFragmentManager).showNextFragment(this@ScreeningQuestionnaire)
+                        if (study.studyTasks.isNullOrEmpty()) {
+                            StudyFlowController.isStudySet = false
+                            (activity as StudyFlowFragmentManager).startOnlyRecording()
+                        } else {
+                            (activity as StudyFlowFragmentManager).showNextFragment(this@ScreeningQuestionnaire)
+                        }
                         return
                     } catch (e: Exception) {
                         Log.e(TAG, "Error: " + jsonResponse.optJSONObject("data").optString("error"))

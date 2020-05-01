@@ -132,7 +132,8 @@ class StudyFlowFragmentManager : AppCompatActivity(),
             }
         } else {
             isStudySet = false
-            // TODO only recording - consent, global message, recording without float button
+            // only recording - consent, global message, recording without float button
+            showConsent()
         }
     }
 
@@ -324,6 +325,10 @@ class StudyFlowFragmentManager : AppCompatActivity(),
                 showGlobalMessage()
             }
             is GlobalMessageFragment -> {
+                if (!isStudySet) {
+                    startOnlyRecording()
+                    return
+                }
                 if (StudyDataHolder.study != null) {
                     setColorFromStudyConfig = true
                     setColorFromConfig()
@@ -365,8 +370,6 @@ class StudyFlowFragmentManager : AppCompatActivity(),
             }
             is PreStudyQuestionnaire -> {
                 disableEveryBackAction()
-
-                // TODO what to do when no tasks?
                 if (StudyDataHolder.tasks.isNotEmpty()) {
                     showFragment(TaskFragment())
                 } else {
@@ -382,6 +385,11 @@ class StudyFlowFragmentManager : AppCompatActivity(),
                 finish()
             }
         }
+    }
+
+    fun startOnlyRecording() {
+        sendBroadcastStudyAccepted(accepted = true)
+        finish()
     }
 
     fun studyAccepted(accepted: Boolean) {
