@@ -31,12 +31,6 @@ class DebugActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.menuClose -> finish()
-            R.id.menuLog -> {
-                supportFragmentManager.commit {
-                    replace(R.id.fragmentContainer, DebugLogFragment.newInstance(), DebugLogFragment.TAG)
-                    addToBackStack(DebugLogFragment.TAG)
-                }
-            }
         }
         return super.onOptionsItemSelected(item)
     }
