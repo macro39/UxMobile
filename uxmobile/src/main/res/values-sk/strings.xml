@@ -41,4 +41,5 @@
     <string name="questionnaire_post_study">Dotazník po štúdii</string>
     <string name="questionnaire_pre_study">Dotazník pred štúdiou</string>
     <string name="appbar_title">UXMobile - sprievodca štúdiou</string>
+    <string name="task">Úloha</string>
 </resources>

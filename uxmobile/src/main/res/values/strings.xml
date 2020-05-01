@@ -41,4 +41,5 @@
     <string name="questionnaire_post_study">Post-study questionnaire</string>
     <string name="questionnaire_pre_study">Pre-study questionnaire</string>
     <string name="appbar_title">UXMobile - study guide</string>
+    <string name="task">Task</string>
 </resources>

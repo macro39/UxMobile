@@ -38,7 +38,7 @@ class TaskFragment : Fragment() {
 
         textView_task_name.text = currentTask.name
         textView_task_number.text =
-            "Task " + (tasks.size - StudyDataHolder.numberOfTasks + 1) + "/" + tasks.size
+            this.getString(R.string.task) + " " + (tasks.size - StudyDataHolder.numberOfTasks + 1) + "/" + tasks.size
         textView_task_description.text = Bypass().markdownToSpannable(currentTask.description)
 
         button_task_admit.setOnClickListener {
