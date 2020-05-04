@@ -3,6 +3,7 @@ package sk.uxtweak.uxmobile.study.study_flow
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -70,6 +71,7 @@ class StudyFlowFragmentManager : AppCompatActivity(),
         setTheme(R.style.Theme_Base)
         setContentView(R.layout.activity_study_flow)
 
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
 
         numberOfAvailableTasks = StudyDataHolder.numberOfTasks
 
