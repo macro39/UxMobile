@@ -422,11 +422,9 @@ class StudyFlowFragmentManager : AppCompatActivity(),
 
         if (requestCode == Constants.CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
             if (Settings.canDrawOverlays(this)) {
-                Log.d("HAHA", "GRANTED")
                 sendBroadcastStudyAccepted(accepted = true, ended = false)
                 finish()
             } else {
-                Log.d("HAHA", "REJECTED")
                 showRejectedFragment()
             }
         }

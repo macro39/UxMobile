@@ -55,7 +55,7 @@ class SessionManager(application: Application) {
         connectionManager.start()
     }
 
-    fun startRecording(studyId: Int?) = ForegroundScope.launch(Dispatchers.Main) {
+    fun startRecording(studyId: Int?) = GlobalScope.launch(Dispatchers.Main) {
         logd(TAG, "Starting recording")
         persister.start(studyId)
     }
