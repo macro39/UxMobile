@@ -7,19 +7,23 @@ import android.os.Build
 import android.util.Log
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import sk.uxtweak.uxmobile.BuildConfig
 
 class VideoFormat(
-    val width: Int,
-    val height: Int,
+    width: Int,
+    height: Int,
     val frameRate: Int = DEFAULT_FRAME_RATE,
     val bitRate: Int = DEFAULT_BIT_RATE,
     iFrameInterval: Int = DEFAULT_I_FRAME_INTERVAL
 ) {
+    val width = if (width % 2 == 1) width + 1 else width
+    val height = if (height % 2 == 1) height + 1 else height
     val frameTime = 1000L / frameRate
 
-    private val mediaFormat = MediaFormat.createVideoFormat(VIDEO_FORMAT, width, height)
+    private val mediaFormat = MediaFormat.createVideoFormat(VIDEO_FORMAT, this.width, this.height)
 
     init {
+
         mediaFormat.setInteger(
             MediaFormat.KEY_COLOR_FORMAT,
             MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
@@ -28,8 +32,11 @@ class VideoFormat(
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, frameRate)
         mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, iFrameInterval)
 
-        GlobalScope.launch {
-            printFormats()
+        @Suppress("ConstantConditionIf")
+        if (BuildConfig.TEST_MODE) {
+            GlobalScope.launch {
+                printFormats()
+            }
         }
     }
 
