@@ -36,7 +36,7 @@ android {
             buildConfigField("String", "MAIN_URL", "\"wss://backend.mobeux.tk/adonis-ws\"")
         }
         debug {
-            buildConfigField("boolean", "TEST_MODE", "false")
+            buildConfigField("boolean", "TEST_MODE", "true")
             buildConfigField("Integer", "TEST_MODE_STUDY_ID", "null")
 //            buildConfigField("String", "COLLECTOR_URL", "\"ws://192.168.0.106:8000/socketcluster/\"")
             buildConfigField("String", "COLLECTOR_URL", "\"wss://plugin.mobeux.tk/socketcluster\"")
