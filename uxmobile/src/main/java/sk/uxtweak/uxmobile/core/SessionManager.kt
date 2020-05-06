@@ -38,10 +38,28 @@ class SessionManager(application: Application) {
         override fun onFirstActivityStarted(activity: Activity) {
             generateSessionId()
             logd(TAG, "Session started (generated session ID: $sessionId)")
+
+            @Suppress("ConstantConditionIf")
+            if (BuildConfig.TEST_MODE) {
+                logd(TAG, "Starting recording in test mode")
+                startRecording(BuildConfig.TEST_MODE_STUDY_ID)
+            }
+        }
+
+        override fun onLastActivityStopped(activity: Activity) {
+            @Suppress("ConstantConditionIf")
+            if (BuildConfig.TEST_MODE) {
+                logd(TAG, "Stopping recording in test mode")
+                stopRecording()
+            }
         }
     }
 
     init {
+        @Suppress("ConstantConditionIf")
+        if (BuildConfig.TEST_MODE) {
+            logd(TAG, "Starting plugin in test mode")
+        }
         ApplicationLifecycle.addObserver(observer)
 
         val size = application.displaySize
@@ -55,7 +73,7 @@ class SessionManager(application: Application) {
         connectionManager.start()
     }
 
-    fun startRecording(studyId: Int?) = GlobalScope.launch(Dispatchers.Main) {
+    fun startRecording(studyId: Int? = null) = GlobalScope.launch(Dispatchers.Main) {
         logd(TAG, "Starting recording")
         persister.start(studyId)
     }

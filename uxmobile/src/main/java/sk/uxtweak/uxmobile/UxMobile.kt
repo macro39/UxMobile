@@ -155,26 +155,34 @@ object UxMobile {
         sessionManager = SessionManager(application)
         studyFlowController = StudyFlowController(application.applicationContext, sessionManager)
 
-        ForegroundScope.launch {
-            adonisWebSocketClient.waitForConnect()
+        @Suppress("ConstantConditionIf")
+        if (!BuildConfig.TEST_MODE) {
+            initializeStudyFlow()
+        }
+
+        registerDebugMenu()
+    }
+
+    private fun initializeStudyFlow() = ForegroundScope.launch {
+        adonisWebSocketClient.waitForConnect()
 
 //            this@UxMobile.apiKey = "f515d0cd7b88fbe502919395fa4c6c8d599e939d"   // my study
 
-            val location = getLocation()
+        val location = getLocation()
 
-            // uncomment for Usability testing study
-            val initializeJson = JsonBuilder(
-                "sessionId" to sessionManager.sessionId,
-                "token" to this@UxMobile.apiKey,
-                "location" to location,
-                "brandOfDevice" to getDeviceBrand(),
-                "ip" to getIpAddress(application),
-                "operatingSystem" to getOperatingSystem()
-            ).toJsonObject()
+        // uncomment for Usability testing study
+        val initializeJson = JsonBuilder(
+            "sessionId" to sessionManager.sessionId,
+            "token" to this@UxMobile.apiKey,
+            "location" to location,
+            "brandOfDevice" to getDeviceBrand(),
+            "ip" to getIpAddress(application),
+            "operatingSystem" to getOperatingSystem()
+        ).toJsonObject()
 
 //            this@UxMobile.apiKey = "plugin_initialization_demo_token_new"       // test study
 
-            // uncomment for test study
+        // uncomment for test study
 //            val initializeJson = JsonBuilder(
 //                "sessionId" to sessionManager.persister.sessionId,
 //                "token" to this.apiKey,
@@ -184,57 +192,54 @@ object UxMobile {
 //                "operatingSystem" to "demo operating system"
 //            ).toJsonObject()
 
-            try {
-                val response =
-                    adonisWebSocketClient.sendData(
-                        Constants.ADONIS_EVENT_INITIALIZE,
-                        initializeJson
+        try {
+            val response =
+                adonisWebSocketClient.sendData(
+                    Constants.ADONIS_EVENT_INITIALIZE,
+                    initializeJson
+                )
+
+            val jsonResponse = JSONObject(response.toString())
+
+            when (jsonResponse.optString("event")) {
+                Constants.ADONIS_EVENT_SEND_QUESTIONNAIRE -> {
+                    val studyQuestionnaire = Gson().fromJson(
+                        jsonResponse.optJSONObject("data").optJSONObject("data").toString(),
+                        StudyQuestionnaire::class.java
                     )
 
-                val jsonResponse = JSONObject(response.toString())
+                    StudyDataHolder.screeningQuestionnaire = studyQuestionnaire
 
-                when (jsonResponse.optString("event")) {
-                    Constants.ADONIS_EVENT_SEND_QUESTIONNAIRE -> {
-                        val studyQuestionnaire = Gson().fromJson(
-                            jsonResponse.optJSONObject("data").optJSONObject("data").toString(),
-                            StudyQuestionnaire::class.java
-                        )
-
-                        StudyDataHolder.screeningQuestionnaire = studyQuestionnaire
-
-                        startStudyFlow()
-                    }
-                    Constants.ADONIS_EVENT_SEND_STUDY -> {
-                        val study = Gson().fromJson(
-                            jsonResponse.optJSONObject("data").optJSONObject("data").toString(),
-                            Study::class.java
-                        )
-
-                        StudyDataHolder.setNewStudy(study)
-
-                        startStudyFlow()
-                    }
-                    Constants.ADONIS_EVENT_QUIT -> {
-                        Log.e(TAG, jsonResponse.optJSONObject("data").optString("error"))
-                        adonisWebSocketClient.closeConnection()
-                        return@launch
-                    }
-                    else -> {
-                        Log.e(TAG, "Unexpected error when sending initialize: $jsonResponse")
-                        adonisWebSocketClient.closeConnection()
-                        return@launch
-                    }
+                    startStudyFlow()
                 }
-            } catch (e: NullPointerException) {
-                Log.e(TAG, "Cannot parse response: " + e.message)
-                adonisWebSocketClient.closeConnection()
-            } catch (e: Exception) {
-                Log.e(TAG, "Error occurred: " + e.message)
-                adonisWebSocketClient.closeConnection()
-            }
-        }
+                Constants.ADONIS_EVENT_SEND_STUDY -> {
+                    val study = Gson().fromJson(
+                        jsonResponse.optJSONObject("data").optJSONObject("data").toString(),
+                        Study::class.java
+                    )
 
-        registerDebugMenu()
+                    StudyDataHolder.setNewStudy(study)
+
+                    startStudyFlow()
+                }
+                Constants.ADONIS_EVENT_QUIT -> {
+                    Log.e(TAG, jsonResponse.optJSONObject("data").optString("error"))
+                    adonisWebSocketClient.closeConnection()
+                    return@launch
+                }
+                else -> {
+                    Log.e(TAG, "Unexpected error when sending initialize: $jsonResponse")
+                    adonisWebSocketClient.closeConnection()
+                    return@launch
+                }
+            }
+        } catch (e: NullPointerException) {
+            Log.e(TAG, "Cannot parse response: " + e.message)
+            adonisWebSocketClient.closeConnection()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error occurred: " + e.message)
+            adonisWebSocketClient.closeConnection()
+        }
     }
 
     /**
