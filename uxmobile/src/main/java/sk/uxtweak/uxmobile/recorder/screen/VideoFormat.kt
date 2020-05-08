@@ -12,25 +12,51 @@ import sk.uxtweak.uxmobile.BuildConfig
 class VideoFormat(
     width: Int,
     height: Int,
-    val frameRate: Int = DEFAULT_FRAME_RATE,
-    val bitRate: Int = DEFAULT_BIT_RATE,
-    iFrameInterval: Int = DEFAULT_I_FRAME_INTERVAL
+    val profile: Profile
 ) {
+    data class Profile(val format: String, val frameRate: Int, val bitRate: Int, val iFrameInterval: Int) {
+        companion object {
+            const val VIDEO_AVC = MediaFormat.MIMETYPE_VIDEO_AVC
+            const val VIDEO_HEVC = MediaFormat.MIMETYPE_VIDEO_HEVC
+            const val VIDEO_VP8 = MediaFormat.MIMETYPE_VIDEO_VP8
+            const val VIDEO_VP9 = MediaFormat.MIMETYPE_VIDEO_VP9
+
+            const val DEFAULT_I_FRAME_INTERVAL = 10
+            const val LOW_FRAME_RATE = 15
+            const val NORMAL_FRAME_RATE = 30
+            const val HIGH_FRAME_RATE = 60
+
+            val FULL_HD_HFR = Profile(VIDEO_AVC, HIGH_FRAME_RATE, 10_000_000, DEFAULT_I_FRAME_INTERVAL)
+            val HD_HFR = Profile(VIDEO_AVC, HIGH_FRAME_RATE, 4_000_000, DEFAULT_I_FRAME_INTERVAL)
+            val SD_HIGH_HFR = Profile(VIDEO_AVC, HIGH_FRAME_RATE, 2_000_000, DEFAULT_I_FRAME_INTERVAL)
+            val SD_LOW_HFR = Profile(VIDEO_AVC, HIGH_FRAME_RATE, 384_000, DEFAULT_I_FRAME_INTERVAL)
+
+            val FULL_HD = Profile(VIDEO_AVC, NORMAL_FRAME_RATE, 10_000_000, DEFAULT_I_FRAME_INTERVAL)
+            val HD = Profile(VIDEO_AVC, NORMAL_FRAME_RATE, 4_000_000, DEFAULT_I_FRAME_INTERVAL)
+            val SD_HIGH = Profile(VIDEO_AVC, 20, 2_000_000, DEFAULT_I_FRAME_INTERVAL)
+            val SD_LOW = Profile(VIDEO_AVC, NORMAL_FRAME_RATE, 384_000, DEFAULT_I_FRAME_INTERVAL)
+
+            val FULL_HD_LFR = Profile(VIDEO_AVC, LOW_FRAME_RATE, 10_000_000, DEFAULT_I_FRAME_INTERVAL)
+            val HD_LFR = Profile(VIDEO_AVC, LOW_FRAME_RATE, 4_000_000, DEFAULT_I_FRAME_INTERVAL)
+            val SD_HIGH_LFR = Profile(VIDEO_AVC, LOW_FRAME_RATE, 2_000_000, DEFAULT_I_FRAME_INTERVAL)
+            val SD_LOW_LFR = Profile(VIDEO_AVC, LOW_FRAME_RATE, 384_000, DEFAULT_I_FRAME_INTERVAL)
+        }
+    }
+
     val width = if (width % 2 == 1) width + 1 else width
     val height = if (height % 2 == 1) height + 1 else height
-    val frameTime = 1000L / frameRate
+    val frameTime = 1000L / profile.frameRate
 
-    private val mediaFormat = MediaFormat.createVideoFormat(VIDEO_FORMAT, this.width, this.height)
+    private val mediaFormat = MediaFormat.createVideoFormat(profile.format, this.width, this.height)
 
     init {
-
         mediaFormat.setInteger(
             MediaFormat.KEY_COLOR_FORMAT,
             MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
         )
-        mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitRate)
-        mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, frameRate)
-        mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, iFrameInterval)
+        mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, profile.bitRate)
+        mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, profile.frameRate)
+        mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, profile.iFrameInterval)
 
         @Suppress("ConstantConditionIf")
         if (BuildConfig.TEST_MODE) {
@@ -46,7 +72,7 @@ class VideoFormat(
         val codecList = MediaCodecList(MediaCodecList.ALL_CODECS)
         Log.d(VIDEO_TAG, "Encoders: ${codecList.codecInfos.count { it.isEncoder }}")
         codecList.codecInfos.forEach {
-            if (it.isEncoder) {
+            if (it.isEncoder && !it.supportedTypes.any { it.startsWith("audio") }) {
                 Log.d(VIDEO_TAG, "----------")
                 printCodecInfo(it)
             }
@@ -107,29 +133,31 @@ class VideoFormat(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             Log.d(VIDEO_TAG, "Supported performance points: ${capabilities.supportedPerformancePoints?.joinToString()}")
         }
-        Log.d(VIDEO_TAG, "Is ${width}x$height supported: ${capabilities.isSizeSupported(width, height)}")
-        Log.d(VIDEO_TAG, "Is ${width}x$height and $frameRate fps supported: ${capabilities.areSizeAndRateSupported(width, height, frameRate.toDouble())}")
+        val w = height
+        val h = width
+        Log.d(VIDEO_TAG, "Is ${w}x$h supported: ${capabilities.isSizeSupported(w, h)}")
+        Log.d(VIDEO_TAG, "Is ${w}x$h and ${profile.frameRate} fps supported: ${capabilities.areSizeAndRateSupported(w, h, profile.frameRate.toDouble())}")
         try {
-            Log.d(VIDEO_TAG, "Supported frame rates for ${width}x$height: ${capabilities.getSupportedFrameRatesFor(width, height)}")
+            Log.d(VIDEO_TAG, "Supported frame rates for ${w}x$h: ${capabilities.getSupportedFrameRatesFor(w, h)}")
         } catch (exception: IllegalArgumentException) {
-            Log.d(VIDEO_TAG, "No supported frame rates for ${width}x$height")
+            Log.d(VIDEO_TAG, "No supported frame rates for ${w}x$h")
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {
-                Log.d(VIDEO_TAG, "Achievable frame rates for ${width}x$height: ${capabilities.getAchievableFrameRatesFor(width, height)}")
+                Log.d(VIDEO_TAG, "Achievable frame rates for ${w}x$h: ${capabilities.getAchievableFrameRatesFor(w, h)}")
             } catch (exception: IllegalArgumentException) {
-                Log.d(VIDEO_TAG, "No achievable frame rates for ${width}x$height")
+                Log.d(VIDEO_TAG, "No achievable frame rates for ${w}x$h")
             }
         }
         try {
-            Log.d(VIDEO_TAG, "Supported heights for width $width: ${capabilities.getSupportedHeightsFor(width)}")
+            Log.d(VIDEO_TAG, "Supported heights for width $w: ${capabilities.getSupportedHeightsFor(w)}")
         } catch (exception: IllegalArgumentException) {
-            Log.d(VIDEO_TAG, "Unsupported width $width")
+            Log.d(VIDEO_TAG, "Unsupported width $w")
         }
         try {
-            Log.d(VIDEO_TAG, "Supported widths for height $height: ${capabilities.getSupportedWidthsFor(height)}")
+            Log.d(VIDEO_TAG, "Supported widths for height $h: ${capabilities.getSupportedWidthsFor(h)}")
         } catch (exception: IllegalArgumentException) {
-            Log.d(VIDEO_TAG, "Unsupported height $height")
+            Log.d(VIDEO_TAG, "Unsupported height $h")
         }
     }
 
@@ -139,7 +167,7 @@ class VideoFormat(
             return;
         }
         Log.d(VIDEO_TAG, "-- Encoder capabilities --")
-        Log.d(VIDEO_TAG, "Is bitrate supported: ${capabilities.isBitrateModeSupported(bitRate)}")
+        Log.d(VIDEO_TAG, "Bitrate modes: ${getBitrateModes(capabilities)}")
         Log.d(VIDEO_TAG, "Complexity range: ${capabilities.complexityRange}")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             Log.d(VIDEO_TAG, "Quality range: ${capabilities.qualityRange}")
@@ -150,14 +178,24 @@ class VideoFormat(
         Log.d(VIDEO_TAG, "$feature (supported: ${capabilities.isFeatureSupported(feature)}, required: ${capabilities.isFeatureRequired(feature)})")
     }
 
+    private fun getBitrateModes(capabilities: MediaCodecInfo.EncoderCapabilities): String {
+        val supportedBitrateModes = mutableListOf<String>()
+        val bitrateModes = mapOf(
+            MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR to "CBR",
+            MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ to "CQ",
+            MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR to "VBR"
+        )
+        bitrateModes.forEach {
+            if (capabilities.isBitrateModeSupported(it.key)) {
+                supportedBitrateModes += it.value
+            }
+        }
+        return supportedBitrateModes.joinToString()
+    }
 
     operator fun invoke(): MediaFormat = mediaFormat
 
     companion object {
         private const val VIDEO_TAG = "CodecInfo"
-        const val VIDEO_FORMAT = "video/avc"
-        private const val DEFAULT_FRAME_RATE = 25
-        private const val DEFAULT_BIT_RATE = 500_000
-        private const val DEFAULT_I_FRAME_INTERVAL = 10
     }
 }

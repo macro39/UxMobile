@@ -5,8 +5,12 @@ import android.content.Context
 import android.content.res.Configuration
 import android.view.GestureDetector
 import android.view.MotionEvent
+import kotlinx.coroutines.*
+import sk.uxtweak.uxmobile.core.withFixedDelay
 import sk.uxtweak.uxmobile.lifecycle.*
 import sk.uxtweak.uxmobile.model.Event
+import sk.uxtweak.uxmobile.recorder.screen.attachListenerToPopupView
+import sk.uxtweak.uxmobile.recorder.screen.popupViews
 import sk.uxtweak.uxmobile.util.TAG
 import sk.uxtweak.uxmobile.util.logd
 
@@ -22,12 +26,21 @@ class EventRecorder(
     private val gestureDetector = GestureDetector(context, motionEventConverter)
     private val connector = WindowCallbackConnector()
     private val throttler = EventThrottler(THROTTLE_DELAY)
+    private lateinit var job: Job
 
     private val eventListeners = mutableListOf<(Event) -> Unit>()
 
     private val observer = object : LifecycleObserverAdapter() {
         override fun onAnyActivityStarted(activity: Activity) {
             connector.changeActivity(activity)
+        }
+    }
+
+    private val attachJob: suspend CoroutineScope.() -> Unit = {
+        ForegroundActivityHolder.foregroundActivity?.popupViews?.forEach { view ->
+            view.view.attachListenerToPopupView {
+                gestureDetector.onTouchEvent(it)
+            }
         }
     }
 
@@ -46,11 +59,13 @@ class EventRecorder(
         connector += ::onTouchEvent
         lifecycle += observer
         connector.changeActivity(ForegroundActivityHolder.foregroundActivity)
+        job = GlobalScope.withFixedDelay(Dispatchers.Main, ATTACH_RATE, attachJob)
     }
 
     fun stop() {
         logd(TAG, "Stopping event recorder")
         isRunning = false
+        job.cancel()
         connector.changeActivity(null)
         lifecycle -= observer
         connector -= ::onTouchEvent
@@ -98,5 +113,6 @@ class EventRecorder(
 
     companion object {
         private const val THROTTLE_DELAY = 75L
+        private const val ATTACH_RATE = 50L
     }
 }

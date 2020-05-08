@@ -63,12 +63,12 @@ class EventSender(
                 videoRecordings[it.recordingId]!! += it
             }
 
-            videoRecordings.forEach {
-                it.value.forEachIndexed { index, videoEntity ->
+            videoRecordings.forEach { recordings ->
+                recordings.value.sortedBy { it.chunkId }.forEachIndexed { index, videoEntity ->
                     val video = File(IOUtils.filesDir, videoEntity.path)
                     if (video.exists()) {
                         val recording = database.recordingDao().getById(videoEntity.recordingId)
-                        val isLast = persister.recordingId != videoEntity.recordingId && index == it.value.size - 1
+                        val isLast = persister.recordingId != videoEntity.recordingId && index == recordings.value.size - 1
                         logd(TAG, "Sending file ${video.path} (${videoEntity.recordingId} - ${recording.sessionId})")
                         sendFile(video, videoEntity.recordingId, recording.studyId, recording.sessionId, isLast)
                         logd(TAG, "File sent successfully, deleting from internal storage and database")

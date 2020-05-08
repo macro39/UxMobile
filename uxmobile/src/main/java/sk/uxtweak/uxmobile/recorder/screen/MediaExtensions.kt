@@ -1,6 +1,5 @@
 package sk.uxtweak.uxmobile.recorder.screen
 
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.media.MediaCodec
 import android.view.Surface

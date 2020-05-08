@@ -3,6 +3,7 @@ package sk.uxtweak.uxmobile.recorder.screen
 import android.graphics.Canvas
 import android.media.MediaCodec
 import android.media.MediaFormat
+import android.os.SystemClock
 import android.view.Surface
 import kotlinx.coroutines.*
 import sk.uxtweak.uxmobile.core.copy
@@ -10,11 +11,13 @@ import sk.uxtweak.uxmobile.core.copy
 class VideoEncoder(private val videoFormat: VideoFormat) {
     private val dispatcher = newSingleCoroutineDispatcher(DISPATCHER_NAME)
     private var job: Job? = null
-    private val encoder = MediaCodec.createEncoderByType(VideoFormat.VIDEO_FORMAT)
+    private val encoder = MediaCodec.createEncoderByType(videoFormat.profile.format)
     private val info = MediaCodec.BufferInfo()
     private lateinit var surface: Surface
     private var onEncodedListener: (EncodedFrame) -> Unit = {}
     private var onOutputFormatChanged: (MediaFormat) -> Unit = {}
+    private var onFirstFrameTime: (Long) -> Unit = {}
+    private var firstFrame = true
 
     private val encoderJob: suspend CoroutineScope.() -> Unit = {
         while (isActive) {
@@ -31,6 +34,10 @@ class VideoEncoder(private val videoFormat: VideoFormat) {
             }
             if (info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
                 break
+            }
+            if (firstFrame) {
+                firstFrame = false
+                onFirstFrameTime(SystemClock.elapsedRealtime())
             }
             val buffer = encoder.getOutputBuffer(index)
             val frame = EncodedFrame(buffer!!.copy(), info.duplicate())
@@ -83,6 +90,10 @@ class VideoEncoder(private val videoFormat: VideoFormat) {
 
     fun setOnOutputFormatChanged(listener: (MediaFormat) -> Unit) {
         onOutputFormatChanged = listener
+    }
+
+    fun setOnFirstFrameTime(listener: (Long) -> Unit) {
+        onFirstFrameTime = listener
     }
 
     companion object {
