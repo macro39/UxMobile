@@ -5,15 +5,11 @@ import android.content.Context
 import android.graphics.Rect
 import android.os.SystemClock
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.core.view.children
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
 import org.json.JSONArray
 import org.json.JSONObject
 import sk.uxtweak.uxmobile.persister.database.EventEntity

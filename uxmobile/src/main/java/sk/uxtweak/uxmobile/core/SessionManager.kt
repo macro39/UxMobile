@@ -8,7 +8,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import sk.uxtweak.uxmobile.BuildConfig
 import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
-import sk.uxtweak.uxmobile.lifecycle.ForegroundScope
 import sk.uxtweak.uxmobile.lifecycle.LifecycleObserverAdapter
 import sk.uxtweak.uxmobile.model.Event
 import sk.uxtweak.uxmobile.net.ConnectionManager
@@ -21,7 +20,6 @@ import sk.uxtweak.uxmobile.recorder.screen.VideoFormat
 import sk.uxtweak.uxmobile.sender.EventSender
 import sk.uxtweak.uxmobile.util.TAG
 import sk.uxtweak.uxmobile.util.logd
-import kotlin.random.Random
 
 class SessionManager(application: Application) {
     private val socket = WebSocketClient(BuildConfig.COLLECTOR_URL)
@@ -63,7 +61,9 @@ class SessionManager(application: Application) {
         ApplicationLifecycle.addObserver(observer)
 
         val size = application.displaySize
-        screenRecorder = ScreenRecorder(VideoFormat(size.width, size.height))
+        val width = 720
+        val height = width * (size.height / size.width.toFloat())
+        screenRecorder = ScreenRecorder(VideoFormat(width, height.toInt(), VideoFormat.Profile.HD))
 
         database = AppDatabase.create(application)
         persister = Persister(this, eventRecorder, screenRecorder, database)

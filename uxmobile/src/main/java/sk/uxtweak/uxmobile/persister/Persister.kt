@@ -21,6 +21,7 @@ import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.max
 
 class Persister(
     private val sessionManager: SessionManager,
@@ -38,7 +39,7 @@ class Persister(
     private var startTime = 0L
     var recordingId = 0L
     var studyId: Int? = null
-    private val chunkMuxer = ChunkMuxer(keyFramesInOneChunk = 2)
+    private val chunkMuxer = ChunkMuxer(keyFramesInOneChunk = max(1, 60 / screenRecorder.videoFormat.profile.frameRate))
     private val events = ArrayList<Event>(EVENT_LOCAL_LIMIT)
     private var onEventsFlushedListener: suspend (ArrayList<Event>) -> Boolean = { false }
     private var onFileMuxedListener: suspend (File, Boolean) -> Boolean = { _, _ -> false }
@@ -60,6 +61,7 @@ class Persister(
         isRunning = true
         this.studyId = studyId
         startTime = SystemClock.elapsedRealtime()
+        logd(TAG, "Event start time $startTime")
         insertEvent(Event.StartEvent)
         eventRecorder.start()
         launch(Dispatchers.IO + NonCancellable) {
@@ -134,8 +136,8 @@ class Persister(
         }
     }
 
-    private fun onFirstFrameDraw() {
-        logd(TAG, "Before first frame is drawn")
+    private fun onFirstFrameDraw(time: Long) {
+        logd(TAG, "First frame time $time")
         insertEvent(Event.VideoStartEvent)
     }
 

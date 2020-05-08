@@ -79,6 +79,10 @@ class ChunkMuxer(private val keyFramesInOneChunk: Int = 1) {
         }
     }
 
+    init {
+        logd(TAG, "Chunk muxer created with $keyFramesInOneChunk key frames in one chunk")
+    }
+
     fun postCommand(command: MuxerCommand) {
         if (!isRunning) {
             logw(TAG, "Posting command ${command::class.java.simpleName} to muxer that is not started!")
