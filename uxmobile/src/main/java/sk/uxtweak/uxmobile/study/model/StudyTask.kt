@@ -16,12 +16,6 @@ data class StudyTask(
     @SerializedName("description")
     val description: String = "",
 
-    @SerializedName("starting_screen")
-    val startingScreen: String = "",
-
-    @SerializedName("closing_screens")
-    val closingScreens: List<String> = listOf(),
-
     var accomplished: Boolean = false,
     var endedSuccessful: Boolean = false
 )
