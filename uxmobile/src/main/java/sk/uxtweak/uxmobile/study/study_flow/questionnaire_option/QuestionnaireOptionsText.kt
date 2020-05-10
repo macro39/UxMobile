@@ -30,12 +30,12 @@ class QuestionnaireOptionsText : QuestionnaireOptionsBaseFragment() {
         configure()
 
         if (arguments?.getBoolean(Constants.EXTRA_IS_SINGLE_LINE)!!) {
-            editText_questionnaire_text.isSingleLine = true
+            editText_questionnaire_text.setSingleLine(true)
         }
 
         editText_questionnaire_text.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                setText(editText_questionnaire_text.text.toString())
+                setText(editText_questionnaire_text.text?.take(255).toString())
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {

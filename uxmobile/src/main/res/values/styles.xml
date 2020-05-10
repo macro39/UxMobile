@@ -10,6 +10,8 @@
         <item name="colorPrimary">@color/grey</item>
         <item name="colorControlNormal">@color/black</item>
         <item name="colorControlActivated">@color/black</item>
+        <item name="colorControlHighlight">@color/black</item>
+        <item name="colorAccent">@color/black</item>
         <item name="android:buttonTint" tools:targetApi="lollipop">@color/black</item>
     </style>
 
@@ -51,5 +53,9 @@
     <style name="ActionButton" parent="@android:style/Widget.ActionButton">
         <item name="android:layout_marginEnd">20sp</item>
         <item name="android:layout_marginRight">20sp</item>
+    </style>
+
+    <style name="TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="colorControlActivated">@color/black</item>
     </style>
 </resources>
