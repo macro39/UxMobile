@@ -15,7 +15,6 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.json.JSONException
 import org.json.JSONObject
 import sk.uxtweak.uxmobile.UxMobile.start
 import sk.uxtweak.uxmobile.core.SessionManager
@@ -32,13 +31,9 @@ import sk.uxtweak.uxmobile.study.net.JsonBuilder
 import sk.uxtweak.uxmobile.study.utility.*
 import sk.uxtweak.uxmobile.ui.DebugActivity
 import sk.uxtweak.uxmobile.ui.ShakeDetector
-import sk.uxtweak.uxmobile.util.DialogUtils
-import sk.uxtweak.uxmobile.util.IOUtils
-import sk.uxtweak.uxmobile.util.logi
-import sk.uxtweak.uxmobile.util.logw
+import sk.uxtweak.uxmobile.util.*
 import java.io.File
 import java.io.FileNotFoundException
-import java.lang.NullPointerException
 
 /**
  * Main class that initializes agent for tracking events. To start the module, call [start].
@@ -85,10 +80,7 @@ object UxMobile {
         try {
             startInternal(loadApiKeyFromManifest())
         } catch (exception: IllegalStateException) {
-            Log.e(
-                TAG,
-                "Cannot load API key! Check if you have your API key declared in Android Manifest"
-            )
+            loge(TAG, "Cannot load API key! Check if you have your API key declared in Android Manifest")
         }
     }
 
@@ -98,10 +90,7 @@ object UxMobile {
         try {
             startInternal(loadApiKeyFromStorage())
         } catch (exception: IllegalStateException) {
-            logw(
-                TAG,
-                "Permission to read from external storage is not granted! (${exception.message})"
-            )
+            logw(TAG, "Permission to read from external storage is not granted! (${exception.message})")
             ForegroundActivityHolder.register(ApplicationLifecycle)
             DialogUtils.showDialog(
                 "Permission denied",
@@ -275,6 +264,10 @@ object UxMobile {
      */
     @Deprecated("Should not be used on Android 10 or higher")
     private fun loadApiKeyFromStorage(): String {
+        @Suppress("ConstantConditionIf")
+        if (BuildConfig.TEST_MODE) {
+            return ""
+        }
         if (ContextCompat.checkSelfPermission(
                 application,
                 Manifest.permission.READ_EXTERNAL_STORAGE
@@ -307,7 +300,6 @@ object UxMobile {
         sensorManager?.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI)
     }
 
-    private const val TAG = "UxMobile"
     private const val API_KEY = "UxMobileApiKey"
     private const val API_KEY_FILE = "UxMobile/api.key"
     private const val PERMISSION_REQUEST_CODE = 1000

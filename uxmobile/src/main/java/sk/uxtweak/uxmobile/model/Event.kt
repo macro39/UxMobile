@@ -9,31 +9,46 @@ sealed class Event(val type: Int, var at: Long = SystemClock.elapsedRealtime()) 
 
     data class TapEvent(
         val x: Float,
-        val y: Float
+        val y: Float,
+        @get:JsonProperty("view_type") val viewType: Int?,
+        @get:JsonProperty("view_text") val viewText: String?,
+        @get:JsonProperty("view_value") val viewValue: String?
     ) : Event(3)
 
     data class DoubleTapEvent(
         val x: Float,
-        val y: Float
+        val y: Float,
+        @get:JsonProperty("view_type") val viewType: Int?,
+        @get:JsonProperty("view_text") val viewText: String?,
+        @get:JsonProperty("view_value") val viewValue: String?
     ) : Event(4)
 
     data class LongPressEvent(
         val x: Float,
-        val y: Float
+        val y: Float,
+        @get:JsonProperty("view_type") val viewType: Int?,
+        @get:JsonProperty("view_text") val viewText: String?,
+        @get:JsonProperty("view_value") val viewValue: String?
     ) : Event(5)
 
     data class FlingEvent(
         val x: Float,
         val y: Float,
         @get:JsonProperty("velocity_x") val velocityX: Float,
-        @get:JsonProperty("velocity_y") val velocityY: Float
+        @get:JsonProperty("velocity_y") val velocityY: Float,
+        @get:JsonProperty("view_type") val viewType: Int?,
+        @get:JsonProperty("view_text") val viewText: String?,
+        @get:JsonProperty("view_value") val viewValue: String?
     ) : Event(6)
 
     data class ScrollEvent(
         val x: Float,
         val y: Float,
         @get:JsonProperty("distance_x") val distanceX: Float,
-        @get:JsonProperty("distance_y") val distanceY: Float
+        @get:JsonProperty("distance_y") val distanceY: Float,
+        @get:JsonProperty("view_type") val viewType: Int?,
+        @get:JsonProperty("view_text") val viewText: String?,
+        @get:JsonProperty("view_value") val viewValue: String?
     ) : Event(7)
 
     data class ActivityStartedEvent(

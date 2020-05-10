@@ -1,7 +1,11 @@
 package sk.uxtweak.uxmobile.recorder.screen
 
 import android.app.Activity
+import android.graphics.Color
+import android.graphics.LightingColorFilter
+import android.graphics.Paint
 import android.media.MediaFormat
+import androidx.core.graphics.withTranslation
 import kotlinx.coroutines.*
 import sk.uxtweak.uxmobile.core.Stats
 import sk.uxtweak.uxmobile.core.atFixedRate
@@ -10,7 +14,7 @@ import sk.uxtweak.uxmobile.lifecycle.withForegroundActivity
 import sk.uxtweak.uxmobile.util.TAG
 import sk.uxtweak.uxmobile.util.logd
 
-class ScreenRecorder(private val videoFormat: VideoFormat) {
+class ScreenRecorder(val videoFormat: VideoFormat) {
     var isRunning: Boolean = false
         private set
 
@@ -22,14 +26,19 @@ class ScreenRecorder(private val videoFormat: VideoFormat) {
     private var firstFrame = true
     private var onEncodedFrameListener: (EncodedFrame) -> Unit = {}
     private var onOutputFormatChangedListener: (MediaFormat) -> Unit = {}
-    private var onFirstFrameListener: () -> Unit = {}
+    private var onFirstFrameListener: (Long) -> Unit = {}
+
+    private val paint = Paint(Color.BLACK)
+    private val filter = LightingColorFilter(0xFF7F7F7F.toInt(), 0x00000000)
 
     private val recordingJob: suspend CoroutineScope.() -> Unit = {
-        while (isActive) {
-            ForegroundActivityHolder.withForegroundActivity {
-                drawFrame(it)
-            }
+        ForegroundActivityHolder.withForegroundActivity {
+            drawFrame(it)
         }
+    }
+
+    init {
+        paint.colorFilter = filter
     }
 
     fun start() {
@@ -39,6 +48,7 @@ class ScreenRecorder(private val videoFormat: VideoFormat) {
         encoder = VideoEncoder(videoFormat)
         encoder.setOnEncodedListener(::onEncodedFrame)
         encoder.setOnOutputFormatChanged(::onOutputFormatChanged)
+        encoder.setOnFirstFrameTime(::onFirstFrameTime)
         encoder.start()
         job = GlobalScope.atFixedRate(Dispatchers.IO, videoFormat.frameTime, recordingJob)
     }
@@ -70,7 +80,7 @@ class ScreenRecorder(private val videoFormat: VideoFormat) {
         }
     }
 
-    fun setOnFirstFrameDrawListener(listener: () -> Unit) {
+    fun setOnFirstFrameDrawListener(listener: (Long) -> Unit) {
         onFirstFrameListener = listener
     }
 
@@ -89,17 +99,31 @@ class ScreenRecorder(private val videoFormat: VideoFormat) {
         }
     }
 
+    private fun onFirstFrameTime(time: Long) {
+        onFirstFrameListener(time)
+    }
+
     private suspend fun drawFrame(activity: Activity) {
         val rootLayout = activity.window.decorView
         if (rootLayout.width == 0 && rootLayout.height == 0) {
             return
         }
-        if (firstFrame) {
-            firstFrame = false
-            onFirstFrameListener()
-        }
         encoder.drawFrame {
-            screenBuffer.drawToCanvas(rootLayout, it)
+            screenBuffer.drawToBitmap(rootLayout)
+            withContext(Dispatchers.Main) {
+                it.scale(videoFormat.width / rootLayout.width.toFloat(), videoFormat.height / rootLayout.height.toFloat())
+                val popupViews = activity.popupViews
+                if (popupViews.size > 1) {
+                    it.drawBitmap(screenBuffer.bitmap, 0f, 0f, paint)
+                } else {
+                    it.drawBitmap(screenBuffer.bitmap, 0f, 0f, null)
+                }
+                popupViews.filterIndexed { index, _ -> index != 0 }.forEach { view ->
+                    it.withTranslation(view.position.left.toFloat(), view.position.top.toFloat()) {
+                        view.view.draw(this)
+                    }
+                }
+            }
         }
     }
 }
