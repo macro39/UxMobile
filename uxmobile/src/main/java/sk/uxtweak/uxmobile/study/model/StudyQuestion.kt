@@ -15,9 +15,6 @@ data class StudyQuestion(
     @SerializedName("name")
     val name: String = "",
 
-    @SerializedName("question_required")
-    val questionRequired: Boolean = false,
-
     @SerializedName("description")
     val description: String = "",
 
@@ -31,5 +28,5 @@ data class StudyQuestion(
     val reasonNeeded: Boolean = false,
 
     @SerializedName("options")
-    val questionOptions: ArrayList< QuestionOption> = arrayListOf()
+    val questionOptions: ArrayList<QuestionOption> = arrayListOf()
 )

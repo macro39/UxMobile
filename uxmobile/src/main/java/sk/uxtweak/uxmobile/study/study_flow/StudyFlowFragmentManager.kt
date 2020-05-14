@@ -62,7 +62,6 @@ class StudyFlowFragmentManager : AppCompatActivity(),
 
     var isScrolling = false
 
-    // TODO should change this def value for study set
     private var isStudySet = true
 
     override fun onCreate(savedInstanceState: Bundle?) {

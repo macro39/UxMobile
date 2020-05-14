@@ -87,7 +87,7 @@
             android:drawableTop="?android:attr/listChoiceIndicatorSingle"
             android:gravity="center"
             android:padding="2dp"
-            android:text="@string/strongly_agree" />
+            android:text="@string/agree" />
 
         <RadioButton
             android:id="@+id/radioButton_strong_agree"
@@ -100,6 +100,6 @@
             android:drawableTop="?android:attr/listChoiceIndicatorSingle"
             android:gravity="center_horizontal|bottom"
             android:padding="2dp"
-            android:text="@string/agree" />
+            android:text="@string/strongly_agree" />
     </RadioGroup>
 </androidx.constraintlayout.widget.ConstraintLayout>

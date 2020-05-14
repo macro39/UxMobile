@@ -6,24 +6,43 @@
     android:background="@android:color/transparent"
     android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/editText_questionnaire_text"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/answer_here"
-        android:inputType="textMultiLine"
-        android:maxHeight="200sp"
-        android:maxLines="3"
+        style="@style/TextInputLayout"
+        android:background="@android:color/transparent"
+        android:backgroundTint="@android:color/transparent"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:textColor="@color/black"
         android:textColorHint="@color/black"
-        android:textSize="14sp"
+        app:boxStrokeColor="@color/black"
+        app:counterEnabled="true"
+        app:counterMaxLength="255"
+        app:counterTextColor="@color/black"
+        app:helperTextTextColor="@color/black"
+        app:hintTextColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0" />
+        app:layout_constraintVertical_bias="0"
+        app:placeholderTextColor="@color/black">
 
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editText_questionnaire_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:hint="@string/answer_here"
+            android:inputType="textMultiLine"
+            android:maxHeight="200sp"
+            android:maxLines="3"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:textSize="14sp" />
+    </com.google.android.material.textfield.TextInputLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
