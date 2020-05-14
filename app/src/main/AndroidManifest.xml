@@ -27,6 +27,7 @@
         android:label="@string/app_launcher_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
+        tools:replace="android:label"
         android:theme="@style/AppTheme">
 
         <activity

@@ -1,42 +1,60 @@
 package sk.uxtweak.uxmobile
 
+import android.Manifest
 import android.app.Application
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.os.Environment
-import android.provider.MediaStore
-import android.util.Base64
 import android.util.Log
-import androidx.room.Room
+import androidx.annotation.MainThread
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.json.JSONObject
 import sk.uxtweak.uxmobile.UxMobile.start
-import sk.uxtweak.uxmobile.core.EventRecorder
-import sk.uxtweak.uxmobile.core.VideoRecorder
-import sk.uxtweak.uxmobile.lifecycle.SessionAgent
-import sk.uxtweak.uxmobile.model.event.VideoChunkEvent
-import sk.uxtweak.uxmobile.net.WebSocketClient
-import sk.uxtweak.uxmobile.repository.EventsDatabase
-import sk.uxtweak.uxmobile.repository.LocalEventStore
+import sk.uxtweak.uxmobile.core.SessionManager
+import sk.uxtweak.uxmobile.core.Stats
+import sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycle
+import sk.uxtweak.uxmobile.lifecycle.ForegroundActivityHolder
+import sk.uxtweak.uxmobile.lifecycle.ForegroundScope
+import sk.uxtweak.uxmobile.study.Constants
+import sk.uxtweak.uxmobile.study.StudyFlowController
+import sk.uxtweak.uxmobile.study.model.Study
+import sk.uxtweak.uxmobile.study.model.StudyQuestionnaire
+import sk.uxtweak.uxmobile.study.net.AdonisWebSocketClient
+import sk.uxtweak.uxmobile.study.net.JsonBuilder
+import sk.uxtweak.uxmobile.study.utility.*
+import sk.uxtweak.uxmobile.ui.DebugActivity
+import sk.uxtweak.uxmobile.ui.ShakeDetector
+import sk.uxtweak.uxmobile.util.*
 import java.io.File
-import java.nio.ByteBuffer
+import java.io.FileNotFoundException
 
 /**
- * Main class that initializes agent for tracking events. To start tracking events call [start].
+ * Main class that initializes agent for tracking events. To start the module, call [start].
  */
 object UxMobile {
-    private const val TAG = "UxMobile"
-    private const val API_KEY = "ApiKey"
+    private var started = false
+
+    private lateinit var studyFlowController: StudyFlowController
+    lateinit var sessionManager: SessionManager
+    var apiKey: String? = null
+
+    /**
+     * Adonis web socket client - communicator with server
+     */
+    lateinit var adonisWebSocketClient: AdonisWebSocketClient
 
     /**
      * Application Context. Initialized by
      * [sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycleInitializer] before application starts.
      */
     private lateinit var application: Application
-
-    private lateinit var agent: SessionAgent
-
-    private lateinit var eventRecorder: EventRecorder
-    private lateinit var videoRecorder: VideoRecorder
-    private lateinit var webSocketClient: WebSocketClient
-    private lateinit var localEventStore: LocalEventStore
 
     /**
      * Called by [sk.uxtweak.uxmobile.lifecycle.ApplicationLifecycleInitializer] to attach
@@ -54,46 +72,172 @@ object UxMobile {
      *
      * You can add your API key inside your *application* tag in your Android manifest like this
      *
-     *     <meta-data android:name="ApiKey" android:value="your-api-key" />
+     *     <meta-data android:name="UxMobileApiKey" android:value="your-api-key" />
      */
     @JvmStatic
+    @MainThread
     fun start() {
         try {
             startInternal(loadApiKeyFromManifest())
         } catch (exception: IllegalStateException) {
-            Log.e(TAG, "Cannot load API key! Check if you have API key in Android Manifest")
+            loge(TAG, "Cannot load API key! Check if you have your API key declared in Android Manifest")
+        }
+    }
+
+    @JvmStatic
+    @MainThread
+    fun startExternal() {
+        try {
+            startInternal(loadApiKeyFromStorage())
+        } catch (exception: IllegalStateException) {
+            logw(TAG, "Permission to read from external storage is not granted! (${exception.message})")
+            ForegroundActivityHolder.register(ApplicationLifecycle)
+            DialogUtils.showDialog(
+                "Permission denied",
+                "Please grant permission to read from external storage and then restart application."
+            ) {
+                ActivityCompat.requestPermissions(
+                    it,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    PERMISSION_REQUEST_CODE
+                )
+            }
+        } catch (exception: FileNotFoundException) {
+            logw(TAG, "File with API key not found! ((${exception.message}))")
+            ForegroundActivityHolder.register(ApplicationLifecycle)
+            DialogUtils.showDialog(
+                "API key not found",
+                "File with API key not found, please create it and restart application. (${File(
+                    Environment.getExternalStorageDirectory(),
+                    API_KEY_FILE
+                ).absolutePath})"
+            )
         }
     }
 
     /**
      * Should be called in [Application.onCreate] before any activity, service or receiver
      * is created. This method must be called from the main thread. If the API key is not valid,
-     * the session will be recorded but not send to server.
+     * the session will be recorded but not sent to the server.
      * @param apiKey UxMobile API key
      */
     @JvmStatic
+    @MainThread
     fun start(apiKey: String) = startInternal(apiKey)
 
     private fun startInternal(apiKey: String) {
-        eventRecorder = EventRecorder()
-        videoRecorder = VideoRecorder(1440, 2960, NativeEncoder.VARIABLE_BIT_RATE, 60)
-        videoRecorder.setBufferReadyListener {
-            Log.d(TAG, "Buffer ready (${it.limit()})")
-            val copy = ByteBuffer.allocate(it.limit())
-            copy.put(it)
-            webSocketClient.sendRaw("video", Base64.encodeToString(copy.array(), Base64.DEFAULT))
+        Stats.init(application)
+        logi(TAG, "Starting UxMobile")
+        if (started) {
+            throw IllegalStateException("UxMobile has already started!")
         }
-        webSocketClient = WebSocketClient("ws://147.175.163.44:8000/asyngular/")
-        webSocketClient.connect()
+        started = true
+        this.apiKey = apiKey
+        logi(TAG, "Initializing with API key $apiKey")
 
-        val database = Room.databaseBuilder(
-            application,
-            EventsDatabase::class.java,
-            "events-database"
-        ).build()
-        localEventStore = LocalEventStore(database)
+        IOUtils.initialize(application)
 
-        agent = SessionAgent(eventRecorder, webSocketClient, localEventStore)
+        ForegroundActivityHolder.register(ApplicationLifecycle)
+
+        adonisWebSocketClient = AdonisWebSocketClient(BuildConfig.MAIN_URL)
+
+        sessionManager = SessionManager(application)
+        studyFlowController = StudyFlowController(application.applicationContext, sessionManager)
+
+        @Suppress("ConstantConditionIf")
+        if (!BuildConfig.TEST_MODE) {
+            initializeStudyFlow()
+        }
+
+        registerDebugMenu()
+    }
+
+    private fun initializeStudyFlow() = ForegroundScope.launch {
+        adonisWebSocketClient.waitForConnect()
+
+//            this@UxMobile.apiKey = "f515d0cd7b88fbe502919395fa4c6c8d599e939d"   // my study
+
+        val location = getLocation()
+
+        // uncomment for Usability testing study
+        val initializeJson = JsonBuilder(
+            "sessionId" to sessionManager.sessionId,
+            "token" to this@UxMobile.apiKey,
+            "location" to location,
+            "brandOfDevice" to getDeviceBrand(),
+            "ip" to getIpAddress(application),
+            "operatingSystem" to getOperatingSystem()
+        ).toJsonObject()
+
+//            this@UxMobile.apiKey = "plugin_initialization_demo_token_new"       // test study
+
+        // uncomment for test study
+//            val initializeJson = JsonBuilder(
+//                "sessionId" to sessionManager.persister.sessionId,
+//                "token" to this.apiKey,
+//                "location" to "demo location",
+//                "brandOfDevice" to "demo brand",
+//                "ip" to "demo ip",
+//                "operatingSystem" to "demo operating system"
+//            ).toJsonObject()
+
+        try {
+            val response =
+                adonisWebSocketClient.sendData(
+                    Constants.ADONIS_EVENT_INITIALIZE,
+                    initializeJson
+                )
+
+            val jsonResponse = JSONObject(response.toString())
+
+            when (jsonResponse.optString("event")) {
+                Constants.ADONIS_EVENT_SEND_QUESTIONNAIRE -> {
+                    val studyQuestionnaire = Gson().fromJson(
+                        jsonResponse.optJSONObject("data").optJSONObject("data").toString(),
+                        StudyQuestionnaire::class.java
+                    )
+
+                    StudyDataHolder.screeningQuestionnaire = studyQuestionnaire
+
+                    startStudyFlow()
+                }
+                Constants.ADONIS_EVENT_SEND_STUDY -> {
+                    val study = Gson().fromJson(
+                        jsonResponse.optJSONObject("data").optJSONObject("data").toString(),
+                        Study::class.java
+                    )
+
+                    StudyDataHolder.setNewStudy(study)
+
+                    startStudyFlow()
+                }
+                Constants.ADONIS_EVENT_QUIT -> {
+                    Log.e(TAG, jsonResponse.optJSONObject("data").optString("error"))
+                    adonisWebSocketClient.closeConnection()
+                    return@launch
+                }
+                else -> {
+                    Log.e(TAG, "Unexpected error when sending initialize: $jsonResponse")
+                    adonisWebSocketClient.closeConnection()
+                    return@launch
+                }
+            }
+        } catch (e: NullPointerException) {
+            Log.e(TAG, "Cannot parse response: " + e.message)
+            adonisWebSocketClient.closeConnection()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error occurred: " + e.message)
+            adonisWebSocketClient.closeConnection()
+        }
+    }
+
+    /**
+     * Starts study flow activity
+     */
+    private fun startStudyFlow() {
+        GlobalScope.launch(Dispatchers.Main) {
+            studyFlowController.start()
+        }
     }
 
     /**
@@ -112,12 +256,51 @@ object UxMobile {
     }
 
     /**
-     * Sets if sessions should be recorded even without session config when there is no access
-     * to config server.
-     * @param shouldRecord whether sessions should be recorded even when offline
+     * Loads API key from internal storage path. The API key file should be stored in specific
+     * file on internal storage on the device.
+     * @return API key
+     * @throws IllegalStateException if app does not have the permission to read from internal storage
+     * @throws FileNotFoundException if internal storage does not contain file with API key in it
      */
-    @JvmStatic
-    fun setRecordWhenOffline(shouldRecord: Boolean) {
-
+    @Deprecated("Should not be used on Android 10 or higher")
+    private fun loadApiKeyFromStorage(): String {
+        @Suppress("ConstantConditionIf")
+        if (BuildConfig.TEST_MODE) {
+            return ""
+        }
+        if (ContextCompat.checkSelfPermission(
+                application,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            throw IllegalStateException("Read storage permission is not granted!")
+        }
+        val apiKeyFile = File(Environment.getExternalStorageDirectory(), API_KEY_FILE)
+        if (!apiKeyFile.exists()) {
+            throw FileNotFoundException("File with API key not found!")
+        }
+        return apiKeyFile.readText().trim()
     }
+
+    private fun registerDebugMenu() {
+        val sensorManager = ContextCompat.getSystemService(application, SensorManager::class.java)
+        val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+        val shakeDetector = ShakeDetector()
+        shakeDetector.setOnShakeListener(object : ShakeDetector.OnShakeListener {
+            override fun onShake(count: Int) {
+                if (count == 3) {
+                    val intent = Intent(application, DebugActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    ContextCompat.startActivity(application, intent, null)
+                }
+            }
+        })
+
+        sensorManager?.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI)
+    }
+
+    private const val API_KEY = "UxMobileApiKey"
+    private const val API_KEY_FILE = "UxMobile/api.key"
+    private const val PERMISSION_REQUEST_CODE = 1000
 }

@@ -5,16 +5,12 @@ import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
-import sk.uxtweak.uxmobile.core.LifecycleObserver
-import java.lang.ref.WeakReference
 import java.util.*
-import java.util.concurrent.CopyOnWriteArrayList
 
-object ApplicationLifecycle : Application.ActivityLifecycleCallbacks, ComponentCallbacks2 {
-    private const val TAG = "UxMobile"
-
-    private val observers = CopyOnWriteArrayList<LifecycleObserver>()
+object ApplicationLifecycle : Lifecycle, Application.ActivityLifecycleCallbacks,
+    ComponentCallbacks2 {
+    private val observers = Collections.synchronizedList(mutableListOf<LifecycleObserver>())
+    private var foregroundScopeObserver: LifecycleObserver? = null
 
     private var resumed = false
     private var activityCounter = 0
@@ -22,9 +18,6 @@ object ApplicationLifecycle : Application.ActivityLifecycleCallbacks, ComponentC
     private var anyActivityStarted = false
     private var pausedWithConfig = false
     private var latestConfiguration: Configuration? = null
-
-    var currentActivity: WeakReference<Activity>? = null
-        private set
 
     private val isFirstActivity: Boolean
         get() = activityCounter == 1
@@ -37,35 +30,39 @@ object ApplicationLifecycle : Application.ActivityLifecycleCallbacks, ComponentC
         application.registerComponentCallbacks(this)
     }
 
-    fun addObserver(observer: LifecycleObserver) {
+    internal fun setForegroundScopeObserver(observer: LifecycleObserver) {
+        foregroundScopeObserver = observer
+    }
+
+    override fun addObserver(observer: LifecycleObserver) {
         observers += observer
     }
 
-    fun removeObserver(observer: LifecycleObserver) {
+    override fun removeObserver(observer: LifecycleObserver) {
         observers -= observer
     }
 
     override fun onActivityStarted(activity: Activity) {
-        Log.d(TAG, "onActivityStarted: " + activity.localClassName)
         latestConfiguration = null
         activityCounter++
 
-        currentActivity = WeakReference(activity)
         if (isFirstActivity && !anyActivityStarted) {
-            observers.forEach { it.onFirstActivityStarted(activity) }
+            foregroundScopeObserver?.onFirstActivityStarted(activity)
+            synchronized(observers) { observers.forEach { it.onFirstActivityStarted(activity) } }
             anyActivityStarted = true
         }
-        observers.forEach { it.onEveryActivityStarted(activity) }
+        foregroundScopeObserver?.onAnyActivityStarted(activity)
+        synchronized(observers) { observers.forEach { it.onAnyActivityStarted(activity) } }
     }
 
     override fun onActivityStopped(activity: Activity) {
-        Log.d(TAG, "onActivityStopped: " + activity.localClassName)
         activityCounter--
 
-        observers.forEach { it.onEveryActivityStopped(activity) }
+        synchronized(observers) { observers.forEach { it.onAnyActivityStopped(activity) } }
+        foregroundScopeObserver?.onAnyActivityStopped(activity)
         if (isLastActivity && !pausedWithConfig) {
-            observers.forEach { it.onLastActivityStopped(activity) }
-            currentActivity = null
+            synchronized(observers) { observers.forEach { it.onLastActivityStopped(activity) } }
+            foregroundScopeObserver?.onLastActivityStopped(activity)
             latestConfiguration = null
             anyActivityStarted = false
         }
@@ -74,7 +71,8 @@ object ApplicationLifecycle : Application.ActivityLifecycleCallbacks, ComponentC
     override fun onConfigurationChanged(newConfig: Configuration) {
         latestConfiguration = newConfig
         if (resumed) {
-            observers.forEach { it.onConfigurationChanged(newConfig) }
+            foregroundScopeObserver?.onConfigurationChanged(newConfig)
+            synchronized(observers) { observers.forEach { it.onConfigurationChanged(newConfig) } }
         }
     }
 
