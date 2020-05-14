@@ -31,14 +31,12 @@ android {
             consumerProguardFiles "proguard-rules.pro"
             buildConfigField("boolean", "TEST_MODE", "false")
             buildConfigField("Integer", "TEST_MODE_STUDY_ID", "null")
-//            buildConfigField("String", "COLLECTOR_URL", "\"ws://192.168.0.106:8000/socketcluster/\"")
             buildConfigField("String", "COLLECTOR_URL", "\"wss://plugin.mobeux.tk/socketcluster\"")
             buildConfigField("String", "MAIN_URL", "\"wss://backend.mobeux.tk/adonis-ws\"")
         }
         debug {
             buildConfigField("boolean", "TEST_MODE", "false")
             buildConfigField("Integer", "TEST_MODE_STUDY_ID", "null")
-//            buildConfigField("String", "COLLECTOR_URL", "\"ws://192.168.0.106:8000/socketcluster/\"")
             buildConfigField("String", "COLLECTOR_URL", "\"wss://plugin.mobeux.tk/socketcluster\"")
             buildConfigField("String", "MAIN_URL", "\"wss://backend.mobeux.tk/adonis-ws\"")
         }
@@ -101,7 +99,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.commit451:bypasses:1.0.1'
 
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0-alpha01'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0-alpha02'
 
     implementation 'com.fasterxml.uuid:java-uuid-generator:3.1.3'
 
