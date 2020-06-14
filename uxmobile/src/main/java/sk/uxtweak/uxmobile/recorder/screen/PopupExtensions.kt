@@ -23,7 +23,7 @@ val Activity.popupViews: List<PopupView>
         }
 
         val roots = manager!!.getFieldInstance<List<*>>("mRoots")
-        roots!!.forEachIndexed { index, root ->
+        roots!!.forEachIndexed { _, root ->
             val view = root!!.getFieldInstance<View>("mView")
             if (view != null) {
                 val location = IntArray(2)

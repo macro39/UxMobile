@@ -37,6 +37,9 @@ class ScreenRecorder(val videoFormat: VideoFormat) {
         }
     }
 
+    private val Any.isDecorView: Boolean
+        get() = this::class.java.simpleName == DECOR_VIEW_CLASS_NAME
+
     init {
         paint.colorFilter = filter
     }
@@ -109,21 +112,38 @@ class ScreenRecorder(val videoFormat: VideoFormat) {
             return
         }
         encoder.drawFrame {
-            screenBuffer.drawToBitmap(rootLayout)
             withContext(Dispatchers.Main) {
                 it.scale(videoFormat.width / rootLayout.width.toFloat(), videoFormat.height / rootLayout.height.toFloat())
                 val popupViews = activity.popupViews
-                if (popupViews.size > 1) {
-                    it.drawBitmap(screenBuffer.bitmap, 0f, 0f, paint)
-                } else {
+
+                var drawnDimmed = false
+                popupViews.filter { it.view.isDecorView }.forEachIndexed { index, view ->
+                    if (index == 0) {
+                        screenBuffer.drawToBitmap(rootLayout)
+                    } else {
+                        if (!drawnDimmed) {
+                            drawnDimmed = true
+                            it.drawBitmap(screenBuffer.bitmap, 0f, 0f, paint)
+                        }
+                        it.withTranslation(view.position.left.toFloat(), view.position.top.toFloat()) {
+                            view.view.draw(this)
+                        }
+                    }
+                }
+                if (!drawnDimmed) {
                     it.drawBitmap(screenBuffer.bitmap, 0f, 0f, null)
                 }
-                popupViews.filterIndexed { index, _ -> index != 0 }.forEach { view ->
+
+                popupViews.filter { !it.view.isDecorView }.forEach { view ->
                     it.withTranslation(view.position.left.toFloat(), view.position.top.toFloat()) {
                         view.view.draw(this)
                     }
                 }
             }
         }
+    }
+
+    companion object {
+        private const val DECOR_VIEW_CLASS_NAME = "DecorView"
     }
 }
